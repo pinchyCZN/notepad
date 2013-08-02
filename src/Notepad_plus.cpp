@@ -841,7 +841,8 @@ void Notepad_plus::saveDockingParams()
 			else
 				floatCont = nppGUI._dockingData._pluginDockInfo[i]._prevContainer;
 
-			if (floatContArray[floatCont] == 0)
+
+			if (floatCont >= 0 && floatContArray[floatCont] == 0)
 			{
 				RECT rc;
 				if (nppGUI._dockingData.getFloatingRCFrom(floatCont, rc))
