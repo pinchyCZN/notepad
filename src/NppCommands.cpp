@@ -576,6 +576,11 @@ void Notepad_plus::command(int id)
 				_findReplaceDlg.focusOnFinder();
 			break;
 		}
+		case IDM_TOGGLE_FOUND_RESULTS:
+		{
+			_findReplaceDlg.toggleFinder();
+			break;
+		}
 
 		case IDM_SEARCH_VOLATILE_FINDNEXT :
 		case IDM_SEARCH_VOLATILE_FINDPREV :

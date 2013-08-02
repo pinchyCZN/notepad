@@ -284,6 +284,15 @@ public :
 		}
 	};
 
+	void toggleFinder(){
+		if (_pFinder){ 
+			if(::IsWindowVisible(_pFinder->_scintView.getHSelf()))
+				::SendMessage(_hParent, NPPM_DMMHIDE, 0, (LPARAM)_pFinder->getHSelf());
+			else
+				::SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_pFinder->getHSelf());
+		}
+	}
+
 	HWND getHFindResults() {
 		if (_pFinder)
 			return _pFinder->_scintView.getHSelf();
