@@ -578,6 +578,7 @@ void Notepad_plus::command(int id)
 		}
 		case IDM_TOGGLE_FOUND_RESULTS:
 		{
+			switchEditViewTo(currentView());
 			_findReplaceDlg.toggleFinder();
 			break;
 		}

@@ -288,8 +288,10 @@ public :
 		if (_pFinder){ 
 			if(::IsWindowVisible(_pFinder->_scintView.getHSelf()))
 				::SendMessage(_hParent, NPPM_DMMHIDE, 0, (LPARAM)_pFinder->getHSelf());
-			else
+			else{
 				::SendMessage(_hParent, NPPM_DMMSHOW, 0, (LPARAM)_pFinder->getHSelf());
+				_pFinder->_scintView.getFocus();
+			}
 		}
 	}
 
