@@ -104,9 +104,11 @@ void ShortcutMapper::fillOutBabyGrid()
 	switch(_currentState) {
 		case STATE_MENU: {
 			vector<CommandShortcut> & cshortcuts = nppParam->getUserShortcuts();
+			int index=0;
 			for(size_t i = 0; i < nrItems; i++) {
-				_babygrid.setText(i+1, 1, cshortcuts[i].getName());
-				_babygrid.setText(i+1, 2, cshortcuts[i].toString().c_str());
+				_babygrid.setText(index+1, 1, cshortcuts[i].getName());
+				_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
+				index++;
 			}
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), true);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
@@ -263,6 +265,8 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 						case STATE_PLUGIN: {
 							//Get PluginCmdShortcut corresponding to row
 							vector<PluginCmdShortcut> & shortcuts = nppParam->getPluginCommandList();
+							if(shortcuts.empty())
+								break;
 							PluginCmdShortcut pcsc = shortcuts[row - 1], prevpcsc = shortcuts[row - 1];
 							pcsc.init(_hInst, _hSelf);
 							prevpcsc = pcsc;
