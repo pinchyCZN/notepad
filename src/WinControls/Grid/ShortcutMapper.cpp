@@ -78,28 +78,25 @@ void ShortcutMapper::fillOutBabyGrid()
 	switch(_currentState) {
 		case STATE_MENU: {
 			nrItems = nppParam->getUserShortcuts().size();
-			_babygrid.setLineColNumber(nrItems, 2);
 			break; }
 		case STATE_MACRO: {
 			nrItems = nppParam->getMacroList().size();
-			_babygrid.setLineColNumber(nrItems, 2);
 			break; }
 		case STATE_USER: {
 			nrItems = nppParam->getUserCommandList().size();
-			_babygrid.setLineColNumber(nrItems, 2);
 			break; }
 		case STATE_PLUGIN: {
 			nrItems = nppParam->getPluginCommandList().size();
-			_babygrid.setLineColNumber(nrItems, 2);
 			break; }
 		case STATE_SCINTILLA: {
 			nrItems = nppParam->getScintillaKeyList().size();
-			_babygrid.setLineColNumber(nrItems, 2);
 			break; }
 	}
+	_babygrid.setLineColNumber(nrItems, 3);
 
 	_babygrid.setText(0, 1, TEXT("Name"));
 	_babygrid.setText(0, 2, TEXT("Shortcut"));
+	_babygrid.setText(0, 3, TEXT("Shortcut Index"));
 
 	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER1),filter1,sizeof(filter1)/sizeof(TCHAR));
 	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
@@ -115,8 +112,11 @@ void ShortcutMapper::fillOutBabyGrid()
 				const TCHAR *n=cshortcuts[i].getName();
 				_tcsncpy_s(name,sizeof(name)/sizeof(TCHAR),n,_TRUNCATE);
 				if(filter1[0]==0 || wcsstr(name,filter1)){
+					TCHAR str[10]={0};
 					_babygrid.setText(index+1, 1, n);
 					_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
+					_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i);
+					_babygrid.setText(index+1, 3, str);
 					index++;
 				}
 			}
