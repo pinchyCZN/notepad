@@ -70,9 +70,9 @@ void ShortcutMapper::initBabyGrid() {
 
 void ShortcutMapper::fillOutBabyGrid()
 {
+	TCHAR filter1[40]={0},filter2[40]={0};
 	NppParameters *nppParam = NppParameters::getInstance();
 	_babygrid.clear();
-
 	size_t nrItems = 0;
 
 	switch(_currentState) {
@@ -101,14 +101,24 @@ void ShortcutMapper::fillOutBabyGrid()
 	_babygrid.setText(0, 1, TEXT("Name"));
 	_babygrid.setText(0, 2, TEXT("Shortcut"));
 
+	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER1),filter1,sizeof(filter1)/sizeof(TCHAR));
+	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
+	_tcslwr(filter1);
+	_tcslwr(filter2);
+
 	switch(_currentState) {
 		case STATE_MENU: {
 			vector<CommandShortcut> & cshortcuts = nppParam->getUserShortcuts();
 			int index=0;
 			for(size_t i = 0; i < nrItems; i++) {
-				_babygrid.setText(index+1, 1, cshortcuts[i].getName());
-				_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
-				index++;
+				TCHAR name[40]={0};
+				const TCHAR *n=cshortcuts[i].getName();
+				_tcsncpy_s(name,sizeof(name)/sizeof(TCHAR),n,_TRUNCATE);
+				if(filter1[0]==0 || wcsstr(name,filter1)){
+					_babygrid.setText(index+1, 1, n);
+					_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
+					index++;
+				}
 			}
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), true);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
@@ -166,6 +176,8 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			fillOutBabyGrid();
 			_babygrid.display();	
 			goToCenter();
+			SetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER1),L"");
+			SetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),L"");
 			return TRUE;
 		}
 
@@ -210,7 +222,11 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					::EndDialog(_hSelf, 0);
 					return TRUE;
 				}
-
+				case IDC_BABYGRID_FILTER2:
+				case IDC_BABYGRID_FILTER1:
+					if(HIWORD(wParam)==EN_CHANGE)
+						fillOutBabyGrid();
+					break;
 				case IDM_BABYGRID_MODIFY :
 				{
 					NppParameters *nppParam = NppParameters::getInstance();
