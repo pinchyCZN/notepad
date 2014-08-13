@@ -68,11 +68,14 @@ void ShortcutMapper::initBabyGrid() {
 	_babygrid.setColWidth(1, 250);
 }
 
+static void fillgrid()
+{
+}
 void ShortcutMapper::fillOutBabyGrid()
 {
 	TCHAR filter1[40]={0},filter2[40]={0};
 	NppParameters *nppParam = NppParameters::getInstance();
-	_babygrid.clear();
+	vector<T> & cshortcuts = nppParam->getPluginCommandList();
 	size_t nrItems = 0;
 
 	switch(_currentState) {
@@ -92,6 +95,7 @@ void ShortcutMapper::fillOutBabyGrid()
 			nrItems = nppParam->getScintillaKeyList().size();
 			break; }
 	}
+	_babygrid.clear();
 	//_babygrid.setLineColNumber(nrItems, 3);
 	_babygrid.setLineColNumber(0, 3);
 
@@ -103,25 +107,12 @@ void ShortcutMapper::fillOutBabyGrid()
 	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
 	_tcslwr(filter1);
 	_tcslwr(filter2);
+	if(nrItems==0)
+		return;
 
 	switch(_currentState) {
 		case STATE_MENU: {
-			vector<CommandShortcut> & cshortcuts = nppParam->getUserShortcuts();
-			int index=0;
-			for(size_t i = 0; i < nrItems; i++) {
-				TCHAR name[40]={0};
-				const TCHAR *n=cshortcuts[i].getName();
-				_tcsncpy_s(name,sizeof(name)/sizeof(TCHAR),n,_TRUNCATE);
-				_tcslwr_s(name,sizeof(name)/sizeof(TCHAR));
-				if(filter1[0]==L'\0' || _tcsstr(name,filter1)){
-					TCHAR str[10]={0};
-					_babygrid.setText(index+1, 1, n);
-					_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
-					_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i+1);
-					_babygrid.setText(index+1, 3, str);
-					index++;
-				}
-			}
+			vector<CommandShortcut> & cshortcuts = cshortcuts = nppParam->getUserShortcuts();
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), true);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
 			break; }
@@ -165,6 +156,22 @@ void ShortcutMapper::fillOutBabyGrid()
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
 			break; }
 	}
+			int index=0;
+			for(size_t i = 0; i < nrItems; i++) {
+				TCHAR name[40]={0};
+				const TCHAR *n=cshortcuts[i].getName();
+				_tcsncpy_s(name,sizeof(name)/sizeof(TCHAR),n,_TRUNCATE);
+				_tcslwr_s(name,sizeof(name)/sizeof(TCHAR));
+				if(filter1[0]==L'\0' || _tcsstr(name,filter1)){
+					TCHAR str[10]={0};
+					_babygrid.setText(index+1, 1, n);
+					_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
+					_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i+1);
+					_babygrid.setText(index+1, 3, str);
+					index++;
+				}
+			}
+
 }
 
 BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
