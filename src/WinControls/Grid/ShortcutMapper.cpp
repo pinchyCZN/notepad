@@ -230,6 +230,10 @@ void ShortcutMapper::fillOutBabyGrid()
 			index++;
 		}
 	}
+	if(index==0){
+	    ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), false);
+		::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
+	}
 }
 
 BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
@@ -398,12 +402,23 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				case IDM_BABYGRID_DELETE :
 				{
 					NppParameters *nppParam = NppParameters::getInstance();
-					if (::MessageBox(_hSelf, TEXT("Are you sure you want to delete this shortcut?"), TEXT("Are you sure?"), MB_OKCANCEL) == IDOK)
+					int row,selected_row = _babygrid.getSelectedRow();
+					TCHAR str[255]={0},msg[255]={0};
+					_babygrid.getText(selected_row,3,str);
+					if(str[0]!=L'\0')
+						row=_tstoi(str);
+					else
+						break;
+					_babygrid.getText(selected_row,1,str);
+					_sntprintf_s(msg,sizeof(msg)/sizeof(TCHAR),_TRUNCATE,
+						TEXT("%s\r\n%s"),
+						TEXT("Are you sure you want to delete this shortcut?"),
+						str);
+					if (::MessageBox(_hSelf, msg, TEXT("Are you sure?"), MB_OKCANCEL) == IDOK)
 					{
-						const int row = _babygrid.getSelectedRow();
 						int shortcutIndex = row-1;
 						DWORD cmdID = 0;
-						
+						TCHAR str[10]={0};
 						// Menu data
 						size_t posBase = 0;
 						size_t nbElem = 0;
