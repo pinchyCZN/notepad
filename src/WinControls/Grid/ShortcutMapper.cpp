@@ -243,8 +243,6 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			fillOutBabyGrid();
 			_babygrid.display();	
 			goToCenter();
-			SetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER1),L"");
-			SetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),L"");
 			return TRUE;
 		}
 
