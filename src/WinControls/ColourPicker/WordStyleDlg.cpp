@@ -602,12 +602,17 @@ void WordStyleDlg::updateExampleFont()
     Style & style = getCurrentStyler();
 	if(hExampleFont)
 		DeleteObject(hExampleFont);
-	hExampleFont=CreateFont (style._fontSize, 0, 0, 0,
-			(style._fontStyle&FONTSTYLE_BOLD)? FW_BOLD:FW_DONTCARE,
-			style._fontStyle&FONTSTYLE_ITALIC,
-			style._fontStyle&FONTSTYLE_UNDERLINE, FALSE, DEFAULT_CHARSET,
-		  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-		  DEFAULT_PITCH | FF_DONTCARE, style._fontName);
+	if(style._fontName==0 || style._fontName[0]==L'\0'){
+        hExampleFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);;
+	}
+	else{
+		hExampleFont=CreateFont (style._fontSize, 0, 0, 0,
+				(style._fontStyle&FONTSTYLE_BOLD)? FW_BOLD:FW_DONTCARE,
+				style._fontStyle&FONTSTYLE_ITALIC,
+				style._fontStyle&FONTSTYLE_UNDERLINE, FALSE, DEFAULT_CHARSET,
+			  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+			  DEFAULT_PITCH | FF_DONTCARE, style._fontName);
+	}
 	if(hExampleFont){
 		colourHooker.setColour(style._fgColor);
 		colourHooker.setColourBG(style._bgColor);
