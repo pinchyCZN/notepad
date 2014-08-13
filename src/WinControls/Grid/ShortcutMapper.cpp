@@ -172,14 +172,13 @@ void ShortcutMapper::fillOutBabyGrid()
 			break; }
 	}
 	_babygrid.clear();
-	//_babygrid.setLineColNumber(nrItems, 3);
 	_babygrid.setLineColNumber(0, 3);
 
 	_babygrid.setText(0, 1, TEXT("Name"));
 	_babygrid.setText(0, 2, TEXT("Shortcut"));
 	_babygrid.setText(0, 3, TEXT("Shortcut Index"));
 
-	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER1),filter1,sizeof(filter1)/sizeof(TCHAR));
+	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER1),filter1,sizeof(filter2)/sizeof(TCHAR));
 	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
 	_tcslwr(filter1);
 	_tcslwr(filter2);

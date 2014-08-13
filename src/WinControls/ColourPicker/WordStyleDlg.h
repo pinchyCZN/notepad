@@ -53,19 +53,15 @@ class ColourStaticTextHooker {
 public :
 	ColourStaticTextHooker()
 	{
-		_colour=RGB(0x00, 0x00, 0x00);
-		_bg_colour=RGB(0xFF,0xFF,0xFF);
+		_colour=RGB(0xFF, 0xFF, 0xFF);
+		_bg_colour=RGB(0x00,0x00,0x00);
 	};
 
-	COLORREF setColour(COLORREF colour2Set) {
-		COLORREF oldColour = _colour;
+	void setColour(COLORREF colour2Set) {
 		_colour = colour2Set;
-		return oldColour;
 	};
-	COLORREF setColourBG(COLORREF colour2Set) {
-		COLORREF oldColour = _bg_colour;
+	void setColourBG(COLORREF colour2Set) {
 		_bg_colour = colour2Set;
-		return oldColour;
 	};
 	void hookOn(HWND staticHandle) {
 		::SetWindowLongPtr(staticHandle, GWLP_USERDATA, (LONG_PTR)this);
@@ -158,6 +154,7 @@ private :
 	HWND _hFontSizeStaticText;
 	HWND _hStyleInfoStaticText;
 	HWND _hStyleExampleStaticText;
+	HFONT hExampleFont;
 	//TCHAR _originalWarning[256];
 
 	LexerStylerArray _lsArray;
@@ -201,6 +198,8 @@ private :
 	void updateExtension();
 	void updateFontName();
 	void updateFontSize();
+	void updateExampleFont();
+	void updateExampleFontColor();
 	void updateUserKeywords();
 	void switchToTheme();
 	void updateThemeName(generic_string themeName);

@@ -41,22 +41,23 @@ BOOL CALLBACK ColourStaticTextHooker::colourStaticProc(HWND hwnd, UINT Message, 
 
             PAINTSTRUCT ps;
             HDC hdc = ::BeginPaint(hwnd, &ps);
-    		
 
 		    // Get the default GUI font
-            HFONT hf = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
-
-			HANDLE hOld = SelectObject(hdc, hf);
+            HFONT hf = (HFONT)SendMessage(hwnd,WM_GETFONT,0,0);
+			HANDLE hOld;
+			if(hf)
+				hOld = SelectObject(hdc, hf);
 
 		    // Draw the text!
             TCHAR text[MAX_PATH];
             ::GetWindowText(hwnd, text, MAX_PATH);
             ::SetTextColor(hdc, _colour);
+			::FillRect(hdc,&rect,(HBRUSH)(COLOR_BTNFACE+1));
             ::SetBkColor(hdc, _bg_colour);
             ::DrawText(hdc, text, -1, &rect, DT_LEFT);
+			if(hf)
+				::SelectObject(hdc, hOld);
     		
-            ::SelectObject(hdc, hOld);
-
             ::EndPaint(hwnd, &ps);
 
 		    return TRUE;
@@ -214,18 +215,21 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 				{
 					case IDC_BOLD_CHECK :
 						updateFontStyleStatus(BOLD_STATUS);
+						updateExampleFont();
 						notifyDataModified();
 						apply();
 						break;
 
 					case IDC_ITALIC_CHECK :
 						updateFontStyleStatus(ITALIC_STATUS);
+						updateExampleFont();
 						notifyDataModified();
 						apply();
 						break;
 
 					case IDC_UNDERLINE_CHECK :
 						updateFontStyleStatus(UNDERLINE_STATUS);
+						updateExampleFont();
 						notifyDataModified();
 						apply();
 						break;
@@ -380,11 +384,13 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 								{
 									case IDC_FONT_COMBO :
 										updateFontName();
+										updateExampleFont();
 										notifyDataModified();
 										apply();
 										break;
 									case IDC_FONTSIZE_COMBO :
 										updateFontSize();
+										updateExampleFont();
 										notifyDataModified();
 										apply();
 										break;
@@ -419,7 +425,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 								if ((HWND)lParam == _pFgColour->getHSelf())
 								{
 									updateColour(C_FOREGROUND);
-									setVisualFromStyleList();
+									updateExampleFontColor();
 									notifyDataModified();
 									int tabColourIndex;
 									if ((tabColourIndex = whichTabColourIndex()) != -1)
@@ -434,7 +440,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 								else if ((HWND)lParam == _pBgColour->getHSelf())
 								{
 									updateColour(C_BACKGROUND);
-									setVisualFromStyleList();
+									updateExampleFontColor();
 									notifyDataModified();
 									int tabColourIndex;
 									if ((tabColourIndex = whichTabColourIndex()) != -1)
@@ -583,7 +589,32 @@ void WordStyleDlg::updateUserKeywords()
 
 	delete [] kw;
 }
+void WordStyleDlg::updateExampleFontColor()
+{
+    Style & style = getCurrentStyler();
+	colourHooker.setColour(style._fgColor);
+	colourHooker.setColourBG(style._bgColor);
+	InvalidateRect(_hStyleExampleStaticText,NULL,TRUE);
+}
 
+void WordStyleDlg::updateExampleFont()
+{
+    Style & style = getCurrentStyler();
+	if(hExampleFont)
+		DeleteObject(hExampleFont);
+	hExampleFont=CreateFont (style._fontSize, 0, 0, 0,
+			(style._fontStyle&FONTSTYLE_BOLD)? FW_BOLD:FW_DONTCARE,
+			style._fontStyle&FONTSTYLE_ITALIC,
+			style._fontStyle&FONTSTYLE_UNDERLINE, FALSE, DEFAULT_CHARSET,
+		  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		  DEFAULT_PITCH | FF_DONTCARE, style._fontName);
+	if(hExampleFont){
+		colourHooker.setColour(style._fgColor);
+		colourHooker.setColourBG(style._bgColor);
+		SendMessage(_hStyleExampleStaticText,WM_SETFONT,(WPARAM)hExampleFont,MAKELPARAM(TRUE,0));
+		InvalidateRect(_hStyleExampleStaticText,NULL,TRUE);
+	}
+}
 void WordStyleDlg::updateFontName()
 {
     Style & style = getCurrentStyler();
@@ -734,8 +765,7 @@ void WordStyleDlg::setVisualFromStyleList()
 	// PAD for fix a display glitch
 	lstrcat(str, TEXT("          "));
 
-	colourHooker.setColour(style._fgColor);
-	colourHooker.setColourBG(style._bgColor);
+	updateExampleFont();
 	::SetWindowText(_hStyleInfoStaticText, str);
 
 	//-- 2 couleurs : fg et bg
@@ -845,7 +875,7 @@ void WordStyleDlg::setVisualFromStyleList()
 void WordStyleDlg::create(int dialogID, bool isRTL)
 {
 	StaticDialog::create(dialogID, isRTL);
-
+	hExampleFont=0;
 	if ((NppParameters::getInstance())->isTransparentAvailable())
 	{
 		::ShowWindow(::GetDlgItem(_hSelf, IDC_SC_TRANSPARENT_CHECK), SW_SHOW);
