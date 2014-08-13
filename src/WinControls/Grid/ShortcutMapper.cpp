@@ -68,14 +68,90 @@ void ShortcutMapper::initBabyGrid() {
 	_babygrid.setColWidth(1, 250);
 }
 
-static void fillgrid()
+static const TCHAR * GetShortcutName(GridState gs,int i,NppParameters *nppParam)
 {
+	switch(gs){
+		case STATE_MENU: 
+		{
+			vector<CommandShortcut> & cshortcuts = nppParam->getUserShortcuts();
+			return cshortcuts[i].getName();
+		}
+		case STATE_MACRO: 
+		{
+			vector<MacroShortcut> & cshortcuts = nppParam->getMacroList();
+			return cshortcuts[i].getName();
+		}
+		case STATE_USER: 
+		{
+			vector<UserCommand> & cshortcuts = nppParam->getUserCommandList();
+			return cshortcuts[i].getName();
+		}
+		case STATE_PLUGIN: 
+		{
+			vector<PluginCmdShortcut> & cshortcuts = nppParam->getPluginCommandList();
+			return cshortcuts[i].getName();
+		}
+		case STATE_SCINTILLA:
+		{
+			vector<ScintillaKeyMap> & cshortcuts = nppParam->getScintillaKeyList();
+			return cshortcuts[i].getName();
+		}
+	}
+	return 0;
+}
+static bool GetShortcutKeys(GridState gs,int i,NppParameters *nppParam,TCHAR *str,int len)
+{
+	switch(gs){
+		case STATE_MENU: 
+		{
+			vector<CommandShortcut> & cshortcuts = nppParam->getUserShortcuts();
+			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			return TRUE ;
+		}
+		case STATE_MACRO: 
+		{
+			vector<MacroShortcut> & cshortcuts = nppParam->getMacroList();
+			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			return TRUE ;
+		}
+		case STATE_USER: 
+		{
+			vector<UserCommand> & cshortcuts = nppParam->getUserCommandList();
+			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			return TRUE ;
+		}
+		case STATE_PLUGIN: 
+		{
+			vector<PluginCmdShortcut> & cshortcuts = nppParam->getPluginCommandList();
+			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			return TRUE ;
+		}
+		case STATE_SCINTILLA:
+		{
+			vector<ScintillaKeyMap> & cshortcuts = nppParam->getScintillaKeyList();
+			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			return TRUE ;
+		}
+	}
+	return FALSE;
+}
+static bool CheckFilter(const TCHAR *str,const TCHAR *filter)
+{
+	TCHAR tstr[80]={0},tfilter[80]={0};
+	_tcsncpy_s(tstr,sizeof(tstr)/sizeof(TCHAR),str,_TRUNCATE);
+	_tcsncpy_s(tfilter,sizeof(tfilter)/sizeof(TCHAR),filter,_TRUNCATE);
+	_tcslwr_s(tstr,sizeof(tstr)/sizeof(TCHAR));
+	_tcslwr_s(tfilter,sizeof(tfilter)/sizeof(TCHAR));
+	if(_tcsstr(tstr,tfilter))
+		return TRUE;
+	else
+		return FALSE;
 }
 void ShortcutMapper::fillOutBabyGrid()
 {
 	TCHAR filter1[40]={0},filter2[40]={0};
 	NppParameters *nppParam = NppParameters::getInstance();
-	vector<T> & cshortcuts = nppParam->getPluginCommandList();
 	size_t nrItems = 0;
 
 	switch(_currentState) {
@@ -107,71 +183,53 @@ void ShortcutMapper::fillOutBabyGrid()
 	GetWindowText(GetDlgItem(_hSelf,IDC_BABYGRID_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
 	_tcslwr(filter1);
 	_tcslwr(filter2);
-	if(nrItems==0)
+	if(nrItems==0){
+        ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), false);
+        ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
 		return;
+	}
 
 	switch(_currentState) {
 		case STATE_MENU: {
-			vector<CommandShortcut> & cshortcuts = cshortcuts = nppParam->getUserShortcuts();
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), true);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
 			break; }
 		case STATE_MACRO: {
-			vector<MacroShortcut> & cshortcuts = nppParam->getMacroList();
-			for(size_t i = 0; i < nrItems; i++) {
-				_babygrid.setText(i+1, 1, cshortcuts[i].getName());
-				_babygrid.setText(i+1, 2, cshortcuts[i].toString().c_str());
-			}
             bool shouldBeEnabled = nrItems > 0;
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), shouldBeEnabled);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), shouldBeEnabled);
 			break; }
 		case STATE_USER: {
-			vector<UserCommand> & cshortcuts = nppParam->getUserCommandList();
-			for(size_t i = 0; i < nrItems; i++) {
-				_babygrid.setText(i+1, 1, cshortcuts[i].getName());
-				_babygrid.setText(i+1, 2, cshortcuts[i].toString().c_str());
-			}
             bool shouldBeEnabled = nrItems > 0;
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), shouldBeEnabled);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), shouldBeEnabled);
 			break; }
 		case STATE_PLUGIN: {
-			vector<PluginCmdShortcut> & cshortcuts = nppParam->getPluginCommandList();
-			for(size_t i = 0; i < nrItems; i++) {
-				_babygrid.setText(i+1, 1, cshortcuts[i].getName());
-				_babygrid.setText(i+1, 2, cshortcuts[i].toString().c_str());
-			}
             bool shouldBeEnabled = nrItems > 0;
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), shouldBeEnabled);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
 			break; }
 		case STATE_SCINTILLA: {
-			vector<ScintillaKeyMap> & cshortcuts = nppParam->getScintillaKeyList();
-			for(size_t i = 0; i < nrItems; i++) {
-				_babygrid.setText(i+1, 1, cshortcuts[i].getName());
-				_babygrid.setText(i+1, 2, cshortcuts[i].toString().c_str());
-			}
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_MODIFY), true);
             ::EnableWindow(::GetDlgItem(_hSelf, IDM_BABYGRID_DELETE), false);
 			break; }
 	}
-			int index=0;
-			for(size_t i = 0; i < nrItems; i++) {
-				TCHAR name[40]={0};
-				const TCHAR *n=cshortcuts[i].getName();
-				_tcsncpy_s(name,sizeof(name)/sizeof(TCHAR),n,_TRUNCATE);
-				_tcslwr_s(name,sizeof(name)/sizeof(TCHAR));
-				if(filter1[0]==L'\0' || _tcsstr(name,filter1)){
-					TCHAR str[10]={0};
-					_babygrid.setText(index+1, 1, n);
-					_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
-					_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i+1);
-					_babygrid.setText(index+1, 3, str);
-					index++;
-				}
-			}
-
+	int index=0;
+	for(size_t i = 0; i < nrItems; i++) {
+		TCHAR keys[40]={0};
+		const TCHAR *name=GetShortcutName(_currentState,i,nppParam);
+		GetShortcutKeys(_currentState,i,nppParam,keys,sizeof(keys)/sizeof(TCHAR));
+		if((filter1[0]==L'\0' && filter2[0]==L'\0') 
+			|| (filter1[0]!=L'\0' && CheckFilter(name,filter1))
+			|| (filter2[0]!=L'\0' && CheckFilter(keys,filter2))){
+			TCHAR str[10]={0};
+			_babygrid.setText(index+1, 1, name);
+			_babygrid.setText(index+1, 2, keys);
+			_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i+1);
+			_babygrid.setText(index+1, 3, str);
+			index++;
+		}
+	}
 }
 
 BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
