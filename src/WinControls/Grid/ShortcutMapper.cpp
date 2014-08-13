@@ -92,7 +92,8 @@ void ShortcutMapper::fillOutBabyGrid()
 			nrItems = nppParam->getScintillaKeyList().size();
 			break; }
 	}
-	_babygrid.setLineColNumber(nrItems, 3);
+	//_babygrid.setLineColNumber(nrItems, 3);
+	_babygrid.setLineColNumber(0, 3);
 
 	_babygrid.setText(0, 1, TEXT("Name"));
 	_babygrid.setText(0, 2, TEXT("Shortcut"));
@@ -111,11 +112,12 @@ void ShortcutMapper::fillOutBabyGrid()
 				TCHAR name[40]={0};
 				const TCHAR *n=cshortcuts[i].getName();
 				_tcsncpy_s(name,sizeof(name)/sizeof(TCHAR),n,_TRUNCATE);
-				if(filter1[0]==0 || wcsstr(name,filter1)){
+				_tcslwr_s(name,sizeof(name)/sizeof(TCHAR));
+				if(filter1[0]==L'\0' || _tcsstr(name,filter1)){
 					TCHAR str[10]={0};
 					_babygrid.setText(index+1, 1, n);
 					_babygrid.setText(index+1, 2, cshortcuts[i].toString().c_str());
-					_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i);
+					_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i+1);
 					_babygrid.setText(index+1, 3, str);
 					index++;
 				}
@@ -231,6 +233,13 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				{
 					NppParameters *nppParam = NppParameters::getInstance();
 					int row = _babygrid.getSelectedRow();
+					TCHAR str[10]={0};
+					_babygrid.getText(row,3,str);
+					if(str[0]!=L'\0')
+						row=_tstoi(str);
+					else
+						break;
+					
 
 					switch(_currentState) {
 						case STATE_MENU: {

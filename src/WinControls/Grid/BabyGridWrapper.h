@@ -65,6 +65,13 @@ public :
 		::SendMessage(_hSelf, BGM_SETCELLDATA, (UINT)&cell, (long)text);
 	};
 
+	void getText(size_t row, size_t col, TCHAR *text) {
+		_BGCELL cell;
+		cell.row = row;
+		cell.col = col;
+		::SendMessage(_hSelf, BGM_GETCELLDATA, (UINT)&cell, (long)text);
+	};
+
 	void makeColAutoWidth(bool autoWidth = true) {
 		::SendMessage(_hSelf, BGM_SETCOLAUTOWIDTH, autoWidth?TRUE:FALSE, 0);
 	};
