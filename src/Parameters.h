@@ -409,7 +409,13 @@ public:
                 return i;
         return -1;
     };
-
+	int sort(){
+		void *data=&this->_styleArray;
+		qsort(data,SCE_STYLE_ARRAY_SIZE,sizeof(struct Style),&StyleArray::compare);
+	}
+private:
+	static int compare(const void *a,const void *b){
+	}
 protected:
 	Style _styleArray[SCE_STYLE_ARRAY_SIZE];
 	int _nbStyler;
