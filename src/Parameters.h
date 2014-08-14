@@ -409,13 +409,26 @@ public:
                 return i;
         return -1;
     };
-	int sort(){
+	void sort(){
 		void *data=&this->_styleArray;
-		qsort(data,SCE_STYLE_ARRAY_SIZE,sizeof(struct Style),&StyleArray::compare);
-	}
+		int size=sizeof(struct Style);
+		int items=_nbStyler;
+		if(items<0 || items>SCE_STYLE_ARRAY_SIZE)
+			return;
+		qsort(data,items,size,&StyleArray::compare);
+	};
 private:
 	static int compare(const void *a,const void *b){
-	}
+		Style *sa,*sb;
+		TCHAR desca[40]={0},descb[40]={0};
+		sa=(Style*)a;
+		sb=(Style*)b;
+		_tcsncpy_s(desca,sizeof(desca)/sizeof(TCHAR),sa->_styleDesc,_TRUNCATE);
+		_tcsncpy_s(descb,sizeof(descb)/sizeof(TCHAR),sb->_styleDesc,_TRUNCATE);
+		_tcslwr_s(desca,sizeof(desca)/sizeof(TCHAR));
+		_tcslwr_s(descb,sizeof(descb)/sizeof(TCHAR));
+		return _tcscmp(desca,descb);
+	};
 protected:
 	Style _styleArray[SCE_STYLE_ARRAY_SIZE];
 	int _nbStyler;
@@ -500,7 +513,26 @@ public :
     bool hasEnoughSpace() {return (_nbLexerStyler < MAX_LEXER_STYLE);};
     void addLexerStyler(const TCHAR *lexerName, const TCHAR *lexerDesc, const TCHAR *lexerUserExt, TiXmlNode *lexerNode);
 	void eraseAll();
+	void sort(){
+		void *data=&this->_lexerStylerArray;
+		int size=sizeof(struct LexerStyler);
+		int items=_nbLexerStyler;
+		if(items<0 || items>MAX_LEXER_STYLE)
+			return;
+		qsort(data,items,size,&LexerStylerArray::compare);
+	}
 private :
+	static int compare(const void *a,const void *b){
+		LexerStyler *sa,*sb;
+		TCHAR desca[40]={0},descb[40]={0};
+		sa=(LexerStyler*)a;
+		sb=(LexerStyler*)b;
+		_tcsncpy_s(desca,sizeof(desca)/sizeof(TCHAR),sa->getLexerDesc(),_TRUNCATE);
+		_tcsncpy_s(descb,sizeof(descb)/sizeof(TCHAR),sb->getLexerDesc(),_TRUNCATE);
+		_tcslwr_s(desca,sizeof(desca)/sizeof(TCHAR));
+		_tcslwr_s(descb,sizeof(descb)/sizeof(TCHAR));
+		return _tcscmp(desca,descb);
+	}
 	LexerStyler _lexerStylerArray[MAX_LEXER_STYLE];
 	int _nbLexerStyler;
 };

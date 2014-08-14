@@ -417,7 +417,6 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					{
 						int shortcutIndex = row-1;
 						DWORD cmdID = 0;
-						TCHAR str[10]={0};
 						// Menu data
 						size_t posBase = 0;
 						size_t nbElem = 0;
