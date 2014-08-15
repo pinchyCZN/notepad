@@ -370,6 +370,7 @@ public:
             {
                 this->_styleArray[i] = sa._styleArray[i];
             }
+			sort();
         }
         return *this;
     }
@@ -487,6 +488,7 @@ public :
             this->_nbLexerStyler = lsa._nbLexerStyler;
             for (int i = 0 ; i < this->_nbLexerStyler ; i++)
                 this->_lexerStylerArray[i] = lsa._lexerStylerArray[i];
+			sort();
         }
         return *this;
     }

@@ -484,7 +484,6 @@ void WordStyleDlg::loadLangListFromNppParam()
 
 	::SendDlgItemMessage(_hSelf, IDC_LANGUAGES_LIST, LB_ADDSTRING, 0, (LPARAM)TEXT("Global Styles"));
 	// All the lexers
-	_lsArray.sort();
     for (int i = 0, nb = _lsArray.getNbLexer() ; i < nb ; i++)
     {
 		::SendDlgItemMessage(_hSelf, IDC_LANGUAGES_LIST, LB_ADDSTRING, 0, (LPARAM)_lsArray.getLexerDescFromIndex(i));
@@ -726,7 +725,6 @@ void WordStyleDlg::setStyleListFromLexer(int index)
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_PLUSSYMBOL2_STATIC), index?SW_SHOW:SW_HIDE);
 
 	StyleArray & lexerStyler = index?_lsArray.getLexerFromIndex(index-1):_globalStyles;
-	lexerStyler.sort();
 
     for (int i = 0, nb = lexerStyler.getNbStyler(); i < nb ; i++)
     {
