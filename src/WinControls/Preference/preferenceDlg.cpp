@@ -177,6 +177,10 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 				enableDlgTheme(_hSelf, ETDT_ENABLETAB);
 			return TRUE;
 		}
+		case WM_SHOWWINDOW:
+			if(wParam)
+				goToCenter();
+			break;
 /*
 		case WM_NOTIFY :		  
 		{

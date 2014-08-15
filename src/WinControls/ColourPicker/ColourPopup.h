@@ -62,7 +62,7 @@ public :
     virtual void destroy() {
 	    ::DestroyWindow(_hSelf);
 	};
-    COLORREF getSelColour(){return _colour;};
+    void setSelColour(COLORREF c){_colour=c;};
 
 private :
 	RECT _rc;

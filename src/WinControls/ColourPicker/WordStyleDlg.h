@@ -200,6 +200,7 @@ private :
 	void updateFontSize();
 	void updateExampleFont();
 	void updateExampleFontColor();
+	void updateRGBValue(HWND,COLORREF);
 	void updateUserKeywords();
 	void switchToTheme();
 	void updateThemeName(generic_string themeName);
@@ -207,6 +208,8 @@ private :
 	void loadLangListFromNppParam();
 
 	void enableFg(bool isEnable) {
+		if(!isEnable)
+			isEnable=isEnable;
 		::EnableWindow(_pFgColour->getHSelf(), isEnable);
 		::EnableWindow(_hFgColourStaticText, isEnable);
 	};

@@ -92,8 +92,8 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 			_hFontSizeCombo = ::GetDlgItem(_hSelf, IDC_FONTSIZE_COMBO);
 			_hSwitch2ThemeCombo = ::GetDlgItem(_hSelf, IDC_SWITCH2THEME_COMBO);
 
-			_hFgColourStaticText = ::GetDlgItem(_hSelf, IDC_FG_STATIC);
-			_hBgColourStaticText = ::GetDlgItem(_hSelf, IDC_BG_STATIC);
+			_hFgColourStaticText = ::GetDlgItem(_hSelf, IDC_FGRGB_STATIC);
+			_hBgColourStaticText = ::GetDlgItem(_hSelf, IDC_BGRGB_STATIC);
 			_hFontNameStaticText = ::GetDlgItem(_hSelf, IDC_FONTNAME_STATIC);
 			_hFontSizeStaticText = ::GetDlgItem(_hSelf, IDC_FONTSIZE_STATIC);
 			_hStyleInfoStaticText = ::GetDlgItem(_hSelf, IDC_STYLEDESCRIPTION_STATIC);
@@ -171,7 +171,10 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 
 			return TRUE;
 		}
-
+		case WM_SHOWWINDOW:
+			if(wParam)
+				goToCenter();
+			break;
 		case WM_DESTROY:
 		{
 			_pFgColour->destroy();
@@ -233,7 +236,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 						notifyDataModified();
 						apply();
 						break;
-
+					case IDC_UNDO:
 					case IDCANCEL :
 						//::MessageBox(NULL, TEXT("cancel"), TEXT(""), MB_OK);
 						if (_isDirty)
@@ -272,7 +275,8 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 							::SendMessage(_hParent, WM_UPDATESCINTILLAS, 0, 0);
 						}
 						::EnableWindow(::GetDlgItem(_hSelf, IDC_SAVECLOSE_BUTTON), FALSE/*!_isSync*/);
-						display(false);
+						if(wParam==IDCANCEL)
+							display(false);
 						return TRUE;
 
 					case IDC_SAVECLOSE_BUTTON :
@@ -426,6 +430,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 								{
 									updateColour(C_FOREGROUND);
 									updateExampleFontColor();
+									updateRGBValue(_hFgColourStaticText,_pFgColour->getColour());
 									notifyDataModified();
 									int tabColourIndex;
 									if ((tabColourIndex = whichTabColourIndex()) != -1)
@@ -441,6 +446,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 								{
 									updateColour(C_BACKGROUND);
 									updateExampleFontColor();
+									updateRGBValue(_hBgColourStaticText,_pBgColour->getColour());
 									notifyDataModified();
 									int tabColourIndex;
 									if ((tabColourIndex = whichTabColourIndex()) != -1)
@@ -604,10 +610,14 @@ void WordStyleDlg::updateExampleFont()
 		DeleteObject(hExampleFont);
 	if(style._fontName==0 || style._fontName[0]==L'\0'){
 		HFONT h = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-		if(style._fontSize > 0){
+		if(style._fontSize > 0 || style._fontStyle){
 			LOGFONT lf={0};
 			GetObject(h,sizeof(LOGFONT),&lf);
-			lf.lfHeight=style._fontSize;
+			if(style._fontSize > 0)
+				lf.lfHeight=style._fontSize;
+			lf.lfItalic=style._fontStyle&FONTSTYLE_ITALIC;
+			lf.lfUnderline=style._fontStyle&FONTSTYLE_UNDERLINE;
+			lf.lfWeight=(style._fontStyle&FONTSTYLE_BOLD)?FW_BOLD:FW_DONTCARE;
 			hExampleFont=CreateFontIndirect(&lf);
 		}else{
 			hExampleFont = h;
@@ -628,6 +638,13 @@ void WordStyleDlg::updateExampleFont()
 		InvalidateRect(_hStyleExampleStaticText,NULL,TRUE);
 	}
 }
+void WordStyleDlg::updateRGBValue(HWND h,COLORREF c)
+{
+	TCHAR str[12]={0};
+	_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",c,_TRUNCATE);
+	::SetWindowText(h,str);
+}
+
 void WordStyleDlg::updateFontName()
 {
     Style & style = getCurrentStyler();
@@ -742,7 +759,6 @@ void WordStyleDlg::setStyleListFromLexer(int index)
 	::SendDlgItemMessage(_hSelf, IDC_STYLES_LIST, LB_SETCURSEL, 0, 0);
     setVisualFromStyleList();
 }
-
 void WordStyleDlg::setVisualFromStyleList() 
 {
 	showGlobalOverrideCtrls(false);
@@ -785,6 +801,7 @@ void WordStyleDlg::setVisualFromStyleList()
 	bool isEnable = false;
 	if (HIBYTE(HIWORD(style._fgColor)) != 0xFF)
 	{
+		updateRGBValue(_hFgColourStaticText,style._fgColor);
 		_pFgColour->setColour(style._fgColor);
 		_pFgColour->setEnabled((style._colorStyle & COLORSTYLE_FOREGROUND) != 0);
 		isEnable = true;
@@ -794,6 +811,7 @@ void WordStyleDlg::setVisualFromStyleList()
 	isEnable = false;
 	if (HIBYTE(HIWORD(style._bgColor)) != 0xFF)
 	{
+		updateRGBValue(_hBgColourStaticText,style._bgColor);
 		_pBgColour->setColour(style._bgColor);
 		_pBgColour->setEnabled((style._colorStyle & COLORSTYLE_BACKGROUND) != 0);
 		isEnable = true;

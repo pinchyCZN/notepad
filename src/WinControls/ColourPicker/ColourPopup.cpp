@@ -28,6 +28,8 @@
 
 #include "precompiledHeaders.h"
 #include "ColourPopup.h"
+#include <tchar.h>
+#include <math.h>
 
 DWORD colourItems[] = {
 	RGB(  0,   0,   0),	RGB( 64,   0,   0),	RGB(128,   0,   0),	RGB(128,  64,  64),	RGB(255,   0,   0),	RGB(255, 128, 128),
@@ -157,6 +159,7 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 						LineTo(hdc, rc.left, rc.bottom);
 						SelectObject(hdc, holdPen);
 						DeleteObject(hpen);
+						::PostMessage(_hSelf,WM_COMMAND,MAKELPARAM(IDC_COLOUR_LIST,0),pdis->itemID);
 					}
 					else 
 					{
@@ -219,10 +222,18 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 		            {
                         int i = ::SendMessage((HWND)lParam, LB_GETCURSEL, 0L, 0L);
                         _colour = ::SendMessage((HWND)lParam, LB_GETITEMDATA, i, 0L);
-
                         ::SendMessage(_hParent, WM_PICKUP_COLOR, _colour, 0);
 					    return TRUE;
 		            }
+					else if(HIWORD(wParam) == 0){
+						int c=lParam;
+						if(c>=0 && c<sizeof(colourItems)/sizeof(DWORD)){
+							TCHAR str[12]={0};
+							_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",colourItems[c],_TRUNCATE);
+							::SetDlgItemText(_hSelf,IDC_RGBCOLOR_STATIC,str);
+						}
+					}
+
                 }
 			    
                 default :
@@ -231,9 +242,40 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 		
 		case WM_ACTIVATE :
         {
-			if (LOWORD(wParam) == WA_INACTIVE)
+			if (LOWORD(wParam) == WA_INACTIVE){
 				if (!isColourChooserLaunched)
 					::SendMessage(_hParent, WM_PICKUP_CANCEL, 0, 0);
+			}else{
+				int i,found=FALSE;
+				for (i = 0 ; i < int(sizeof(colourItems)/sizeof(DWORD)) ; i++)
+				{
+					if(colourItems[i]==_colour){
+						SendDlgItemMessage(_hSelf, IDC_COLOUR_LIST,LB_SETCURSEL,i,0);
+						found=TRUE;
+						break;
+					}
+				}
+				if(!found){
+					double smallest=65536;
+					int index=0;
+					for (i = 0 ; i < int(sizeof(colourItems)/sizeof(DWORD)) ; i++){
+						unsigned char a1,a2,a3,b1,b2,b3;
+						double distance;
+						a1=(unsigned char)_colour;
+						a2=(unsigned char)(_colour>>8);
+						a3=(unsigned char)(_colour>>16);
+						b1=(unsigned char)colourItems[i];
+						b2=(unsigned char)(colourItems[i]>>8);
+						b3=(unsigned char)(colourItems[i]>>16);
+						distance=sqrt((double) ((a1-b1)*(a1-b1)+(a2-b2)*(a2-b2)+(a3-b3)*(a3-b3)));
+						if(distance<smallest){
+							smallest=distance;
+							index=i;
+						}
+					}
+					SendDlgItemMessage(_hSelf, IDC_COLOUR_LIST,LB_SETCURSEL,index,0);
+				}
+			}
 			return TRUE;
 		}
 		
