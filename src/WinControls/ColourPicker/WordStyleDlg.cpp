@@ -603,7 +603,15 @@ void WordStyleDlg::updateExampleFont()
 	if(hExampleFont)
 		DeleteObject(hExampleFont);
 	if(style._fontName==0 || style._fontName[0]==L'\0'){
-        hExampleFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+		HFONT h = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+		if(style._fontSize > 0){
+			LOGFONT lf={0};
+			GetObject(h,sizeof(LOGFONT),&lf);
+			lf.lfHeight=style._fontSize;
+			hExampleFont=CreateFontIndirect(&lf);
+		}else{
+			hExampleFont = h;
+		}
 	}
 	else{
 		hExampleFont=CreateFont (style._fontSize, 0, 0, 0,
