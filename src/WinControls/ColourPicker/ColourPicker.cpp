@@ -38,7 +38,7 @@ void ColourPicker::init(HINSTANCE hInst, HWND parent)
 					0,
 					TEXT("Button"),
 					TEXT("F"),
-					WS_CHILD |  WS_VISIBLE,
+					WS_CHILD |  WS_VISIBLE | WS_TABSTOP,
 					0, 0, 25, 25,
 					_hParent,
 					NULL,
@@ -69,16 +69,27 @@ void ColourPicker::drawBackground(HDC hDC)
 {
     RECT rc;
 	HBRUSH hbrush;
+	int selected;
 
 	if(!hDC)
 		return;
-
+	selected=::SendMessage(_hSelf,BM_GETSTATE,0,0);
+	selected&=BST_FOCUS|BST_PUSHED;
     getClientRect(rc);
 	hbrush = ::CreateSolidBrush(_currentColour);
 	HGDIOBJ oldObj = ::SelectObject(hDC, hbrush);
 	::Rectangle(hDC, 0, 0, rc.right, rc.bottom);
+	if(selected){
+		HBRUSH hselect;
+		HGDIOBJ hold;
+		COLORREF c=_currentColour^0xFFFFFF;
+		hselect = ::CreateSolidBrush(c&0xFFFFFF);
+		hold=::SelectObject(hDC, hselect);
+		::Rectangle(hDC,0,0,rc.right/2,rc.bottom/2);
+		::SelectObject(hDC, hold);
+	    ::DeleteObject(hselect);
+	}
 	::SelectObject(hDC, oldObj);
-	//FillRect(hDC, &rc, hbrush);
     ::DeleteObject(hbrush);
 }
 
@@ -97,12 +108,10 @@ void ColourPicker::drawForeground(HDC hDC)
 		 ((_currentColour >>  8) & 0xFF) +
 		 ((_currentColour >> 16) & 0xFF)) < 200)	//check if the color is too dark, if so, use white strikeout
 		strikeOut = RGB(0xFF,0xFF,0xFF);
-	if (!_isEnabled)
-		hbrush = ::CreateHatchBrush(HS_FDIAGONAL, strikeOut);
+	hbrush = ::CreateHatchBrush(HS_FDIAGONAL, strikeOut);
 	HGDIOBJ oldObj = ::SelectObject(hDC, hbrush);
 	::Rectangle(hDC, 0, 0, rc.right, rc.bottom);
 	::SelectObject(hDC, oldObj);
-	//FillRect(hDC, &rc, hbrush);
     ::DeleteObject(hbrush);
 	::SetBkMode(hDC, oldMode);
 }

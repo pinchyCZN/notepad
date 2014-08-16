@@ -31,7 +31,7 @@
 
 class ColourPopup;
 
-#define CPN_COLOURPICKED (BN_CLICKED)
+#define CPN_COLOURPICKED (WM_APP)
 
 class ColourPicker : public Window
 {

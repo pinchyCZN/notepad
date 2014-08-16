@@ -214,261 +214,268 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 			}
 			else
 			{
-				switch (wParam)
+				switch(HIWORD(wParam))
 				{
-					case IDC_BOLD_CHECK :
-						updateFontStyleStatus(BOLD_STATUS);
-						updateExampleFont();
-						notifyDataModified();
-						apply();
-						break;
+				case BN_CLICKED:
+					switch LOWORD(wParam)
+					{
+						case IDC_BOLD_CHECK :
+							updateFontStyleStatus(BOLD_STATUS);
+							updateExampleFont();
+							notifyDataModified();
+							apply();
+							break;
 
-					case IDC_ITALIC_CHECK :
-						updateFontStyleStatus(ITALIC_STATUS);
-						updateExampleFont();
-						notifyDataModified();
-						apply();
-						break;
+						case IDC_ITALIC_CHECK :
+							updateFontStyleStatus(ITALIC_STATUS);
+							updateExampleFont();
+							notifyDataModified();
+							apply();
+							break;
 
-					case IDC_UNDERLINE_CHECK :
-						updateFontStyleStatus(UNDERLINE_STATUS);
-						updateExampleFont();
-						notifyDataModified();
-						apply();
-						break;
-					case IDC_UNDO:
-					case IDCANCEL :
-						//::MessageBox(NULL, TEXT("cancel"), TEXT(""), MB_OK);
-						if (_isDirty)
-						{
-							NppParameters *nppParamInst = NppParameters::getInstance();
-							if (_restoreInvalid) 
-							{	
-								generic_string str( nppParamInst->getNppGUI()._themeName );
-								nppParamInst->reloadStylers( &str[0] );
-							}
-
-							LexerStylerArray & lsArray = nppParamInst->getLStylerArray();
-							StyleArray & globalStyles = nppParamInst->getGlobalStylers();
-							
-							if (_restoreInvalid) 
+						case IDC_UNDERLINE_CHECK :
+							updateFontStyleStatus(UNDERLINE_STATUS);
+							updateExampleFont();
+							notifyDataModified();
+							apply();
+							break;
+						case IDC_UNDO:
+						case IDCANCEL :
+							//::MessageBox(NULL, TEXT("cancel"), TEXT(""), MB_OK);
+							if (_isDirty)
 							{
-								_lsArray = _styles2restored = lsArray;
-								_globalStyles = _gstyles2restored = globalStyles;
-							}
-							else 
-							{
-								globalStyles = _globalStyles = _gstyles2restored;
-								lsArray = _lsArray = _styles2restored;
-							}
-
-							restoreGlobalOverrideValues();
-
-							_restoreInvalid = false;
-							_isDirty = false;
-							_isThemeDirty = false;
-							setVisualFromStyleList();
-
-							
-							//(nppParamInst->getNppGUI())._themeName
-							::SendMessage(_hSwitch2ThemeCombo, CB_SETCURSEL, _currentThemeIndex, 0);
-							::SendMessage(_hParent, WM_UPDATESCINTILLAS, 0, 0);
-						}
-						::EnableWindow(::GetDlgItem(_hSelf, IDC_SAVECLOSE_BUTTON), FALSE/*!_isSync*/);
-						if(wParam==IDCANCEL)
-							display(false);
-						return TRUE;
-
-					case IDC_SAVECLOSE_BUTTON :
-					{
-						if (_isDirty)
-						{
-							LexerStylerArray & lsa = (NppParameters::getInstance())->getLStylerArray();
-							StyleArray & globalStyles = (NppParameters::getInstance())->getGlobalStylers();
-
-							_lsArray = lsa;
-							_globalStyles = globalStyles;
-							updateThemeName(_themeName);
-							_restoreInvalid = false;
-
-							_currentThemeIndex = ::SendMessage(_hSwitch2ThemeCombo, CB_GETCURSEL, 0, 0);
-							::EnableWindow(::GetDlgItem(_hSelf, IDOK), FALSE);
-							_isDirty = false;
-						}
-						_isThemeDirty = false;
-						(NppParameters::getInstance())->writeStyles(_lsArray, _globalStyles);
-						::EnableWindow(::GetDlgItem(_hSelf, IDC_SAVECLOSE_BUTTON), FALSE);
-						//_isSync = true;
-						display(false);
-						::SendMessage(_hParent, WM_UPDATESCINTILLAS, 0, 0);
-						return TRUE;
-					}
-					
-					case IDC_SC_TRANSPARENT_CHECK :
-					{
-						bool isChecked = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, IDC_SC_TRANSPARENT_CHECK, BM_GETCHECK, 0, 0));
-						if (isChecked)
-						{
-							int percent = ::SendDlgItemMessage(_hSelf, IDC_SC_PERCENTAGE_SLIDER, TBM_GETPOS, 0, 0);
-							(NppParameters::getInstance())->SetTransparent(_hSelf, percent);
-						}
-						else
-							(NppParameters::getInstance())->removeTransparent(_hSelf);
-
-						::EnableWindow(::GetDlgItem(_hSelf, IDC_SC_PERCENTAGE_SLIDER), isChecked);
-						return TRUE;
-					}
-
-					case IDC_GLOBAL_FG_CHECK :
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableFg = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-
-					case  IDC_GLOBAL_BG_CHECK:
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableBg = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-
-					case IDC_GLOBAL_FONT_CHECK :
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableFont = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-					case IDC_GLOBAL_FONTSIZE_CHECK :
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableFontSize = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-					case IDC_GLOBAL_BOLD_CHECK :
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableBold = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-					
-					case IDC_GLOBAL_ITALIC_CHECK :
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableItalic = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-					case IDC_GLOBAL_UNDERLINE_CHECK :
-					{
-						GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
-						glo.enableUnderLine = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
-						notifyDataModified();
-						apply();
-						return TRUE;
-					}
-
-					default:
-						switch (HIWORD(wParam))
-						{
-							case CBN_SELCHANGE : // == case LBN_SELCHANGE :
-							{
-								switch (LOWORD(wParam))
-								{
-									case IDC_FONT_COMBO :
-										updateFontName();
-										updateExampleFont();
-										notifyDataModified();
-										apply();
-										break;
-									case IDC_FONTSIZE_COMBO :
-										updateFontSize();
-										updateExampleFont();
-										notifyDataModified();
-										apply();
-										break;
-									case IDC_LANGUAGES_LIST :
-									{
-										int i = ::SendDlgItemMessage(_hSelf, LOWORD(wParam), LB_GETCURSEL, 0, 0);
-										if (i != LB_ERR)
-										{
-											bool prevThemeState = _isThemeDirty;
-											setStyleListFromLexer(i);
-											_isThemeDirty = prevThemeState;
-										}
-										break;
-									}
-									case IDC_STYLES_LIST :
-										setVisualFromStyleList();
-										break;
-
-									case IDC_SWITCH2THEME_COMBO :
-										switchToTheme();
-										setVisualFromStyleList();
-										notifyDataModified();
-										_isThemeDirty = false;
-										apply();
-										break;
+								NppParameters *nppParamInst = NppParameters::getInstance();
+								if (_restoreInvalid) 
+								{	
+									generic_string str( nppParamInst->getNppGUI()._themeName );
+									nppParamInst->reloadStylers( &str[0] );
 								}
+
+								LexerStylerArray & lsArray = nppParamInst->getLStylerArray();
+								StyleArray & globalStyles = nppParamInst->getGlobalStylers();
+								
+								if (_restoreInvalid) 
+								{
+									_lsArray = _styles2restored = lsArray;
+									_globalStyles = _gstyles2restored = globalStyles;
+								}
+								else 
+								{
+									globalStyles = _globalStyles = _gstyles2restored;
+									lsArray = _lsArray = _styles2restored;
+								}
+
+								restoreGlobalOverrideValues();
+
+								_restoreInvalid = false;
+								_isDirty = false;
+								_isThemeDirty = false;
+								setVisualFromStyleList();
+
+								
+								//(nppParamInst->getNppGUI())._themeName
+								::SendMessage(_hSwitch2ThemeCombo, CB_SETCURSEL, _currentThemeIndex, 0);
+								::SendMessage(_hParent, WM_UPDATESCINTILLAS, 0, 0);
+							}
+							::EnableWindow(::GetDlgItem(_hSelf, IDC_SAVECLOSE_BUTTON), FALSE/*!_isSync*/);
+							if(wParam==IDCANCEL)
+								display(false);
+							return TRUE;
+
+						case IDC_SAVECLOSE_BUTTON :
+						{
+							if (_isDirty)
+							{
+								LexerStylerArray & lsa = (NppParameters::getInstance())->getLStylerArray();
+								StyleArray & globalStyles = (NppParameters::getInstance())->getGlobalStylers();
+
+								_lsArray = lsa;
+								_globalStyles = globalStyles;
+								updateThemeName(_themeName);
+								_restoreInvalid = false;
+
+								_currentThemeIndex = ::SendMessage(_hSwitch2ThemeCombo, CB_GETCURSEL, 0, 0);
+								::EnableWindow(::GetDlgItem(_hSelf, IDOK), FALSE);
+								_isDirty = false;
+							}
+							_isThemeDirty = false;
+							(NppParameters::getInstance())->writeStyles(_lsArray, _globalStyles);
+							::EnableWindow(::GetDlgItem(_hSelf, IDC_SAVECLOSE_BUTTON), FALSE);
+							//_isSync = true;
+							display(false);
+							::SendMessage(_hParent, WM_UPDATESCINTILLAS, 0, 0);
+							return TRUE;
+						}
+						
+						case IDC_SC_TRANSPARENT_CHECK :
+						{
+							bool isChecked = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, IDC_SC_TRANSPARENT_CHECK, BM_GETCHECK, 0, 0));
+							if (isChecked)
+							{
+								int percent = ::SendDlgItemMessage(_hSelf, IDC_SC_PERCENTAGE_SLIDER, TBM_GETPOS, 0, 0);
+								(NppParameters::getInstance())->SetTransparent(_hSelf, percent);
+							}
+							else
+								(NppParameters::getInstance())->removeTransparent(_hSelf);
+
+							::EnableWindow(::GetDlgItem(_hSelf, IDC_SC_PERCENTAGE_SLIDER), isChecked);
+							return TRUE;
+						}
+
+						case IDC_GLOBAL_FG_CHECK :
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableFg = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+
+						case  IDC_GLOBAL_BG_CHECK:
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableBg = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+
+						case IDC_GLOBAL_FONT_CHECK :
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableFont = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+						case IDC_GLOBAL_FONTSIZE_CHECK :
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableFontSize = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+						case IDC_GLOBAL_BOLD_CHECK :
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableBold = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+						
+						case IDC_GLOBAL_ITALIC_CHECK :
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableItalic = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+						case IDC_GLOBAL_UNDERLINE_CHECK :
+						{
+							GlobalOverride & glo = (NppParameters::getInstance())->getGlobalOverrideStyle();
+							glo.enableUnderLine = (BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0));
+							notifyDataModified();
+							apply();
+							return TRUE;
+						}
+						default:
+							{
+								if (((HWND)lParam == _pFgColour->getHSelf())
+									||((HWND)lParam == _pBgColour->getHSelf())){
+										::SendMessage((HWND)lParam,BM_CLICK,0,0);
+								}
+								return FALSE;
+							}
+					}
+					return FALSE;
+					case CBN_SELCHANGE : // == case LBN_SELCHANGE :
+					{
+						switch (LOWORD(wParam))
+						{
+							case IDC_FONT_COMBO :
+								updateFontName();
+								updateExampleFont();
+								notifyDataModified();
+								apply();
+								break;
+							case IDC_FONTSIZE_COMBO :
+								updateFontSize();
+								updateExampleFont();
+								notifyDataModified();
+								apply();
+								break;
+							case IDC_LANGUAGES_LIST :
+							{
+								int i = ::SendDlgItemMessage(_hSelf, LOWORD(wParam), LB_GETCURSEL, 0, 0);
+								if (i != LB_ERR)
+								{
+									bool prevThemeState = _isThemeDirty;
+									setStyleListFromLexer(i);
+									_isThemeDirty = prevThemeState;
+								}
+								break;
+							}
+							case IDC_STYLES_LIST :
+								setVisualFromStyleList();
+								break;
+
+							case IDC_SWITCH2THEME_COMBO :
+								switchToTheme();
+								setVisualFromStyleList();
+								notifyDataModified();
+								_isThemeDirty = false;
+								apply();
+								break;
+						}
+						return TRUE;
+					}
+
+					case CPN_COLOURPICKED:	
+					{
+						if ((HWND)lParam == _pFgColour->getHSelf())
+						{
+							updateColour(C_FOREGROUND);
+							updateExampleFontColor();
+							updateRGBValue(_hFgColourStaticText,_pFgColour->getColour());
+							notifyDataModified();
+							int tabColourIndex;
+							if ((tabColourIndex = whichTabColourIndex()) != -1)
+							{
+								//::SendMessage(_hParent, WM_UPDATETABBARCOLOUR, tabColourIndex, _pFgColour->getColour());
+								TabBarPlus::setColour(_pFgColour->getColour(), (TabBarPlus::tabColourIndex)tabColourIndex);
+								return TRUE;
+							}
+							apply();
+							return TRUE;
+						}
+						else if ((HWND)lParam == _pBgColour->getHSelf())
+						{
+							updateColour(C_BACKGROUND);
+							updateExampleFontColor();
+							updateRGBValue(_hBgColourStaticText,_pBgColour->getColour());
+							notifyDataModified();
+							int tabColourIndex;
+							if ((tabColourIndex = whichTabColourIndex()) != -1)
+							{
+								tabColourIndex = (int)tabColourIndex == TabBarPlus::inactiveText? TabBarPlus::inactiveBg : tabColourIndex;
+								TabBarPlus::setColour(_pBgColour->getColour(), (TabBarPlus::tabColourIndex)tabColourIndex);
 								return TRUE;
 							}
 
-							case CPN_COLOURPICKED:	
-							{
-								if ((HWND)lParam == _pFgColour->getHSelf())
-								{
-									updateColour(C_FOREGROUND);
-									updateExampleFontColor();
-									updateRGBValue(_hFgColourStaticText,_pFgColour->getColour());
-									notifyDataModified();
-									int tabColourIndex;
-									if ((tabColourIndex = whichTabColourIndex()) != -1)
-									{
-										//::SendMessage(_hParent, WM_UPDATETABBARCOLOUR, tabColourIndex, _pFgColour->getColour());
-										TabBarPlus::setColour(_pFgColour->getColour(), (TabBarPlus::tabColourIndex)tabColourIndex);
-										return TRUE;
-									}
-									apply();
-									return TRUE;
-								}
-								else if ((HWND)lParam == _pBgColour->getHSelf())
-								{
-									updateColour(C_BACKGROUND);
-									updateExampleFontColor();
-									updateRGBValue(_hBgColourStaticText,_pBgColour->getColour());
-									notifyDataModified();
-									int tabColourIndex;
-									if ((tabColourIndex = whichTabColourIndex()) != -1)
-									{
-										tabColourIndex = (int)tabColourIndex == TabBarPlus::inactiveText? TabBarPlus::inactiveBg : tabColourIndex;
-										TabBarPlus::setColour(_pBgColour->getColour(), (TabBarPlus::tabColourIndex)tabColourIndex);
-										return TRUE;
-									}
-
-									apply();
-									return TRUE;
-								}
-								else
-									return FALSE;
-							}
-
-							default :
-							{
-								return FALSE;
-							}
+							apply();
+							return TRUE;
 						}
-						//return TRUE;
+						else
+							return FALSE;
+					}
+
+					default :
+					{
+						return FALSE;
+					}
 				}
 			}
 
