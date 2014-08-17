@@ -405,6 +405,11 @@ BOOL CALLBACK Shortcut::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 					_keyCombo._isShift = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
 					return TRUE;
 
+				case IDC_DISABLE :
+					::SendDlgItemMessage(_hSelf, IDC_KEY_COMBO, CB_SETCURSEL, 0, 0);
+					::PostMessage(_hSelf, WM_COMMAND, MAKEWPARAM(IDC_KEY_COMBO,CBN_SELCHANGE),0);
+					return TRUE;
+
 				case IDOK :
 					if (!isEnabled()) {
 						_keyCombo._isCtrl = _keyCombo._isAlt = _keyCombo._isShift = false;

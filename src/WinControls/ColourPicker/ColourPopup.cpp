@@ -264,7 +264,7 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 							int c=lParam;
 							if(c>=0 && c<sizeof(colourItems)/sizeof(DWORD)){
 								TCHAR str[12]={0};
-								_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",colourItems[c],_TRUNCATE);
+								_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"0x%06X",colourItems[c]);
 								::SetDlgItemText(_hSelf,IDC_RGBCOLOR_STATIC,str);
 							}
 						}
