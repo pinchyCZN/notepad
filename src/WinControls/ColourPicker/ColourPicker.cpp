@@ -141,7 +141,7 @@ LRESULT ColourPicker::runProc(UINT Message, WPARAM wParam, LPARAM lParam)
 		{
 			_isEnabled = !_isEnabled;
 			redraw();
-			::SendMessage(_hParent, WM_COMMAND, MAKELONG(0, CPN_COLOURPICKED), (LPARAM)_hSelf);
+			::SendMessage(_hParent, WM_COMMAND, MAKEWPARAM(0, CPN_COLOURPICKED), (LPARAM)_hSelf);
 			break;
 		}
 

@@ -26,26 +26,15 @@
 // Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-#include "precompiledHeaders.h"
-#include "BabyGridWrapper.h"
-const TCHAR *babyGridClassName = TEXT("BABYGRID");
+#ifndef SHORTCUTMAPPER_RC_H
+#define SHORTCUTMAPPER_RC_H
 
-bool BabyGridWrapper::_isRegistered = false;
+#define	IDD_SHORTCUTMAPPER_DLG      2600
+#define	IDC_SHORTCUT_LIST     (IDD_SHORTCUTMAPPER_DLG + 1)
+#define	IDC_SHORTCUT_MODIFY   (IDD_SHORTCUTMAPPER_DLG + 2)
+#define	IDC_SHORTCUT_DELETE   (IDD_SHORTCUTMAPPER_DLG + 3)
+#define	IDC_SHORTCUT_TABBAR   (IDD_SHORTCUTMAPPER_DLG + 4)
+#define	IDC_SHORTCUT_FILTER1   (IDD_SHORTCUTMAPPER_DLG + 5)
+#define	IDC_SHORTCUT_FILTER2   (IDD_SHORTCUTMAPPER_DLG + 6)
 
-void BabyGridWrapper::init(HINSTANCE hInst, HWND parent, int id)
-{
-	Window::init(hInst, parent);
-
-	if (!_isRegistered)
-		RegisterGridClass(_hInst);
- 
-	_hSelf = ::CreateWindowEx(WS_EX_CLIENTEDGE,
-	                babyGridClassName,\
-					TEXT(""),\
-					WS_CHILD | WS_VISIBLE,\
-					CW_USEDEFAULT, 0, CW_USEDEFAULT, 0,\
-					_hParent,\
-					(HMENU)id,\
-					_hInst,\
-					(LPVOID)/*this*/NULL);
-}
+#endif// SHORTCUTMAPPER_RC_H

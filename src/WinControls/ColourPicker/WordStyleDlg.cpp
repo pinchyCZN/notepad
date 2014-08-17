@@ -483,7 +483,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 		default :
 			return FALSE;
 	}
-	//return FALSE;
+	return FALSE;
 }
 
 void WordStyleDlg::loadLangListFromNppParam()
@@ -622,8 +622,8 @@ void WordStyleDlg::updateExampleFont()
 			GetObject(h,sizeof(LOGFONT),&lf);
 			if(style._fontSize > 0)
 				lf.lfHeight=style._fontSize;
-			lf.lfItalic=style._fontStyle&FONTSTYLE_ITALIC;
-			lf.lfUnderline=style._fontStyle&FONTSTYLE_UNDERLINE;
+			lf.lfItalic=(BYTE)(style._fontStyle&FONTSTYLE_ITALIC);
+			lf.lfUnderline=(BYTE)(style._fontStyle&FONTSTYLE_UNDERLINE);
 			lf.lfWeight=(style._fontStyle&FONTSTYLE_BOLD)?FW_BOLD:FW_DONTCARE;
 			hExampleFont=CreateFontIndirect(&lf);
 		}else{

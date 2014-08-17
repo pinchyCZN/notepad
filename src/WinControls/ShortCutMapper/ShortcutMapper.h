@@ -29,10 +29,6 @@
 #ifndef SHORTCUTMAPPER
 #define SHORTCUTMAPPER
 
-#ifndef BABYGRIDWRAPPER
-#include "BabyGridWrapper.h"
-#endif// BABYGRIDWRAPPER
-
 #ifndef SHORTCUTMAPPER_RC_H
 #include "ShortcutMapper_rc.h"
 #endif //SHORTCUTMAPPER_RC_H
@@ -46,6 +42,7 @@
 #endif// CONTEXTMENU
 
 enum GridState {STATE_MENU, STATE_MACRO, STATE_USER, STATE_PLUGIN, STATE_SCINTILLA};
+#define LISTWIDTH_ADD 14
 
 class ShortcutMapper : public StaticDialog {
 private:
@@ -92,17 +89,21 @@ protected :
 
 private:
 	static const int maxTabName = 64;
-	BabyGridWrapper _babygrid;
 	ContextMenu _rightClickMenu;
 
 	GridState _currentState;
 	HWND _hTabCtrl;
+	HWND hlistview;
 
 	TCHAR tabNames[5][maxTabName];
 
+	int gettextwidth(HWND,const TCHAR *);
+	int getselectedrow();
+	int getitemindex(int row);
+	int update_col_width(const TCHAR *s,int col);
 	void initTabs();
-	void initBabyGrid();
-	void fillOutBabyGrid();
+	void initList();
+	void populateShortCuts();
 };
 
 #endif //SHORTCUTMAPPER
