@@ -2044,36 +2044,6 @@ void Notepad_plus::command(int id)
 
         case IDM_ABOUT:
 		{
-			bool doAboutDlg = false;
-			const int maxSelLen = 32;
-			int textLen = _pEditView->execute(SCI_GETSELTEXT, 0, 0) - 1;
-			if (!textLen)
-				doAboutDlg = true;
-			if (textLen > maxSelLen)
-				doAboutDlg = true;
-
-			if (!doAboutDlg)
-			{
-				char author[maxSelLen+1] = "";
-				_pEditView->getSelectedText(author, maxSelLen + 1);
-				int iQuote = getQuoteIndexFrom(author);
-				
-				if (iQuote == -1)
-				{
-					doAboutDlg = true;
-				}
-				else if (iQuote == -2)
-				{
-					showAllQuotes();
-					return;
-				}
-				if (iQuote != -1)
-				{
-					showQuoteFromIndex(iQuote);
-					return;
-				}	
-			}
-			if (doAboutDlg)
 			{
 				bool isFirstTime = !_aboutDlg.isCreated();
 				_aboutDlg.doDialog();

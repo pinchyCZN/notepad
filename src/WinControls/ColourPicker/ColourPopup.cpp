@@ -89,6 +89,8 @@ BOOL CALLBACK ColourPopup::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
 
 BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static int using_key=FALSE;
+	static int last_key=0;
 
 	switch (message)
 	{
@@ -159,7 +161,6 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 						LineTo(hdc, rc.left, rc.bottom);
 						SelectObject(hdc, holdPen);
 						DeleteObject(hpen);
-						::PostMessage(_hSelf,WM_COMMAND,MAKELPARAM(IDC_COLOUR_LIST,0),pdis->itemID);
 					}
 					else 
 					{
@@ -172,13 +173,43 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 					rc = pdis->rcItem;
 					InflateRect(&rc, -2, -2);
 					DrawFocusRect(hdc, &rc);
+					::PostMessage(_hSelf,WM_COMMAND,MAKELPARAM(IDC_COLOUR_LIST,0),pdis->itemID);
 					break;
 				default:
 					break;
 			}
 			return TRUE;
 		}
-
+		case WM_MOUSEACTIVATE :
+			{
+				using_key=FALSE;
+				break;
+			}
+		case WM_HELP :
+			{
+				::SendMessage(_hSelf,WM_COMMAND,MAKEWPARAM(IDOK,0),0);
+				return TRUE;
+			}
+		case WM_VKEYTOITEM :
+			{
+				int key=LOWORD(wParam);
+				using_key=TRUE;
+				last_key=key;
+				if(key==VK_RETURN || key==VK_SPACE){
+					if((GetKeyState(VK_SHIFT)&0x8000) || (GetKeyState(VK_CONTROL)&0x8000)){
+						::SendMessage(_hSelf,WM_COMMAND,MAKEWPARAM(IDOK,0),0);
+					}
+					else{
+						int i = ::SendMessage((HWND)lParam, LB_GETCURSEL, 0L, 0L);
+						_colour = ::SendMessage((HWND)lParam, LB_GETITEMDATA, i, 0L);
+						::SendMessage(_hParent, WM_PICKUP_COLOR, _colour, 0);
+					}
+				}
+				else if(key==VK_ESCAPE){
+					::SendMessage(_hParent, WM_PICKUP_CANCEL, 0, 0);
+				}
+				return -1;
+			}
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
             {
@@ -218,28 +249,32 @@ BOOL CALLBACK ColourPopup::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPara
 
                 case IDC_COLOUR_LIST :
                 {
-			        if (HIWORD(wParam) == LBN_SELCHANGE)
-		            {
-                        int i = ::SendMessage((HWND)lParam, LB_GETCURSEL, 0L, 0L);
-                        _colour = ::SendMessage((HWND)lParam, LB_GETITEMDATA, i, 0L);
-                        ::SendMessage(_hParent, WM_PICKUP_COLOR, _colour, 0);
-					    return TRUE;
-		            }
-					else if(HIWORD(wParam) == 0){
-						int c=lParam;
-						if(c>=0 && c<sizeof(colourItems)/sizeof(DWORD)){
-							TCHAR str[12]={0};
-							_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",colourItems[c],_TRUNCATE);
-							::SetDlgItemText(_hSelf,IDC_RGBCOLOR_STATIC,str);
+					switch(HIWORD(wParam))
+					{
+						case LBN_SELCHANGE:
+						{
+							int i = ::SendMessage((HWND)lParam, LB_GETCURSEL, 0L, 0L);
+							_colour = ::SendMessage((HWND)lParam, LB_GETITEMDATA, i, 0L);
+							if(using_key==FALSE)
+								::SendMessage(_hParent, WM_PICKUP_COLOR, _colour, 0);
+							return 0;
+						}
+						case 0:
+						{
+							int c=lParam;
+							if(c>=0 && c<sizeof(colourItems)/sizeof(DWORD)){
+								TCHAR str[12]={0};
+								_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",colourItems[c],_TRUNCATE);
+								::SetDlgItemText(_hSelf,IDC_RGBCOLOR_STATIC,str);
+							}
 						}
 					}
-
+					return FALSE;
                 }
 			    
                 default :
                     return FALSE;
             }
-		
 		case WM_ACTIVATE :
         {
 			if (LOWORD(wParam) == WA_INACTIVE){

@@ -79,16 +79,8 @@ void ColourPicker::drawBackground(HDC hDC)
 	hbrush = ::CreateSolidBrush(_currentColour);
 	HGDIOBJ oldObj = ::SelectObject(hDC, hbrush);
 	::Rectangle(hDC, 0, 0, rc.right, rc.bottom);
-	if(selected){
-		HBRUSH hselect;
-		HGDIOBJ hold;
-		COLORREF c=_currentColour^0xFFFFFF;
-		hselect = ::CreateSolidBrush(c&0xFFFFFF);
-		hold=::SelectObject(hDC, hselect);
-		::Rectangle(hDC,0,0,rc.right/2,rc.bottom/2);
-		::SelectObject(hDC, hold);
-	    ::DeleteObject(hselect);
-	}
+	if(selected)
+		::DrawFocusRect(hDC,&rc);
 	::SelectObject(hDC, oldObj);
     ::DeleteObject(hbrush);
 }
@@ -130,7 +122,7 @@ LRESULT ColourPicker::runProc(UINT Message, WPARAM wParam, LPARAM lParam)
 			p.x = rc.left;
 			p.y = rc.top + rc.bottom;
 			::ClientToScreen(_hSelf, &p);
-
+			printf("colorpicker\n");
 			if (!_pColourPopup)
 			{
 				_pColourPopup = new ColourPopup(_currentColour);

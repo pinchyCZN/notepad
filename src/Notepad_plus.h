@@ -618,22 +618,7 @@ private:
 	void launchProjectPanel(int cmdID, ProjectPanel ** pProjPanel, int panelID);
 	void launchDocMap();
 	void launchFunctionList();
-	int getQuoteIndexFrom(const char *quoter) const;
-	void showQuoteFromIndex(int index) const;
-	void showAllQuotes() const;
-	static DWORD WINAPI threadTextPlayer(void *text2display);
-	static DWORD WINAPI threadTextTroller(void *params);
-	static int getRandomAction(int ranNum);
-	static bool deleteBack(ScintillaEditView *pCurrentView, BufferID targetBufID);
-	static bool deleteForward(ScintillaEditView *pCurrentView, BufferID targetBufID);
-	static bool selectBack(ScintillaEditView *pCurrentView, BufferID targetBufID);
 	
-	static int getRandomNumber(int rangeMax = -1) {
-		int randomNumber = rand();
-		if (rangeMax == -1)
-			return randomNumber;
-		return (rand() % rangeMax);
-	};
 };
 
 
