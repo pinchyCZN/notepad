@@ -247,6 +247,9 @@ void ScintillaKeyMap::removeKeyComboByIndex(int index) {
 		_keyCombos.erase(_keyCombos.begin() + index);
 		size--;
 	}
+	else if(size==1){
+		_keyCombos[0]._key=0;
+	}
 }
 
 int ScintillaKeyMap::addKeyCombo(KeyCombo combo) {	//returns index where key is added, or -1 when invalid
@@ -712,25 +715,25 @@ void ScintillaKeyMap::applyToCurrentIndex() {
 	int index = (int)::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_GETCURSEL, 0, 0);
 	if(index == LB_ERR)
 		return;
-	setKeyComboByIndex(index, _keyCombo);
-	updateListItem(index);
+	if(_keyCombo._key==0)
+		removeKeyComboByIndex(index);
+	else
+		setKeyComboByIndex(index, _keyCombo);
+	updateList();
+	if(index>=size && size>0)
+		index=size-1;
 	::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_SETCURSEL, index, 0);
-
 }
 
 void ScintillaKeyMap::validateDialog() {
-	bool valid = isValid();	//current combo valid?
-	bool isDisabling = _keyCombo._key == 0;	//true if this keycombo were to disable the shortcut
-	bool isDisabled = !isEnabled();	//true if this shortcut already is 
-
-	::EnableWindow(::GetDlgItem(_hSelf, IDC_BUTTON_ADD), valid && !isDisabling);
-	::EnableWindow(::GetDlgItem(_hSelf, IDC_BUTTON_APPLY), valid && (!isDisabling || size == 1));
-	::EnableWindow(::GetDlgItem(_hSelf, IDC_BUTTON_RMVE), (size > 1)?TRUE:FALSE);
+	bool isDisabled = _keyCombo._key==0;
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), isDisabled?SW_SHOW:SW_HIDE);
 }
 
 void ScintillaKeyMap::showCurrentSettings() {
 	int keyIndex = ::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_GETCURSEL, 0, 0);
+	if(keyIndex < 0 || keyIndex >= _keyCombos.size())
+		return;
 	_keyCombo = _keyCombos[keyIndex];
 	::SendDlgItemMessage(_hSelf, IDC_CTRL_CHECK,	BM_SETCHECK, _keyCombo._isCtrl?BST_CHECKED:BST_UNCHECKED, 0);
 	::SendDlgItemMessage(_hSelf, IDC_ALT_CHECK,		BM_SETCHECK, _keyCombo._isAlt?BST_CHECKED:BST_UNCHECKED, 0);
@@ -745,9 +748,12 @@ void ScintillaKeyMap::showCurrentSettings() {
 	}
 }
 
-void ScintillaKeyMap::updateListItem(int index) {
-	::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_INSERTSTRING, index, (LPARAM)toString(index).c_str());
-	::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_DELETESTRING, index+1, 0);
+void ScintillaKeyMap::updateList() {
+	int i;
+	::SendDlgItemMessage(_hSelf,IDC_LIST_KEYS,LB_RESETCONTENT,0,0);
+	for(i=0;i<size;i++){
+		::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_ADDSTRING, 0, (LPARAM)toString(i).c_str());
+	}
 }
 
 BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM) 
@@ -783,19 +789,16 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 			{
 				case IDC_CTRL_CHECK :
 					_keyCombo._isCtrl = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
-					//applyToCurrentIndex();
 					validateDialog();
 					return TRUE;
 
 				case IDC_ALT_CHECK :
 					_keyCombo._isAlt = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
-					//applyToCurrentIndex();
 					validateDialog();
 					return TRUE;
 
 				case IDC_SHIFT_CHECK :
 					_keyCombo._isShift = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
-					//applyToCurrentIndex();
 					return TRUE;
 
 				case IDOK :
@@ -816,7 +819,7 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 						if (res == oldsize) {
 							::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_INSERTSTRING, (WPARAM)-1, (LPARAM)toString(res).c_str());
 						}else {	//update current generic_string, can happen if it was disabled
-							updateListItem(res);
+							updateList();
 						}
 						::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_SETCURSEL, res, 0);
 					}
@@ -825,13 +828,12 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 					return TRUE; }
 
 				case IDC_BUTTON_RMVE: {
-					if (size == 1)	//cannot delete last shortcut
-						return TRUE;
 					int i = ::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_GETCURSEL, 0, 0);
 					removeKeyComboByIndex(i);
-					::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_DELETESTRING, i, 0);
-					if (i == (int)size)
-						i = size - 1;
+					updateList();
+					if (i>=size && size>0){
+						i=size-1;
+					}
 					::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_SETCURSEL, i, 0);
 					showCurrentSettings();
 					validateDialog();
@@ -850,7 +852,6 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 							{
 								int i = ::SendDlgItemMessage(_hSelf, IDC_KEY_COMBO, CB_GETCURSEL, 0, 0);
 								_keyCombo._key = namedKeyArray[i].id;
-								//applyToCurrentIndex();
 								validateDialog();
 								return TRUE;
 							}
@@ -868,5 +869,5 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 			return FALSE;
 	}
 
-	//return FALSE;
+	return FALSE;
 }

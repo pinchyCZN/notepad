@@ -262,7 +262,7 @@ private:
 	void applyToCurrentIndex();
 	void validateDialog();
 	void showCurrentSettings();
-	void updateListItem(int index);
+	void updateList();
 protected :
 	BOOL CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
 };

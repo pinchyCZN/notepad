@@ -369,18 +369,20 @@ int ShortcutMapper::check_in_use(int index,const KeyCombo *kc,NppParameters *npp
 		vector<ScintillaKeyMap> & shortcuts = nppParam->getScintillaKeyList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			ScintillaKeyMap sc=shortcuts[i];
-			ScintillaKeyMap current_sc=shortcuts[index];
 			int j,max;
 			max=sc.getSize();
 			for(j=0;j<max;j++){
 				count+=compare_keys(_currentState==STATE_SCINTILLA?i:-1,index,sc.getName(),&sc.getKeyComboByIndex(j),kc,str,sizeof(str)/sizeof(TCHAR));
 			}
-			if(_currentState==STATE_SCINTILLA && current_sc.getSize()>1){
-				int k,current_max=current_sc.getSize();
-				for(k=1;k<current_max;k++){
-					for(j=0;j<max;j++){
-						KeyCombo *current_kc=&current_sc.getKeyComboByIndex(k);
-						count+=compare_keys(i,index,sc.getName(),&sc.getKeyComboByIndex(j),current_kc,str,sizeof(str)/sizeof(TCHAR));
+			if(_currentState==STATE_SCINTILLA && index<shortcuts.size()){
+				ScintillaKeyMap current_sc=shortcuts[index];
+				if(current_sc.getSize()>1){
+					int k,current_max=current_sc.getSize();
+					for(k=1;k<current_max;k++){
+						for(j=0;j<max;j++){
+							KeyCombo *current_kc=&current_sc.getKeyComboByIndex(k);
+							count+=compare_keys(i,index,sc.getName(),&sc.getKeyComboByIndex(j),current_kc,str,sizeof(str)/sizeof(TCHAR));
+						}
 					}
 				}
 			}
@@ -390,10 +392,9 @@ int ShortcutMapper::check_in_use(int index,const KeyCombo *kc,NppParameters *npp
 		::MessageBox(_hSelf,str,L"Warning",MB_OK);
 	return count;
 }
-#include "debug_print.h"
+
 BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-//print_msg(message,wParam,lParam);
 	switch (message) 
 	{
 		case WM_INITDIALOG :
