@@ -116,7 +116,11 @@ static bool GetShortcutKeys(GridState gs,int i,NppParameters *nppParam,TCHAR *st
 		case STATE_SCINTILLA:
 		{
 			vector<ScintillaKeyMap> & cshortcuts = nppParam->getScintillaKeyList();
-			_tcsncpy_s(str,len,cshortcuts[i].toString().c_str(),_TRUNCATE);
+			int j,max=cshortcuts[i].getSize();
+			for(j=0;j<max;j++){
+				generic_string s=cshortcuts[i].toString(j);
+				_sntprintf_s(str,len,_TRUNCATE,L"%s%s%c",str,s.c_str(),j<(max-1)?L';':L'');
+			}
 			return TRUE ;
 		}
 	}
@@ -337,35 +341,49 @@ int ShortcutMapper::check_in_use(int index,const KeyCombo *kc,NppParameters *npp
 		vector<CommandShortcut> &shortcuts=nppParam->getUserShortcuts();
 		for(i=0;i<(int)shortcuts.size();i++){
 			CommandShortcut sc=shortcuts[i];
-			count+=compare_keys(i,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_MENU?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
 		}
 	}
 	{
 		vector<MacroShortcut> & shortcuts = nppParam->getMacroList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			MacroShortcut sc=shortcuts[i];
-			count+=compare_keys(i,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_MACRO?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
 		}
 	}
 	{
 		vector<UserCommand> & shortcuts = nppParam->getUserCommandList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			UserCommand sc=shortcuts[i];
-			count+=compare_keys(i,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_USER?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
 		}
 	}
 	{
 		vector<PluginCmdShortcut> & shortcuts = nppParam->getPluginCommandList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			PluginCmdShortcut sc=shortcuts[i];
-			count+=compare_keys(i,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_PLUGIN?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
 		}
 	}
 	{
 		vector<ScintillaKeyMap> & shortcuts = nppParam->getScintillaKeyList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			ScintillaKeyMap sc=shortcuts[i];
-			count+=compare_keys(i,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			ScintillaKeyMap current_sc=shortcuts[index];
+			int j,max;
+			max=sc.getSize();
+			for(j=0;j<max;j++){
+				count+=compare_keys(_currentState==STATE_SCINTILLA?i:-1,index,sc.getName(),&sc.getKeyComboByIndex(j),kc,str,sizeof(str)/sizeof(TCHAR));
+			}
+			if(_currentState==STATE_SCINTILLA && current_sc.getSize()>1){
+				int k,current_max=current_sc.getSize();
+				for(k=1;k<current_max;k++){
+					for(j=0;j<max;j++){
+						KeyCombo *current_kc=&current_sc.getKeyComboByIndex(k);
+						count+=compare_keys(i,index,sc.getName(),&sc.getKeyComboByIndex(j),current_kc,str,sizeof(str)/sizeof(TCHAR));
+					}
+				}
+			}
 		}
 	}
 	if(count>0)
@@ -493,7 +511,8 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								nppParam->getAccelerator()->updateShortcuts();
 								check_in_use(index,&csc.getKeyCombo(),nppParam);								
 							}
-							break; }
+							break; 
+						}
 						case STATE_MACRO: {
 							//Get MacroShortcut corresponding to index
 							vector<MacroShortcut> & shortcuts = nppParam->getMacroList();
@@ -508,8 +527,10 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
+								check_in_use(index,&msc.getKeyCombo(),nppParam);
 							}
-							break; }
+							break; 
+						}
 						case STATE_USER: {
 							//Get UserCommand corresponding to index
 							vector<UserCommand> & shortcuts = nppParam->getUserCommandList();
@@ -526,8 +547,10 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
+								check_in_use(index,&ucmd.getKeyCombo(),nppParam);
 							}
-							break; }
+							break; 
+						}
 						case STATE_PLUGIN: {
 							//Get PluginCmdShortcut corresponding to index
 							vector<PluginCmdShortcut> & shortcuts = nppParam->getPluginCommandList();
@@ -544,6 +567,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
+								check_in_use(index,&pcsc.getKeyCombo(),nppParam);
 								unsigned long cmdID = pcsc.getID();
 								ShortcutKey shortcut;
 								shortcut._isAlt = pcsc.getKeyCombo()._isAlt;
@@ -553,7 +577,8 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 
 								::SendMessage(_hParent, NPPM_INTERNAL_PLUGINSHORTCUTMOTIFIED, cmdID, (LPARAM)&shortcut);
 							}
-							break; }
+							break; 
+						}
 						case STATE_SCINTILLA: {
 							//Get ScintillaKeyMap corresponding to index
 							vector<ScintillaKeyMap> & shortcuts = nppParam->getScintillaKeyList();
@@ -563,10 +588,18 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 							{
 								//shortcut was altered
 								nppParam->addScintillaModifiedIndex(index);
-								generic_string keys=skm.toString();
 								shortcuts[index] = skm;
-								ListView_SetItemText(hlistview,selected_row,2,(LPWSTR)keys.c_str());
-								update_col_width(keys.c_str(),2);
+								int i,max;
+								TCHAR str[40]={0};
+								max=skm.getSize();
+								for(i=0;i<max;i++){
+									generic_string keys=skm.toString(i);
+									_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%s%s%c",str,keys.c_str(),i<(max-1)?L';':L'');
+								}
+								ListView_SetItemText(hlistview,selected_row,2,(LPWSTR)str);
+								update_col_width(str,2);
+								if(max>0)
+									check_in_use(index,&skm.getKeyComboByIndex(0),nppParam);
 								//Notify current Accelerator class to update key
 								nppParam->getScintillaAccelerator()->updateKeys();
 							}
