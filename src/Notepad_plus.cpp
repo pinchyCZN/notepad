@@ -3439,16 +3439,17 @@ bool Notepad_plus::doBlockComment(comment_mode currCommentMode)
 	//--FLS: BlockToStreamComment: If there is no block-comment symbol, try the stream comment:
 		if (!(!commentStart || !commentStart[0] || commentStart == NULL || !commentEnd || !commentEnd[0] || commentEnd == NULL)) 
 		{
-			if ((currCommentMode == cm_comment)) 
-			{
-				return doStreamComment();
+			comment_mode mode=currCommentMode;
+			if(mode==cm_toggle){
+				mode=cm_comment;
+				if((::GetKeyState(VK_SHIFT)&0x8000) || (::GetKeyState(VK_CONTROL)&0x8000))
+					mode=cm_uncomment;
 			}
-			else if (currCommentMode == cm_uncomment) 
-			{
-				return undoStreamComment();
+			switch(mode){
+			case cm_comment: return doStreamComment();
+			case cm_uncomment: return undoStreamComment();
 			}
-			else 
-				return false;
+			return FALSE;
 		}
 		else
 			return false;
