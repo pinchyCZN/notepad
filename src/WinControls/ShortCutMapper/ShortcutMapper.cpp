@@ -158,7 +158,7 @@ int ShortcutMapper::gettextwidth(HWND hwnd,const TCHAR *str)
 				GetTextExtentPoint32(hdc,str,_tcslen(str),&size);
 			}
 			ReleaseDC(hwnd,hdc);
-			return size.cx;
+			return size.cx+LISTWIDTH_ADD;
 		}
 	}
 	return 0;
@@ -172,7 +172,7 @@ void ShortcutMapper::initList()
 	for(i=0;i<sizeof(col_names)/sizeof(TCHAR *);i++){
 		col.mask=LVCF_FMT|LVCF_TEXT|LVCF_WIDTH;
 		col.fmt=LVCFMT_LEFT;
-		col.cx=gettextwidth(hlistview,col_names[i])+LISTWIDTH_ADD;
+		col.cx=gettextwidth(hlistview,col_names[i]);
 		col.pszText=col_names[i];
 		ListView_InsertColumn(hlistview,i,&col);
 	}
@@ -194,7 +194,7 @@ int ShortcutMapper::getselectedrow()
 int ShortcutMapper::update_col_width(const TCHAR *str,int col)
 {
 	int w,col_w;
-	w=gettextwidth(hlistview,str)+LISTWIDTH_ADD;
+	w=gettextwidth(hlistview,str);
 	col_w=ListView_GetColumnWidth(hlistview,col);
 	if(w>col_w)
 		ListView_SetColumnWidth(hlistview,col,w);
@@ -233,10 +233,6 @@ void ShortcutMapper::populateShortCuts()
 	}
 	ListView_DeleteAllItems(hlistview);
 
-	GetWindowText(GetDlgItem(_hSelf,IDC_SHORTCUT_FILTER1),filter1,sizeof(filter2)/sizeof(TCHAR));
-	GetWindowText(GetDlgItem(_hSelf,IDC_SHORTCUT_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
-	_tcslwr(filter1);
-	_tcslwr(filter2);
 	if(nrItems==0){
         ::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_MODIFY), false);
         ::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_DELETE), false);
@@ -270,9 +266,14 @@ void ShortcutMapper::populateShortCuts()
 	}
 	int index=0;
 	int widths[3];
-	widths[0]=gettextwidth(hlistview,L"Index")+LISTWIDTH_ADD;
-	widths[1]=gettextwidth(hlistview,L"Name")+LISTWIDTH_ADD;
-	widths[2]=gettextwidth(hlistview,L"Shortcut")+LISTWIDTH_ADD;
+	widths[0]=gettextwidth(hlistview,L"Index");
+	widths[1]=gettextwidth(hlistview,L"Name");
+	widths[2]=gettextwidth(hlistview,L"Shortcut");
+	GetWindowText(GetDlgItem(_hSelf,IDC_SHORTCUT_FILTER1),filter1,sizeof(filter2)/sizeof(TCHAR));
+	GetWindowText(GetDlgItem(_hSelf,IDC_SHORTCUT_FILTER2),filter2,sizeof(filter2)/sizeof(TCHAR));
+	_tcslwr(filter1);
+	_tcslwr(filter2);
+
 	for(size_t i = 0; i < nrItems; i++) {
 		TCHAR keys[40]={0};
 		const TCHAR *name=GetShortcutName(_currentState,i,nppParam);
@@ -284,13 +285,13 @@ void ShortcutMapper::populateShortCuts()
 			LV_ITEM lvitem={0};
 			int w;
 			_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%i",i);
-			w=gettextwidth(hlistview,str)+LISTWIDTH_ADD;
+			w=gettextwidth(hlistview,str);
 			if(w>widths[0])
 				widths[0]=w;
-			w=gettextwidth(hlistview,name)+LISTWIDTH_ADD;
+			w=gettextwidth(hlistview,name);
 			if(w>widths[1])
 				widths[1]=w;
-			w=gettextwidth(hlistview,keys)+LISTWIDTH_ADD;
+			w=gettextwidth(hlistview,keys);
 			if(w>widths[2])
 				widths[2]=w;
 
@@ -312,6 +313,7 @@ void ShortcutMapper::populateShortCuts()
 	ListView_SetColumnWidth(hlistview,0,widths[0]);
 	ListView_SetColumnWidth(hlistview,1,widths[1]);
 	ListView_SetColumnWidth(hlistview,2,widths[2]);
+	ListView_SetItemState(hlistview,0,LVIS_SELECTED,LVIS_SELECTED);
 	if(index==0){
 	    ::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_MODIFY), false);
 		::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_DELETE), false);
