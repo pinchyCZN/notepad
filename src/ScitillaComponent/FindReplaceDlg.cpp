@@ -2351,8 +2351,7 @@ void FindReplaceDlg::combo2ExtendedMode(int comboID)
 
 void FindReplaceDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
-	//printStr(TEXT("OK"));
-	COLORREF fgColor = RGB(0, 0, 0); // black by default
+    COLORREF fgColor = ::GetSysColor(COLOR_WINDOWTEXT);
 	PTSTR ptStr =(PTSTR)lpDrawItemStruct->itemData;
 
 	if (_statusbarFindStatus == FSNotFound)
@@ -2361,11 +2360,11 @@ void FindReplaceDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	}
 	else if (_statusbarFindStatus == FSMessage)
 	{
-		fgColor = RGB(0, 0, 0xFF); // blue
+		//fgColor = RGB(0, 0, 0xFF); // blue
 	}
 	else if (_statusbarFindStatus == FSTopReached || _statusbarFindStatus == FSEndReached)
 	{
-		fgColor = RGB(0, 166, 0); // green
+		//fgColor = RGB(0, 166, 0); // green
 	}
 	else if (_statusbarFindStatus == FSNoMessage)
 	{
@@ -2686,14 +2685,14 @@ BOOL CALLBACK FindIncrementDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 		// Make edit field red if not found
 		case WM_CTLCOLOREDIT :
 		{
-			// if the text not found modify the background color of the editor
-			static HBRUSH hBrushBackground = CreateSolidBrush(BCKGRD_COLOR);
 			if (FSNotFound != getFindStatus())
 				return FALSE; // text found, use the default color
+			// if the text not found modify the background color of the editor
+			static HBRUSH hBrushBackground = CreateSolidBrush(RGB(0xFF, 00, 00));
 
 			// text not found
-			SetTextColor((HDC)wParam, TXT_COLOR);
-			SetBkColor((HDC)wParam, BCKGRD_COLOR);
+			SetBkColor((HDC)wParam, ::GetSysColor(COLOR_BACKGROUND));
+			SetTextColor((HDC)wParam, RGB(0xFF, 00, 00));
 			return (LRESULT)hBrushBackground;
 		}
 
@@ -2877,5 +2876,4 @@ void FindIncrementDlg::addToRebar(ReBar * rebar)
 	_rbBand.cxIdeal		= _rbBand.cx			= client.right-client.left;
 
 	_pRebar->addBand(&_rbBand, true);
-	_pRebar->setGrayBackground(_rbBand.wID);
 }
