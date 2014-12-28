@@ -583,38 +583,38 @@ TEXT("()	Grouping (creates a capture)\r\n")
 TEXT("[]	Character class  \r\n")
 TEXT("\r\n")
 TEXT("==GREEDY CLOSURES==\r\n")
-TEXT("*	   Match 0 or more times\r\n")
-TEXT("+	   Match 1 or more times\r\n")
-TEXT("?	   Match 1 or 0 times\r\n")
-TEXT("{n}    Match exactly n times\r\n")
-TEXT("{n,}   Match at least n times\r\n")
-TEXT("{n,m}  Match at least n but not more than m times  \r\n")
+TEXT("*	Match 0 or more times\r\n")
+TEXT("+	Match 1 or more times\r\n")
+TEXT("?	Match 1 or 0 times\r\n")
+TEXT("{n}	Match exactly n times\r\n")
+TEXT("{n,}	Match at least n times\r\n")
+TEXT("{n,m}	Match at least n but not more than m times  \r\n")
 TEXT("\r\n")
 TEXT("==ESCAPE CHARACTERS==\r\n")
-TEXT("\\t		tab                   (HT, TAB)\r\n")
-TEXT("\\n		newline               (LF, NL)\r\n")
-TEXT("\\r		return                (CR)\r\n")
-TEXT("\\f		form feed             (FF)\r\n")
+TEXT("\\t	tab                   (HT, TAB)\r\n")
+TEXT("\\n	newline               (LF, NL)\r\n")
+TEXT("\\r	return                (CR)\r\n")
+TEXT("\\f	form feed             (FF)\r\n")
 TEXT("\r\n")
 TEXT("==PREDEFINED CLASSES==\r\n")
-TEXT("\\l		lowercase next char\r\n")
-TEXT("\\u		uppercase next char\r\n")
-TEXT("\\a		letters\r\n")
-TEXT("\\A		non letters\r\n")
-TEXT("\\w		alphanimeric [0-9a-zA-Z]\r\n")
-TEXT("\\W		non alphanimeric\r\n")
-TEXT("\\s		space\r\n")
-TEXT("\\S		non space\r\n")
-TEXT("\\d		digits\r\n")
-TEXT("\\D		non nondigits\r\n")
-TEXT("\\x		exadecimal digits\r\n")
-TEXT("\\X		non exadecimal digits\r\n")
-TEXT("\\c		control charactrs\r\n")
-TEXT("\\C		non control charactrs\r\n")
-TEXT("\\p		punctation\r\n")
-TEXT("\\P		non punctation\r\n")
-TEXT("\\b		word boundary\r\n")
-TEXT("\\B		non word boundary");
+TEXT("\\l	lowercase next char\r\n")
+TEXT("\\u	uppercase next char\r\n")
+TEXT("\\a	letters\r\n")
+TEXT("\\A	non letters\r\n")
+TEXT("\\w	alphanimeric [0-9a-zA-Z]\r\n")
+TEXT("\\W	non alphanimeric\r\n")
+TEXT("\\s	space\r\n")
+TEXT("\\S	non space\r\n")
+TEXT("\\d	digits\r\n")
+TEXT("\\D	non nondigits\r\n")
+TEXT("\\x	exadecimal digits\r\n")
+TEXT("\\X	non exadecimal digits\r\n")
+TEXT("\\c	control charactrs\r\n")
+TEXT("\\C	non control charactrs\r\n")
+TEXT("\\p	punctation\r\n")
+TEXT("\\P	non punctation\r\n")
+TEXT("\\b	word boundary\r\n")
+TEXT("\\B	non word boundary");
 static int set_tooltip_pos(HWND hparent, HWND htooltip)
 {
 	RECT rparent={0},rtool={0};
@@ -673,8 +673,18 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			 p = getLeftTopPoint(::GetDlgItem(_hSelf, IDCANCEL));
 			 _findClosePos.left = p.x;
 			 _findClosePos.top = p.y + 10;
-
 			return TRUE;
+		}
+		case WM_WINDOWPOSCHANGING:
+		{
+			WINDOWPOS *wpos=(LPWINDOWPOS)lParam;
+			if(wpos){
+				if(wpos->flags&SWP_NOACTIVATE){
+					if (toolTip.isVisible())
+						toolTip.destroy();
+				}
+			}
+			break;
 		}
 		case WM_HELP:
 		{
@@ -685,10 +695,9 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			}
 			if (BST_CHECKED == SendDlgItemMessage(_hSelf, IDREGEXP, BM_GETCHECK, 0, 0)){
 				toolTip.init(_hInst, _hSelf);
-				//::GetWindowRect(GetDlgItem(_hSelf, IDC_MODE_STATIC), &tmp);
-
 				getWindowRect(rect);
 				SendMessage(toolTip.getHSelf(), TTM_SETMAXTIPWIDTH, 0, 800);
+				toolTip.SetColors(GetSysColor(COLOR_WINDOWTEXT),GetSysColor(COLOR_BACKGROUND));
 				toolTip.Show(rect, regex_help, rect.right - rect.left, 0);
 				set_tooltip_pos(_hSelf,toolTip.getHSelf());
 			}

@@ -89,3 +89,8 @@ LRESULT ToolTip::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 	return ::CallWindowProc(_defaultProc, _hSelf, message, wParam, lParam);
 }
 
+void ToolTip::SetColors(COLORREF fg_color,COLORREF bg_color)
+{
+	::SendMessage(_hSelf, TTM_SETTIPBKCOLOR,bg_color,0);
+	::SendMessage(_hSelf, TTM_SETTIPTEXTCOLOR,fg_color,0);
+}
