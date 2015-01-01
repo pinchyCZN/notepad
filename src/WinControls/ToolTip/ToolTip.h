@@ -48,6 +48,7 @@ public:
 public:
 	virtual void init(HINSTANCE hInst, HWND hParent);
 	void Show(RECT rectTitle, const TCHAR* pszTitleText, int iXOff = 0, int iWidthOff = 0);
+	void SetColors(COLORREF fg_color,COLORREF bg_color);
 
 protected:
     WNDPROC		_defaultProc;

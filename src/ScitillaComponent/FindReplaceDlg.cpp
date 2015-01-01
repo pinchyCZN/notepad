@@ -31,6 +31,7 @@
 #include "ScintillaEditView.h"
 #include "Notepad_plus_msgs.h"
 #include "UniConversion.h"
+#include "ToolTip.h"
 
 FindOption * FindReplaceDlg::_env;
 FindOption FindReplaceDlg::_options;
@@ -572,10 +573,83 @@ void Finder::gotoNextFoundResult(int direction)
 		GotoFoundLine();
 	}
 }
-
+const TCHAR *regex_help = 
+TEXT("\\	Quote the next metacharacter\r\n")
+TEXT("^	Match the beginning of the string\r\n")
+TEXT(".	Match any character\r\n")
+TEXT("$	Match the end of the string\r\n")
+TEXT("|	Alternation\r\n")
+TEXT("()	Grouping (creates a capture)\r\n")
+TEXT("[]	Character class  \r\n")
+TEXT("\r\n")
+TEXT("==GREEDY CLOSURES==\r\n")
+TEXT("*	Match 0 or more times\r\n")
+TEXT("+	Match 1 or more times\r\n")
+TEXT("?	Match 1 or 0 times\r\n")
+TEXT("{n}	Match exactly n times\r\n")
+TEXT("{n,}	Match at least n times\r\n")
+TEXT("{n,m}	Match at least n but not more than m times  \r\n")
+TEXT("\r\n")
+TEXT("==ESCAPE CHARACTERS==\r\n")
+TEXT("\\t	tab                   (HT, TAB)\r\n")
+TEXT("\\n	newline               (LF, NL)\r\n")
+TEXT("\\r	return                (CR)\r\n")
+TEXT("\\f	form feed             (FF)\r\n")
+TEXT("\r\n")
+TEXT("==PREDEFINED CLASSES==\r\n")
+TEXT("\\l	lowercase next char\r\n")
+TEXT("\\u	uppercase next char\r\n")
+TEXT("\\a	letters\r\n")
+TEXT("\\A	non letters\r\n")
+TEXT("\\w	alphanimeric [0-9a-zA-Z]\r\n")
+TEXT("\\W	non alphanimeric\r\n")
+TEXT("\\s	space\r\n")
+TEXT("\\S	non space\r\n")
+TEXT("\\d	digits\r\n")
+TEXT("\\D	non nondigits\r\n")
+TEXT("\\x	exadecimal digits\r\n")
+TEXT("\\X	non exadecimal digits\r\n")
+TEXT("\\c	control charactrs\r\n")
+TEXT("\\C	non control charactrs\r\n")
+TEXT("\\p	punctation\r\n")
+TEXT("\\P	non punctation\r\n")
+TEXT("\\b	word boundary\r\n")
+TEXT("\\B	non word boundary");
+static int set_tooltip_pos(HWND hparent, HWND htooltip)
+{
+	RECT rparent={0},rtool={0};
+	HMONITOR hmon;
+	int width;
+	GetWindowRect(hparent,&rparent);
+	GetWindowRect(htooltip,&rtool);
+	width=rtool.right-rtool.left;
+	hmon=MonitorFromRect(&rparent,MONITOR_DEFAULTTONEAREST);
+	if(hmon){
+		MONITORINFO mi;
+		mi.cbSize=sizeof(mi);
+		if(GetMonitorInfo(hmon,&mi)){
+			int x,y;
+			x=rparent.right;
+			y=rparent.top;
+			if(rparent.right+width>mi.rcWork.right){
+				if(rparent.left-width<mi.rcWork.left){
+					int left=mi.rcWork.left-(rparent.left-width);
+					int right=rparent.right+width-mi.rcWork.right;
+					if(left<right)
+						x=rparent.left-width;
+				}
+				else
+					x=rparent.left-width;
+			}
+			::SendMessage(htooltip, TTM_TRACKPOSITION, 0, (LPARAM)(DWORD) MAKELONG(x,y));
+		}
+	}
+	return 0;
+}
 BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message) 
+	static ToolTip	toolTip;
+	switch (message)
 	{
 		case WM_INITDIALOG :
 		{
@@ -599,10 +673,36 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			 p = getLeftTopPoint(::GetDlgItem(_hSelf, IDCANCEL));
 			 _findClosePos.left = p.x;
 			 _findClosePos.top = p.y + 10;
-
 			return TRUE;
 		}
-
+		case WM_WINDOWPOSCHANGING:
+		{
+			WINDOWPOS *wpos=(LPWINDOWPOS)lParam;
+			if(wpos){
+				if(wpos->flags&SWP_NOACTIVATE){
+					if (toolTip.isVisible())
+						toolTip.destroy();
+				}
+			}
+			break;
+		}
+		case WM_HELP:
+		{
+			RECT rect;
+			if (toolTip.isVisible()){
+				toolTip.destroy();
+				return TRUE;
+			}
+			if (BST_CHECKED == SendDlgItemMessage(_hSelf, IDREGEXP, BM_GETCHECK, 0, 0)){
+				toolTip.init(_hInst, _hSelf);
+				getWindowRect(rect);
+				SendMessage(toolTip.getHSelf(), TTM_SETMAXTIPWIDTH, 0, 800);
+				toolTip.SetColors(GetSysColor(COLOR_WINDOWTEXT),GetSysColor(COLOR_BACKGROUND));
+				toolTip.Show(rect, regex_help, rect.right - rect.left, 0);
+				set_tooltip_pos(_hSelf,toolTip.getHSelf());
+			}
+			return TRUE;
+		}
 		case WM_DRAWITEM :
 		{
 			drawItem((DRAWITEMSTRUCT *)lParam);
@@ -710,6 +810,7 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					(*_ppEditView)->execute(SCI_CALLTIPCANCEL);
 					setStatusbarMessage(TEXT(""), FSNoMessage);
 					display(false);
+					toolTip.destroy();
 					break;
 				case IDOK : // Find Next : only for FIND_DLG and REPLACE_DLG
 				{
@@ -2351,8 +2452,7 @@ void FindReplaceDlg::combo2ExtendedMode(int comboID)
 
 void FindReplaceDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 {
-	//printStr(TEXT("OK"));
-	COLORREF fgColor = RGB(0, 0, 0); // black by default
+    COLORREF fgColor = ::GetSysColor(COLOR_WINDOWTEXT);
 	PTSTR ptStr =(PTSTR)lpDrawItemStruct->itemData;
 
 	if (_statusbarFindStatus == FSNotFound)
@@ -2361,11 +2461,11 @@ void FindReplaceDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	}
 	else if (_statusbarFindStatus == FSMessage)
 	{
-		fgColor = RGB(0, 0, 0xFF); // blue
+		//fgColor = RGB(0, 0, 0xFF); // blue
 	}
 	else if (_statusbarFindStatus == FSTopReached || _statusbarFindStatus == FSEndReached)
 	{
-		fgColor = RGB(0, 166, 0); // green
+		//fgColor = RGB(0, 166, 0); // green
 	}
 	else if (_statusbarFindStatus == FSNoMessage)
 	{
@@ -2686,14 +2786,14 @@ BOOL CALLBACK FindIncrementDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 		// Make edit field red if not found
 		case WM_CTLCOLOREDIT :
 		{
-			// if the text not found modify the background color of the editor
-			static HBRUSH hBrushBackground = CreateSolidBrush(BCKGRD_COLOR);
 			if (FSNotFound != getFindStatus())
 				return FALSE; // text found, use the default color
+			// if the text not found modify the background color of the editor
+			static HBRUSH hBrushBackground = CreateSolidBrush(RGB(0xFF, 00, 00));
 
 			// text not found
-			SetTextColor((HDC)wParam, TXT_COLOR);
-			SetBkColor((HDC)wParam, BCKGRD_COLOR);
+			SetBkColor((HDC)wParam, ::GetSysColor(COLOR_BACKGROUND));
+			SetTextColor((HDC)wParam, RGB(0xFF, 00, 00));
 			return (LRESULT)hBrushBackground;
 		}
 
@@ -2877,5 +2977,4 @@ void FindIncrementDlg::addToRebar(ReBar * rebar)
 	_rbBand.cxIdeal		= _rbBand.cx			= client.right-client.left;
 
 	_pRebar->addBand(&_rbBand, true);
-	_pRebar->setGrayBackground(_rbBand.wID);
 }
