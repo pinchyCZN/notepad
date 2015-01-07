@@ -174,6 +174,7 @@ struct CmdLineParams {
 
 	int _line2go;
     int _column2go;
+	int _offset2go;
 
     POINT _point;
 	bool _isPointXValid;

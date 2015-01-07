@@ -257,6 +257,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\debug_print.c"
+				>
+				<FileConfiguration
+					Name="Unicode Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\WinControls\DockingWnd\DockingCont.cpp"
 				>
 			</File>

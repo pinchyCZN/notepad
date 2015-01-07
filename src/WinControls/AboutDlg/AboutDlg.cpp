@@ -30,6 +30,8 @@
 #include "AboutDlg.h"
 #include "Parameters.h"
 
+extern TCHAR COMMAND_ARG_HELP[];
+
 BOOL CALLBACK AboutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) 
@@ -51,10 +53,6 @@ BOOL CALLBACK AboutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 			buildTime +=  __TIME__;
 #endif
 			::SendMessage(compileDateHandle, WM_SETTEXT, 0, (LPARAM)buildTime.c_str());
-			::EnableWindow(compileDateHandle, FALSE);
-
-            HWND licenceEditHandle = ::GetDlgItem(_hSelf, IDC_LICENCE_EDIT);
-            ::SendMessage(licenceEditHandle, WM_SETTEXT, 0, (LPARAM)LICENCE_TXT);
 
             _emailLink.init(_hInst, _hSelf);
 			//_emailLink.create(::GetDlgItem(_hSelf, IDC_AUTHOR_NAME), TEXT("mailto:don.h@free.fr"));
@@ -67,6 +65,8 @@ BOOL CALLBACK AboutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
             //_onLineHelp.create(::GetDlgItem(_hSelf, IDC_ONLINEHELP_ADDR), TEXT("http://notepad-plus.sourceforge.net/uk/generalFAQ.php"));
 
 			getClientRect(_rc);
+			
+			::SendMessage(::GetDlgItem(_hSelf, IDC_CMD_LINE_HELP), WM_SETTEXT, 0, (LPARAM)COMMAND_ARG_HELP);
 
 			NppParameters *pNppParam = NppParameters::getInstance();
 			ETDTProc enableDlgTheme = (ETDTProc)pNppParam->getEnableThemeDlgTexture();
@@ -75,7 +75,6 @@ BOOL CALLBACK AboutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 				enableDlgTheme(_hSelf, ETDT_ENABLETAB);
 				redraw();
 			}
-
 			return TRUE;
 		}
 
@@ -95,7 +94,9 @@ BOOL CALLBACK AboutDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 				case IDOK : 
 					display(false);
 					return TRUE;
-
+				case IDC_LICENCE:
+					 MessageBox(_hSelf,LICENCE_TXT,TEXT("Licence"),MB_OK|MB_SYSTEMMODAL);
+					break;
 				default :
 					break;
 			}

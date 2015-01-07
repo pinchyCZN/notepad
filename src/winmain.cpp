@@ -178,25 +178,26 @@ const TCHAR FLAG_LOADINGTIME[] = TEXT("-loadingTime");
 const TCHAR FLAG_HELP[] = TEXT("--help");
 const TCHAR FLAG_ALWAYS_ON_TOP[] = TEXT("-alwaysOnTop");
 
-const TCHAR COMMAND_ARG_HELP[] = TEXT("Usage :\r\
-\r\
-notepad++ [--help] [-multiInst] [-noPlugin] [-lLanguage] [-nLineNumber] [-cColumnNumber] [-xPos] [-yPos] [-nosession] [-notabbar] [-ro] [-systemtray] [-loadingTime] [fullFilePathName]\r\
-\r\
-    --help : This help message\r\
-    -multiInst : Launch another Notepad++ instance\r\
-    -noPlugin : Launch Notepad++ without loading any plugin\r\
-    -l : Launch Notepad++ by applying indicated language to the file to open\r\
-    -n : Launch Notepad++ by scrolling indicated line on the file to open\r\
-    -c : Launch Notepad++ on scrolling indicated column on the file to open\r\
-    -x : Launch Notepad++ by indicating its left side position on the screen\r\
-    -y : Launch Notepad++ by indicating its top position on the screen\r\
-    -nosession : Launch Notepad++ without any session\r\
-    -notabbar : Launch Notepad++ without tabbar\r\
-    -ro : Launch Notepad++ and make the file to open read only\r\
-    -systemtray : Launch Notepad++ directly in system tray\r\
-    -loadingTime : Display Notepad++ loading time\r\
-    -alwaysOnTop : Make Notepad++ always on top\r\
-    fullFilePathName : file name to open (absolute or relative path name)\r\
+TCHAR COMMAND_ARG_HELP[] = TEXT("Usage :\r\n\
+\r\n\
+notepad++ [--help] [-multiInst] [-noPlugin] [-lLanguage] [-nLineNumber] [-cColumnNumber] [-xPos] [-yPos] [-nosession] [-notabbar] [-ro] [-systemtray] [-loadingTime] [fullFilePathName]\r\n\
+\r\n\
+    --help : This help message\r\n\
+    -multiInst : Launch another Notepad++ instance\r\n\
+    -noPlugin : Launch Notepad++ without loading any plugin\r\n\
+    -l : Launch Notepad++ by applying indicated language to the file to open\r\n\
+    -n : Launch Notepad++ by scrolling indicated line on the file to open\r\n\
+    -c : Launch Notepad++ on scrolling indicated column on the file to open\r\n\
+    -o : Launch Notepad++ by moving to the offset on the file to open\r\n\
+    -x : Launch Notepad++ by indicating its left side position on the screen\r\n\
+    -y : Launch Notepad++ by indicating its top position on the screen\r\n\
+    -nosession : Launch Notepad++ without any session\r\n\
+    -notabbar : Launch Notepad++ without tabbar\r\n\
+    -ro : Launch Notepad++ and make the file to open read only\r\n\
+    -systemtray : Launch Notepad++ directly in system tray\r\n\
+    -loadingTime : Display Notepad++ loading time\r\n\
+    -alwaysOnTop : Make Notepad++ always on top\r\n\
+    fullFilePathName : file name to open (absolute or relative path name)\r\n\
 ");
 
 void doException(Notepad_plus_Window & notepad_plus_plus);
@@ -230,6 +231,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 	cmdLineParams._langType = getLangTypeFromParam(params);
 	cmdLineParams._line2go = getNumberFromParam('n', params, isParamePresent);
     cmdLineParams._column2go = getNumberFromParam('c', params, isParamePresent);
+    cmdLineParams._offset2go = getNumberFromParam('o', params, isParamePresent);
 	cmdLineParams._point.x = getNumberFromParam('x', params, cmdLineParams._isPointXValid);
 	cmdLineParams._point.y = getNumberFromParam('y', params, cmdLineParams._isPointYValid);
 
