@@ -164,7 +164,7 @@ int getNumberFromParam(char paramName, ParamVector & params, bool & isParamePres
 		return -1;
 	}
 	isParamePresent = true;
-	return generic_atoi(numStr.c_str());
+	return generic_strtol(numStr.c_str(),0,0);
 };
 
 
