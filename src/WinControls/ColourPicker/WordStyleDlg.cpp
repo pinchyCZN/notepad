@@ -44,7 +44,7 @@ BOOL CALLBACK ColourStaticTextHooker::colourStaticProc(HWND hwnd, UINT Message, 
 
 		    // Get the default GUI font
             HFONT hf = (HFONT)SendMessage(hwnd,WM_GETFONT,0,0);
-			HANDLE hOld;
+			HANDLE hOld=0;
 			if(hf)
 				hOld = SelectObject(hdc, hf);
 

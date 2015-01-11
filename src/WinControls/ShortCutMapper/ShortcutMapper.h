@@ -45,9 +45,6 @@ enum GridState {STATE_MENU, STATE_MACRO, STATE_USER, STATE_PLUGIN, STATE_SCINTIL
 #define LISTWIDTH_ADD 14
 
 class ShortcutMapper : public StaticDialog {
-private:
-	int compare_keys(int indexa,int indexb,const TCHAR *name,const KeyCombo *ka,const KeyCombo *kb,TCHAR *str,int len);
-	int check_in_use(int index,const KeyCombo *kc,NppParameters *nppParam);
 public:
 	ShortcutMapper() : _currentState(STATE_MENU), StaticDialog() {
 		generic_strncpy(tabNames[0], TEXT("Main menu"), maxTabName);

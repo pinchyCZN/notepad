@@ -319,7 +319,7 @@ void ShortcutMapper::populateShortCuts()
 		::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_DELETE), false);
 	}
 }
-int ShortcutMapper::compare_keys(int indexa,int indexb,const TCHAR *name,const KeyCombo *ka,const KeyCombo *kb,TCHAR *str,int len)
+static int compare_keys(int indexa,int indexb,const TCHAR *name,const KeyCombo *ka,const KeyCombo *kb,TCHAR *str,int len)
 {
 	int count=0;
 	if(indexa!=indexb
@@ -332,39 +332,38 @@ int ShortcutMapper::compare_keys(int indexa,int indexb,const TCHAR *name,const K
 	}
 	return count;
 }
-int ShortcutMapper::check_in_use(int index,const KeyCombo *kc,NppParameters *nppParam)
+int check_in_use(int _currentState,int index,const KeyCombo *kc,NppParameters *nppParam,TCHAR *str,int str_size)
 {
 	int i,count=0;
-	TCHAR str[255]={0};
 	if(kc->_key==0)
 		return count;
-	_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%s",L"Duplicate shortcuts found:");
+	_sntprintf_s(str,str_size,_TRUNCATE,L"%s",L"Duplicate shortcuts found:");
 	{
 		vector<CommandShortcut> &shortcuts=nppParam->getUserShortcuts();
 		for(i=0;i<(int)shortcuts.size();i++){
 			CommandShortcut sc=shortcuts[i];
-			count+=compare_keys(_currentState==STATE_MENU?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_MENU?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,str_size);
 		}
 	}
 	{
 		vector<MacroShortcut> & shortcuts = nppParam->getMacroList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			MacroShortcut sc=shortcuts[i];
-			count+=compare_keys(_currentState==STATE_MACRO?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_MACRO?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,str_size);
 		}
 	}
 	{
 		vector<UserCommand> & shortcuts = nppParam->getUserCommandList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			UserCommand sc=shortcuts[i];
-			count+=compare_keys(_currentState==STATE_USER?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_USER?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,str_size);
 		}
 	}
 	{
 		vector<PluginCmdShortcut> & shortcuts = nppParam->getPluginCommandList();
 		for(i=0;i<(int)shortcuts.size();i++){
 			PluginCmdShortcut sc=shortcuts[i];
-			count+=compare_keys(_currentState==STATE_PLUGIN?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,sizeof(str)/sizeof(TCHAR));
+			count+=compare_keys(_currentState==STATE_PLUGIN?i:-1,index,sc.getName(),&sc.getKeyCombo(),kc,str,str_size);
 		}
 	}
 	{
@@ -374,24 +373,24 @@ int ShortcutMapper::check_in_use(int index,const KeyCombo *kc,NppParameters *npp
 			int j,max;
 			max=sc.getSize();
 			for(j=0;j<max;j++){
-				count+=compare_keys(_currentState==STATE_SCINTILLA?i:-1,index,sc.getName(),&sc.getKeyComboByIndex(j),kc,str,sizeof(str)/sizeof(TCHAR));
+				KeyCombo sckc=sc.getKeyComboByIndex(j);
+				count+=compare_keys(_currentState==STATE_SCINTILLA?i:-1,index,sc.getName(),&sckc,kc,str,str_size);
 			}
-			if(_currentState==STATE_SCINTILLA && index<shortcuts.size()){
+			if(_currentState==STATE_SCINTILLA && (size_t)index<shortcuts.size()){
 				ScintillaKeyMap current_sc=shortcuts[index];
 				if(current_sc.getSize()>1){
 					int k,current_max=current_sc.getSize();
 					for(k=1;k<current_max;k++){
 						for(j=0;j<max;j++){
-							KeyCombo *current_kc=&current_sc.getKeyComboByIndex(k);
-							count+=compare_keys(i,index,sc.getName(),&sc.getKeyComboByIndex(j),current_kc,str,sizeof(str)/sizeof(TCHAR));
+							KeyCombo sckc=sc.getKeyComboByIndex(j);
+							KeyCombo current_kc=current_sc.getKeyComboByIndex(k);
+							count+=compare_keys(i,index,sc.getName(),&sckc,&current_kc,str,str_size);
 						}
 					}
 				}
 			}
 		}
 	}
-	if(count>0)
-		::MessageBox(_hSelf,str,L"Warning",MB_OK);
 	return count;
 }
 
@@ -504,6 +503,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 							vector<CommandShortcut> & shortcuts = nppParam->getUserShortcuts();
 							CommandShortcut csc = shortcuts[index], prevcsc = shortcuts[index];
 							csc.init(_hInst, _hSelf);
+							csc.set_shortcut_info(_currentState,index);
 							if (csc.doDialog() != -1 && prevcsc != csc) {	//shortcut was altered
 								generic_string keys=csc.toString();
 								nppParam->addUserModifiedIndex(index);
@@ -512,7 +512,9 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
-								check_in_use(index,&csc.getKeyCombo(),nppParam);								
+								TCHAR str[255];
+								if(0<check_in_use(_currentState,index,&csc.getKeyCombo(),nppParam,str,sizeof(str)/sizeof(TCHAR)))
+									MessageBox(_hSelf,str,L"Duplicates found",MB_OK);
 							}
 							break; 
 						}
@@ -521,6 +523,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 							vector<MacroShortcut> & shortcuts = nppParam->getMacroList();
 							MacroShortcut msc = shortcuts[index], prevmsc = shortcuts[index];
 							msc.init(_hInst, _hSelf);
+							msc.set_shortcut_info(_currentState,index);
 							if (msc.doDialog() != -1 && prevmsc != msc) {	//shortcut was altered
 								generic_string name=msc.getName();
 								generic_string keys=msc.toString();
@@ -530,7 +533,9 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
-								check_in_use(index,&msc.getKeyCombo(),nppParam);
+								TCHAR str[255];
+								if(0<check_in_use(_currentState,index,&msc.getKeyCombo(),nppParam,str,sizeof(str)/sizeof(TCHAR)))
+									MessageBox(_hSelf,str,L"Duplicates found",MB_OK);
 							}
 							break; 
 						}
@@ -539,6 +544,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 							vector<UserCommand> & shortcuts = nppParam->getUserCommandList();
 							UserCommand ucmd = shortcuts[index], prevucmd = shortcuts[index];
 							ucmd.init(_hInst, _hSelf);
+							ucmd.set_shortcut_info(_currentState,index);
 							prevucmd = ucmd;
 							if (ucmd.doDialog() != -1 && prevucmd != ucmd) {	//shortcut was altered
 								generic_string name=ucmd.getName();
@@ -550,7 +556,9 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
-								check_in_use(index,&ucmd.getKeyCombo(),nppParam);
+								TCHAR str[255];
+								if(0<check_in_use(_currentState,index,&ucmd.getKeyCombo(),nppParam,str,sizeof(str)/sizeof(TCHAR)))
+									MessageBox(_hSelf,str,L"Duplicates found",MB_OK);
 							}
 							break; 
 						}
@@ -561,6 +569,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								break;
 							PluginCmdShortcut pcsc = shortcuts[index], prevpcsc = shortcuts[index];
 							pcsc.init(_hInst, _hSelf);
+							pcsc.set_shortcut_info(_currentState,index);
 							prevpcsc = pcsc;
 							if (pcsc.doDialog() != -1 && prevpcsc != pcsc) {	//shortcut was altered
 								nppParam->addPluginModifiedIndex(index);
@@ -570,7 +579,10 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								update_col_width(keys.c_str(),2);
 								//Notify current Accelerator class to update everything
 								nppParam->getAccelerator()->updateShortcuts();
-								check_in_use(index,&pcsc.getKeyCombo(),nppParam);
+								TCHAR str[255];
+								if(0<check_in_use(_currentState,index,&pcsc.getKeyCombo(),nppParam,str,sizeof(str)/sizeof(TCHAR)))
+									MessageBox(_hSelf,str,L"Duplicates found",MB_OK);
+
 								unsigned long cmdID = pcsc.getID();
 								ShortcutKey shortcut;
 								shortcut._isAlt = pcsc.getKeyCombo()._isAlt;
@@ -587,6 +599,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 							vector<ScintillaKeyMap> & shortcuts = nppParam->getScintillaKeyList();
 							ScintillaKeyMap skm = shortcuts[index], prevskm = shortcuts[index];
 							skm.init(_hInst, _hSelf);
+							skm.set_shortcut_info(_currentState,index);
 							if (skm.doDialog() != -1 && prevskm != skm) 
 							{
 								//shortcut was altered
@@ -601,8 +614,12 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								}
 								ListView_SetItemText(hlistview,selected_row,2,(LPWSTR)str);
 								update_col_width(str,2);
-								if(max>0)
-									check_in_use(index,&skm.getKeyComboByIndex(0),nppParam);
+								if(max>0){
+									TCHAR str[255];
+									KeyCombo skmkc=skm.getKeyComboByIndex(0);
+									if(0<check_in_use(_currentState,index,&skmkc,nppParam,str,sizeof(str)/sizeof(TCHAR)))
+										MessageBox(_hSelf,str,L"Duplicates found",MB_OK);
+								}
 								//Notify current Accelerator class to update key
 								nppParam->getScintillaAccelerator()->updateKeys();
 							}

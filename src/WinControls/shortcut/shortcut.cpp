@@ -356,6 +356,21 @@ void getNameStrFromCmd(DWORD cmd, generic_string & str)
 	}
 	return;
 }
+extern int check_in_use(int _currentState,int index,const KeyCombo *kc,NppParameters *nppParam,TCHAR *str,int str_size);
+int Shortcut::check_dupes()
+{
+	int count=0;
+	NppParameters *pNppParam = NppParameters::getInstance();
+	TCHAR str[255];
+	count=check_in_use(_currentState,_shortcut_index,&_keyCombo,pNppParam,str,sizeof(str)/sizeof(TCHAR));
+	if(!isEnabled())
+		::SetWindowText(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), L"This will disable the accelerator!");
+	else if(count>0)
+		::SetWindowText(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), str);
+	else
+		::SetWindowText(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), L"");
+	return count;
+}
 
 BOOL CALLBACK Shortcut::run_dlgProc(UINT Message, WPARAM wParam, LPARAM) 
 {
@@ -383,7 +398,7 @@ BOOL CALLBACK Shortcut::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 
 			if (iFound != -1)
 				::SendDlgItemMessage(_hSelf, IDC_KEY_COMBO, CB_SETCURSEL, iFound, 0);
-			::ShowWindow(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), isEnabled()?SW_HIDE:SW_SHOW);
+			check_dupes();
 
 			goToCenter();
 			return TRUE;
@@ -397,15 +412,18 @@ BOOL CALLBACK Shortcut::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 				case IDC_CTRL_CHECK :
 					_keyCombo._isCtrl = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
 					::EnableWindow(::GetDlgItem(_hSelf, IDOK), isValid() && (textlen > 0 || !_canModifyName));
+					check_dupes();
 					return TRUE;
 
 				case IDC_ALT_CHECK :
 					_keyCombo._isAlt = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
 					::EnableWindow(::GetDlgItem(_hSelf, IDOK), isValid() && (textlen > 0 || !_canModifyName));
+					check_dupes();
 					return TRUE;
 
 				case IDC_SHIFT_CHECK :
 					_keyCombo._isShift = BST_CHECKED == ::SendDlgItemMessage(_hSelf, wParam, BM_GETCHECK, 0, 0);
+					check_dupes();
 					return TRUE;
 
 				case IDC_DISABLE :
@@ -445,7 +463,7 @@ BOOL CALLBACK Shortcut::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 							int i = ::SendDlgItemMessage(_hSelf, LOWORD(wParam), CB_GETCURSEL, 0, 0);
 							_keyCombo._key = namedKeyArray[i].id;
 							::EnableWindow(::GetDlgItem(_hSelf, IDOK), isValid() && (textlen > 0 || !_canModifyName));
-							::ShowWindow(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), isEnabled()?SW_HIDE:SW_SHOW);
+							check_dupes();
 							return TRUE;
 						}
 					}
@@ -726,8 +744,7 @@ void ScintillaKeyMap::applyToCurrentIndex() {
 }
 
 void ScintillaKeyMap::validateDialog() {
-	bool isDisabled = _keyCombo._key==0;
-	::ShowWindow(::GetDlgItem(_hSelf, IDC_WARNING_STATIC), isDisabled?SW_SHOW:SW_HIDE);
+	check_dupes();
 }
 
 void ScintillaKeyMap::showCurrentSettings() {
@@ -858,6 +875,7 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 							case IDC_LIST_KEYS:
 							{
 								showCurrentSettings();
+								validateDialog();
 								return TRUE;
 							}
 						}

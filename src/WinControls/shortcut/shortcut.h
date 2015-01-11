@@ -88,6 +88,8 @@ public:
 		_keyCombo._isAlt = false;
 		_keyCombo._isShift = false;
 		_keyCombo._key = 0;
+		_currentState = -1;
+		_shortcut_index = 0;
 	};
 
 	Shortcut(const TCHAR *name, bool isCtrl, bool isAlt, bool isShift, UCHAR key) : _canModifyName(false) {
@@ -101,12 +103,16 @@ public:
 		_keyCombo._isAlt = isAlt;
 		_keyCombo._isShift = isShift;
 		_keyCombo._key = key;
+		_currentState = -1;
+		_shortcut_index = 0;
 	};
 
 	Shortcut(const Shortcut & sc) {
 		setName(sc.getMenuName());
 		_keyCombo = sc._keyCombo;
 		_canModifyName = sc._canModifyName;
+		_currentState = -1;
+		_shortcut_index = 0;
 	}
 
 	BYTE getAcceleratorModifiers() {
@@ -178,13 +184,18 @@ public:
 	}
 
 	void setName(const TCHAR * name);
-
+	void set_shortcut_info(int currentState,int shortcut_index){
+		_currentState=currentState;
+		_shortcut_index=shortcut_index;
+	};
+	int check_dupes();
 protected :
 	KeyCombo _keyCombo;
 	virtual BOOL CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
 	bool _canModifyName;
 	TCHAR _name[nameLenMax];		//normal name is plain text (for display purposes)
 	TCHAR _menuName[nameLenMax];	//menu name has ampersands for quick keys
+	int _currentState,_shortcut_index;
 };
 		 
 class CommandShortcut : public Shortcut {
