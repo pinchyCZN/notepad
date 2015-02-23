@@ -174,8 +174,6 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	const TCHAR *label = _taskListInfo._tlfsLst[nItem]._fn.c_str();
 	int iImage = _taskListInfo._tlfsLst[nItem]._status;
 	
-	COLORREF textColor = GetSysColor(COLOR_WINDOWTEXT);
-	int bgcolor = COLOR_BACKGROUND;
 	int imgStyle = ILD_SELECTED;
 
 	if (lpDrawItemStruct->itemState & ODS_SELECTED)
@@ -200,7 +198,17 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	int spaceUnit = charPixel.cx;
 	int marge = spaceUnit;
 
-	::FillRect(hDC,&rect,(HBRUSH)bgcolor+1);
+	HBRUSH hbrush;
+	int bgcolor;
+
+	if(lpDrawItemStruct->itemState&ODS_SELECTED)
+		bgcolor=COLOR_HIGHLIGHT;
+	else
+		bgcolor=COLOR_BACKGROUND;
+	hbrush = CreateSolidBrush(GetSysColor(bgcolor));
+	::FillRect(hDC,&rect,(HBRUSH)hbrush);
+	DeleteObject(hbrush);
+
 	rect.left += marge;
 	ImageList_Draw(hImgLst, iImage, hDC, rect.left, rect.top, imgStyle);
 	rect.left += imageRect.right - imageRect.left + spaceUnit * 2;
@@ -208,9 +216,7 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	//
 	// DRAW TEXT
 	//
-	if(lpDrawItemStruct->itemState&ODS_SELECTED)
-		bgcolor=COLOR_HIGHLIGHT;
-	::FillRect(hDC,&rect,(HBRUSH)bgcolor+1);
+	COLORREF textColor = GetSysColor(COLOR_WINDOWTEXT);
 	::SetTextColor(hDC, textColor);
 	rect.top -= ::GetSystemMetrics(SM_CYEDGE);
 		
