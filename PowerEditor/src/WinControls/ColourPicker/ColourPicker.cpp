@@ -122,7 +122,7 @@ LRESULT ColourPicker::runProc(UINT Message, WPARAM wParam, LPARAM lParam)
 			p.x = rc.left;
 			p.y = rc.top + rc.bottom;
 			::ClientToScreen(_hSelf, &p);
-			printf("colorpicker\n");
+
 			if (!_pColourPopup)
 			{
 				_pColourPopup = new ColourPopup(_currentColour);
