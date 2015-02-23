@@ -15,3 +15,5 @@ Custom build of notepad++ (v6.4.1) with enhancements:
     * control entirely with keyboard
 * Shortcut
     * new shortcut "Toggle Results Window" default key Esc shows and hides the result window
+
+* Always use dekstop color scheme (no hard coded colors)
