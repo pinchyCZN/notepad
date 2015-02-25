@@ -394,6 +394,28 @@ int check_in_use(int _currentState,int index,const KeyCombo *kc,NppParameters *n
 	return count;
 }
 
+int ShortcutMapper::disable_selected()
+{
+	int i,count,sel=-1;
+	NppParameters *nppParam = NppParameters::getInstance();
+	count=ListView_GetItemCount(hlistview);
+	for(i=0;i<count;i++){
+		if(ListView_GetItemState(hlistview,i,LVIS_SELECTED)==LVIS_SELECTED){
+			int	index=getitemindex(i);
+			switch(_currentState) {
+			case STATE_MENU:
+				{
+				//Get CommandShortcut corresponding to index
+				vector<CommandShortcut> & shortcuts = nppParam->getUserShortcuts();
+				CommandShortcut csc = shortcuts[index], prevcsc = shortcuts[index];
+				}
+				break;
+			}
+		}
+	}
+	return sel;
+}
+
 BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) 
@@ -444,6 +466,8 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 						{
 							vector<MenuItemUnit> itemUnitArray;
 							itemUnitArray.push_back(MenuItemUnit(IDC_SHORTCUT_MODIFY, TEXT("Modify")));
+							itemUnitArray.push_back(MenuItemUnit(IDC_SHORTCUT_DISABLE, TEXT("Disable")));
+							itemUnitArray.push_back(MenuItemUnit(0, 0));
 							itemUnitArray.push_back(MenuItemUnit(IDC_SHORTCUT_DELETE, TEXT("Delete")));
 							_rightClickMenu.create(_hSelf, itemUnitArray);
 						}
@@ -487,6 +511,9 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				case IDC_SHORTCUT_FILTER1:
 					if(HIWORD(wParam)==EN_CHANGE)
 						populateShortCuts();
+					break;
+				case IDC_SHORTCUT_DISABLE:
+					disable_selected();
 					break;
 				case IDC_SHORTCUT_MODIFY :
 				{
