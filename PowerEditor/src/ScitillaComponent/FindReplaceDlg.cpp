@@ -1903,7 +1903,7 @@ void FindReplaceDlg::findAllIn(InWhat op)
 		_pFinder->_scintView.execute(SCI_USEPOPUP, FALSE);
 		_pFinder->_scintView.execute(SCI_SETUNDOCOLLECTION, false);	//dont store any undo information
 		_pFinder->_scintView.execute(SCI_SETCARETLINEVISIBLE, 1);
-		_pFinder->_scintView.execute(SCI_SETCARETWIDTH, 0);
+		_pFinder->_scintView.execute(SCI_SETCARETWIDTH, 1);
 		_pFinder->_scintView.showMargin(ScintillaEditView::_SC_MARGE_FOLDER, true);
 
 		// get the width of FindDlg
