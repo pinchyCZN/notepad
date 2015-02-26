@@ -18,3 +18,4 @@ Custom build of notepad++ (v6.4.1) with enhancements:
 
 * Always use dekstop color scheme (no hard coded colors)
 * Caret visible in find results window
+* Disable multiple shortcuts

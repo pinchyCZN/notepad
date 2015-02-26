@@ -235,9 +235,12 @@ void ShortcutMapper::populateShortCuts()
 
 	if(nrItems==0){
         ::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_MODIFY), false);
+        ::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_DISABLE), false);
         ::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_DELETE), false);
 		return;
 	}
+	else
+		::EnableWindow(::GetDlgItem(_hSelf, IDC_SHORTCUT_DISABLE), true);
 
 	switch(_currentState) {
 		case STATE_MENU: {
@@ -396,7 +399,7 @@ int check_in_use(int _currentState,int index,const KeyCombo *kc,NppParameters *n
 
 int ShortcutMapper::disable_selected()
 {
-	int i,count,sel=-1;
+	int i,count,sel=0;
 	NppParameters *nppParam = NppParameters::getInstance();
 	count=ListView_GetItemCount(hlistview);
 	for(i=0;i<count;i++){
@@ -405,14 +408,55 @@ int ShortcutMapper::disable_selected()
 			switch(_currentState) {
 			case STATE_MENU:
 				{
-				//Get CommandShortcut corresponding to index
-				vector<CommandShortcut> & shortcuts = nppParam->getUserShortcuts();
-				CommandShortcut csc = shortcuts[index], prevcsc = shortcuts[index];
+					vector<CommandShortcut> & shortcuts = nppParam->getUserShortcuts();
+					CommandShortcut csc = shortcuts[index];
+					sel+=csc.Disable();
+					shortcuts[index]=csc;
+				}
+				break;
+			case STATE_MACRO:
+				{
+					vector<MacroShortcut> & shortcuts = nppParam->getMacroList();
+					MacroShortcut msc = shortcuts[index];
+					sel+=msc.Disable();
+					shortcuts[index]=msc;
+				}
+				break;
+			case STATE_USER:
+				{
+					vector<UserCommand> & shortcuts = nppParam->getUserCommandList();
+					UserCommand ucmd = shortcuts[index];
+					sel+=ucmd.Disable();
+					shortcuts[index]=ucmd;
+				}
+				break;
+			case STATE_PLUGIN:
+				{
+					vector<PluginCmdShortcut> & shortcuts = nppParam->getPluginCommandList();
+					if(shortcuts.empty())
+						break;
+					PluginCmdShortcut pcsc = shortcuts[index];
+					sel+=pcsc.Disable();
+					shortcuts[index]=pcsc;
+				}
+				break;
+			case STATE_SCINTILLA:
+				{
+					int j;
+					vector<ScintillaKeyMap> & shortcuts = nppParam->getScintillaKeyList();
+					ScintillaKeyMap skm = shortcuts[index];
+					for(j=skm.getSize()-1;j>=0;j--)
+						skm.removeKeyComboByIndex(j);
+					skm.Disable();
+					sel++;
+					shortcuts[index]=skm;
 				}
 				break;
 			}
 		}
 	}
+	if(sel>0)
+		populateShortCuts();
 	return sel;
 }
 
@@ -513,7 +557,8 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 						populateShortCuts();
 					break;
 				case IDC_SHORTCUT_DISABLE:
-					disable_selected();
+					if(IDOK==MessageBox(_hSelf,TEXT("Ok to disable selected shortcuts?"),TEXT("Warning!"),MB_OKCANCEL|MB_SYSTEMMODAL))
+						disable_selected();
 					break;
 				case IDC_SHORTCUT_MODIFY :
 				{

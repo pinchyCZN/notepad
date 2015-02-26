@@ -160,6 +160,16 @@ public:
 	virtual bool isEnabled() const {	//true if _keyCombo != 0, false if _keyCombo == 0, in which case no accelerator should be made
 		return (_keyCombo._key != 0);
 	};
+	int Disable(){
+		int result=0;
+		if(_keyCombo._key!=0)
+			result=1;
+		_keyCombo._key=0;
+		_keyCombo._isAlt=false;
+		_keyCombo._isCtrl=false;
+		_keyCombo._isShift=false;
+		return result;
+	}
 
 	virtual generic_string toString() const;					//the hotkey part
 	generic_string toMenuItemString() const {					//generic_string suitable for menu
