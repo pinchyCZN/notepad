@@ -397,7 +397,7 @@ int check_in_use(int _currentState,int index,const KeyCombo *kc,NppParameters *n
 	return count;
 }
 
-int ShortcutMapper::disable_selected()
+int ShortcutMapper::disable_selected(int disable)
 {
 	int i,count,sel=0;
 	NppParameters *nppParam = NppParameters::getInstance();
@@ -410,24 +410,36 @@ int ShortcutMapper::disable_selected()
 				{
 					vector<CommandShortcut> & shortcuts = nppParam->getUserShortcuts();
 					CommandShortcut csc = shortcuts[index];
-					sel+=csc.Disable();
-					shortcuts[index]=csc;
+					if(disable){
+						sel+=csc.Disable();
+						shortcuts[index]=csc;
+					}
+					else
+						sel+=csc.isEnabled();
 				}
 				break;
 			case STATE_MACRO:
 				{
 					vector<MacroShortcut> & shortcuts = nppParam->getMacroList();
 					MacroShortcut msc = shortcuts[index];
-					sel+=msc.Disable();
-					shortcuts[index]=msc;
+					if(disable){
+						sel+=msc.Disable();
+						shortcuts[index]=msc;
+					}
+					else
+						sel+=msc.isEnabled();
 				}
 				break;
 			case STATE_USER:
 				{
 					vector<UserCommand> & shortcuts = nppParam->getUserCommandList();
 					UserCommand ucmd = shortcuts[index];
-					sel+=ucmd.Disable();
-					shortcuts[index]=ucmd;
+					if(disable){
+						sel+=ucmd.Disable();
+						shortcuts[index]=ucmd;
+					}
+					else
+						sel+=ucmd.isEnabled();
 				}
 				break;
 			case STATE_PLUGIN:
@@ -436,27 +448,33 @@ int ShortcutMapper::disable_selected()
 					if(shortcuts.empty())
 						break;
 					PluginCmdShortcut pcsc = shortcuts[index];
-					sel+=pcsc.Disable();
-					shortcuts[index]=pcsc;
+					if(disable){
+						sel+=pcsc.Disable();
+						shortcuts[index]=pcsc;
+					}
+					else
+						sel+=pcsc.isEnabled();
 				}
 				break;
 			case STATE_SCINTILLA:
 				{
-					int j;
 					vector<ScintillaKeyMap> & shortcuts = nppParam->getScintillaKeyList();
 					ScintillaKeyMap skm = shortcuts[index];
-					for(j=skm.getSize()-1;j>=0;j--)
-						skm.removeKeyComboByIndex(j);
-					skm.Disable();
-					sel++;
-					shortcuts[index]=skm;
+					if(disable){
+						int j;
+						for(j=skm.getSize()-1;j>=0;j--)
+							skm.removeKeyComboByIndex(j);
+						skm.Disable();
+						sel++;
+						shortcuts[index]=skm;
+					}
+					else
+						sel+=skm.isEnabled();
 				}
 				break;
 			}
 		}
 	}
-	if(sel>0)
-		populateShortCuts();
 	return sel;
 }
 
@@ -557,8 +575,16 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 						populateShortCuts();
 					break;
 				case IDC_SHORTCUT_DISABLE:
-					if(IDOK==MessageBox(_hSelf,TEXT("Ok to disable selected shortcuts?"),TEXT("Warning!"),MB_OKCANCEL|MB_SYSTEMMODAL))
-						disable_selected();
+					{
+						int sel=0;
+						sel=disable_selected(FALSE);
+						if(sel!=0){
+							if(IDOK==MessageBox(_hSelf,TEXT("Ok to disable selected shortcuts?"),TEXT("Warning!"),MB_OKCANCEL|MB_SYSTEMMODAL)){
+								disable_selected(TRUE);
+								populateShortCuts();
+							}
+						}
+					}
 					break;
 				case IDC_SHORTCUT_MODIFY :
 				{

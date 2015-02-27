@@ -95,7 +95,7 @@ private:
 	TCHAR tabNames[5][maxTabName];
 
 	int gettextwidth(HWND,const TCHAR *);
-	int disable_selected();
+	int disable_selected(int disable);
 	int getselectedrow();
 	int getitemindex(int row);
 	int update_col_width(const TCHAR *s,int col);
