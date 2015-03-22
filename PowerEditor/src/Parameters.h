@@ -244,13 +244,13 @@ struct DockingManagerData {
 		for (size_t i = 0, fwiLen = _flaotingWindowInfo.size(); i < fwiLen; i++)
 		{
 			if (_flaotingWindowInfo[i]._cont == floatCont)
-      {
-        rc.left = _flaotingWindowInfo[i]._pos.left;
-        rc.top = _flaotingWindowInfo[i]._pos.top;
-        rc.right = _flaotingWindowInfo[i]._pos.right;
-        rc.bottom = _flaotingWindowInfo[i]._pos.bottom;
+			{
+				rc.left = _flaotingWindowInfo[i]._pos.left;
+				rc.top = _flaotingWindowInfo[i]._pos.top;
+				rc.right = _flaotingWindowInfo[i]._pos.right;
+				rc.bottom = _flaotingWindowInfo[i]._pos.bottom;
 				return true;
-		}
+			}
 		}
 		return false;
 	}
