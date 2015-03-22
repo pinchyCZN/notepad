@@ -657,10 +657,10 @@ void DockingManager::createDockableDlg(tTbData data, int iCont, bool isVisible)
 		_vContainer[iCont]->createToolbar(data);
 
 	// notify client app
-	if (iCont < DOCKCONT_MAX)
-		SendNotify(data.hClient, MAKELONG(DMN_DOCK, iCont));
-	else
+	if ((data.uMask&DWS_DF_FLOATING) || iCont >= DOCKCONT_MAX)
 		SendNotify(data.hClient, MAKELONG(DMN_FLOAT, iCont));
+	else
+		SendNotify(data.hClient, MAKELONG(DMN_DOCK, iCont));
 }
 
 void DockingManager::setActiveTab(int iCont, int iItem)

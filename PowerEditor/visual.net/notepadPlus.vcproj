@@ -767,6 +767,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\icons\incrementalBg.bmp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\icons\indentGuide.bmp"
 				>
 			</File>
@@ -1369,6 +1373,10 @@
 			</File>
 			<File
 				RelativePath="..\src\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ScitillaComponent\resource.h"
 				>
 			</File>
 			<File

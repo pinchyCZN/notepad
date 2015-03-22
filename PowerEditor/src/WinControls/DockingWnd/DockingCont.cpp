@@ -445,7 +445,6 @@ void DockingCont::drawCaptionItem(DRAWITEMSTRUCT *pDrawItemStruct)
 	HFONT		hOldFont	= NULL;
 	RECT		rc			= pDrawItemStruct->rcItem;
 	HDC			hDc			= pDrawItemStruct->hDC;
-	HPEN		hPen		= ::CreatePen(PS_SOLID, 1, ::GetSysColor(COLOR_BTNSHADOW));
 	BITMAP		bmp			= {0};
 	HBITMAP		hBmpCur		= NULL;
 	HBITMAP		hBmpOld 	= NULL;
@@ -556,7 +555,6 @@ void DockingCont::drawCaptionItem(DRAWITEMSTRUCT *pDrawItemStruct)
 		::SelectObject(hDc, hOldFont);
 		::DeleteObject(hFont);
 	}
-	::DeleteObject(hPen);
 	::DeleteObject(bgbrush);
 
 	// draw button
@@ -882,7 +880,7 @@ void DockingCont::drawTabItem(DRAWITEMSTRUCT *pDrawItemStruct)
 
 	if (isSelected == true)
 	{
-		COLORREF _unselectedColor = RGB(0, 0, 0);
+		COLORREF _unselectedColor = ::GetSysColor(COLOR_CAPTIONTEXT);
 		::SetTextColor(hDc, _unselectedColor);
 
 		// draw text

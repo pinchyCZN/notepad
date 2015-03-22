@@ -57,12 +57,10 @@ static LRESULT CALLBACK hookProcMouse(INT nCode, WPARAM wParam, LPARAM lParam)
 		{
 			case WM_MOUSEMOVE:
 			case WM_NCMOUSEMOVE:
-				//::PostMessage(hWndServer, wParam, 0, 0);
 				::SendMessage(hWndServer, wParam, 0, 0);
 				break;
 			case WM_LBUTTONUP:
 			case WM_NCLBUTTONUP:
-				//::PostMessage(hWndServer, wParam, 0, 0);
 				::SendMessage(hWndServer, wParam, 0, 0);
 				return TRUE;
 			default: 
@@ -76,13 +74,14 @@ static LRESULT CALLBACK hookProcKeyboard(INT nCode, WPARAM wParam, LPARAM lParam
 {
     if (nCode >= 0)
     {
-		if (wParam == VK_ESCAPE)
-		{
-			::PostMessage(hWndServer, DMM_CANCEL_MOVE, 0, 0);
-			return FALSE;
+		KBDLLHOOKSTRUCT *key=(KBDLLHOOKSTRUCT*)lParam;
+		if(key){
+			if(key->vkCode==VK_ESCAPE){
+				::PostMessage(hWndServer, DMM_CANCEL_MOVE, 0, 0);
+				return TRUE;
+			}
 		}
 	}
-
 	return ::CallNextHookEx(hookKeyboard, nCode, wParam, lParam);
 }
 
@@ -268,19 +267,14 @@ void Gripper::create()
         ::MessageBox(NULL, str, TEXT("SetWindowsHookEx(MOUSE) failed"), MB_OK | MB_ICONERROR);
     }
 
-	if (ver < WV_VISTA)
+	hookKeyboard = ::SetWindowsHookEx(WH_KEYBOARD_LL, (HOOKPROC)hookProcKeyboard, _hInst, 0);
+	if (!hookKeyboard)
 	{
-		hookKeyboard = ::SetWindowsHookEx(WH_KEYBOARD, (HOOKPROC)hookProcKeyboard, _hInst, 0);
-		if (!hookKeyboard)
-		{
-			DWORD dwError = ::GetLastError();
-			TCHAR  str[128];
-			::wsprintf(str, TEXT("GetLastError() returned %lu"), dwError);
-			::MessageBox(NULL, str, TEXT("SetWindowsHookEx(KEYBOARD) failed"), MB_OK | MB_ICONERROR);
-		}
+		DWORD dwError = ::GetLastError();
+		TCHAR  str[128];
+		::wsprintf(str, TEXT("GetLastError() returned %lu"), dwError);
+		::MessageBox(NULL, str, TEXT("SetWindowsHookEx(KEYBOARD) failed"), MB_OK | MB_ICONERROR);
 	}
-//  Removed regarding W9x systems
-//	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
 	// calculate the mouse pt within dialog
 	::GetCursorPos(&pt);
