@@ -697,7 +697,7 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				toolTip.init(_hInst, _hSelf);
 				getWindowRect(rect);
 				SendMessage(toolTip.getHSelf(), TTM_SETMAXTIPWIDTH, 0, 800);
-				toolTip.SetColors(GetSysColor(COLOR_WINDOWTEXT),GetSysColor(COLOR_BACKGROUND));
+				toolTip.SetColors(GetSysColor(COLOR_WINDOWTEXT),GetSysColor(COLOR_WINDOW));
 				toolTip.Show(rect, regex_help, rect.right - rect.left, 0);
 				set_tooltip_pos(_hSelf,toolTip.getHSelf());
 			}
