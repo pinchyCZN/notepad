@@ -204,7 +204,7 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	if(lpDrawItemStruct->itemState&ODS_SELECTED)
 		bgcolor=COLOR_HIGHLIGHT;
 	else
-		bgcolor=COLOR_BACKGROUND;
+		bgcolor=COLOR_WINDOW;
 	hbrush = CreateSolidBrush(GetSysColor(bgcolor));
 	::FillRect(hDC,&rect,(HBRUSH)hbrush);
 	DeleteObject(hbrush);
