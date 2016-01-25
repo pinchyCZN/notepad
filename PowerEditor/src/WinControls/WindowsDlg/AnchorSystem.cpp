@@ -112,8 +112,12 @@ int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len)
 int SaveWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos)
 {
 	int result=FALSE;
-	if(GetWindowRect(hparent,&relpos->rparent)){
-		if(GetWindowRect(hwin,&relpos->rwin)){
+	WINDOWPLACEMENT wp={0};
+	wp.length=sizeof(WINDOWPLACEMENT);
+	if(GetWindowPlacement(hparent,&wp)){
+		relpos->rparent=wp.rcNormalPosition;
+		if(GetWindowPlacement(hwin,&wp)){
+			relpos->rwin=wp.rcNormalPosition;
 			result=TRUE;
 		}
 	}
