@@ -37,8 +37,10 @@ struct CONTROL_ANCHOR ShortcutAnchors[]={
 	{IDC_SHORTCUT_MODIFY,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
 	{IDC_SHORTCUT_DISABLE,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
 	{IDC_SHORTCUT_DELETE,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
-	{IDC_SHORTCUT_FILTER2,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0}
+	{IDC_SHORTCUT_FILTER2,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
+	{IDC_SHORTCUT_GRIPPER,ANCHOR_RIGHT|ANCHOR_BOTTOM,0,0,0}
 };
+struct WIN_REL_POS WinRelPos={0};
 
 void ShortcutMapper::initTabs() {
 	HWND hTab = _hTabCtrl = ::GetDlgItem(_hSelf, IDC_SHORTCUT_TABBAR);
@@ -499,8 +501,12 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			populateShortCuts();
 			goToCenter();
 			AnchorInit(_hSelf,ShortcutAnchors,sizeof(ShortcutAnchors)/sizeof(CONTROL_ANCHOR));
+			RestoreWinRelPosition(_hParent,_hSelf,&WinRelPos);
 			return TRUE;
 		}
+		case WM_DESTROY:
+			SaveWinRelPosition(_hParent,_hSelf,&WinRelPos);
+			break;
 		case WM_SIZE:
 			AnchorResize(_hSelf,ShortcutAnchors,sizeof(ShortcutAnchors)/sizeof(CONTROL_ANCHOR));
 			break;

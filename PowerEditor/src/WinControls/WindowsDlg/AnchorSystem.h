@@ -12,3 +12,11 @@ struct CONTROL_ANCHOR{
 
 int AnchorInit(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len);
 int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len);
+
+struct WIN_REL_POS{
+	RECT rparent,rwin;
+	int initialized;
+};
+
+int SaveWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos);
+int RestoreWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos);
