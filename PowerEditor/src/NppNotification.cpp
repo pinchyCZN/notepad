@@ -679,6 +679,7 @@ BOOL Notepad_plus::notify(SCNotification *notification)
 
 
     case SCN_ZOOM:
+		updateStatusBar();
 		break;
 
     case SCN_MACRORECORD:
@@ -777,7 +778,7 @@ BOOL Notepad_plus::notify(SCNotification *notification)
 		autoC->callTipClick(notification->position);
 		break;
 	}
-
+	
 	case RBN_HEIGHTCHANGE:
 	{
 		SendMessage(_pPublicInterface->getHSelf(), WM_SIZE, 0, 0);

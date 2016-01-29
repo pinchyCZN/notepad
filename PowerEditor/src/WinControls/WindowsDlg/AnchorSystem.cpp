@@ -36,7 +36,7 @@ int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len)
 			continue;
 		hctrl=GetDlgItem(hparent,anchor->ctrl_id);
 		if(hctrl){
-			int x,y,cx,cy,delta;
+			int x=0,y=0,cx=0,cy=0,delta;
 			int flags=0;
 			switch(anchor->anchor_mask){
 			case ANCHOR_RIGHT|ANCHOR_TOP:
@@ -170,4 +170,78 @@ int RestoreWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos)
 		}
 	}
 	return 0;
+}
+
+int SnapWindow(HWND hwnd,RECT *rect)
+{
+	if(hwnd && rect){
+		HMONITOR hmon;
+		MONITORINFO mi;
+		hmon=MonitorFromRect(rect,MONITOR_DEFAULTTONEAREST);
+		mi.cbSize=sizeof(mi);
+		if(GetMonitorInfo(hmon,&mi)){
+			long d_top,d_bottom,d_left,d_right;
+			d_right=mi.rcWork.right-rect->right;
+			if(d_right<=8 && d_right>=-4){
+				rect->right=mi.rcWork.right;
+				rect->left+=d_right;
+			}
+			d_left=rect->left-mi.rcWork.left;
+			if(d_left<=8 && d_left>=-4){
+				rect->left=mi.rcWork.left;
+				rect->right-=d_left;
+			}
+			d_top=rect->top-mi.rcWork.top;
+			if(d_top<=8 && d_top>=-4){
+				rect->top=mi.rcWork.top;
+				rect->bottom-=d_top;
+			}
+			d_bottom=mi.rcWork.bottom-rect->bottom;
+			if(d_bottom<=8 && d_bottom>=-4){
+				rect->bottom=mi.rcWork.bottom;
+				rect->top+=d_bottom;
+			}
+		}
+	}
+	return 0;
+}
+
+int SnapSizing(HWND hwnd,RECT *rect,int side)
+{
+	int result=FALSE;
+	if(hwnd && rect){
+		HMONITOR hmon;
+		MONITORINFO mi;
+		hmon=MonitorFromRect(rect,MONITOR_DEFAULTTONEAREST);
+		mi.cbSize=sizeof(mi);
+		if(GetMonitorInfo(hmon,&mi)){
+			RECT *rwork=&mi.rcWork;
+			const int snap_size=10;
+			if(side==WMSZ_TOP || side==WMSZ_TOPLEFT || side==WMSZ_TOPRIGHT){
+				if(abs(rect->top - rwork->top)<snap_size){
+					rect->top=rwork->top;
+					result=TRUE;
+				}
+			}
+			if(side==WMSZ_BOTTOM || side==WMSZ_BOTTOMLEFT || side==WMSZ_BOTTOMRIGHT){
+				if(abs(rect->bottom - rwork->bottom)<snap_size){
+					rect->bottom=rwork->bottom;
+					result=TRUE;
+				}
+			}
+			if(side==WMSZ_LEFT || side==WMSZ_TOPLEFT || side==WMSZ_BOTTOMLEFT){
+				if(abs(rect->left - rwork->left)<snap_size){
+					rect->left=rwork->left;
+					result=TRUE;
+				}
+			}
+			if(side==WMSZ_RIGHT || side==WMSZ_TOPRIGHT || side==WMSZ_BOTTOMRIGHT){
+				if(abs(rect->right - rwork->right)<snap_size){
+					rect->right=rwork->right;
+					result=TRUE;
+				}
+			}
+		}
+	}
+	return result;
 }

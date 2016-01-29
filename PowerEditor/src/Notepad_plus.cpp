@@ -2740,10 +2740,12 @@ void Notepad_plus::updateStatusBar()
 	else
 		wsprintf(strSel, TEXT("Sel : %s"), TEXT("N/A"));
 
-    wsprintf(strLnCol, TEXT("Ln : %d    Col : %d    %s"),\
-        (_pEditView->getCurrentLineNumber() + 1), \
-        (_pEditView->getCurrentColumnNumber() + 1),\
-        strSel);
+	_snwprintf(strLnCol, sizeof(strLnCol)/sizeof(TCHAR),TEXT("Ln : %d    Col : %d    %s   Zm:%d"),
+        (_pEditView->getCurrentLineNumber() + 1), 
+        (_pEditView->getCurrentColumnNumber() + 1),
+        strSel,
+		_pEditView->execute(SCI_GETZOOM));
+	strLnCol[sizeof(strLnCol)/sizeof(TCHAR)-1]=0;
 
     _statusBar.setText(strLnCol, STATUSBAR_CUR_POS);
 

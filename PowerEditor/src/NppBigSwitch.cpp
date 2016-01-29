@@ -33,6 +33,7 @@
 #include "ShortcutMapper.h"
 #include "VerticalFileSwitcher.h"
 #include "documentMap.h"
+#include "AnchorSystem.h"
 
 struct SortTaskListPred
 {
@@ -453,11 +454,18 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 				_pDocMap->doMove();
 			}
 			result = FALSE;
+			if(GetKeyState(VK_CONTROL)&0x8000){
+				SnapWindow(hwnd,(RECT*)lParam);
+				result = TRUE;
+			}
 		}
 		break;
 
 		case WM_SIZING:
 		{
+			if(GetKeyState(VK_CONTROL)&0x8000){
+				result=SnapSizing(hwnd,(RECT*)lParam,wParam);
+			}
 			result = FALSE;
 		}
 		break;

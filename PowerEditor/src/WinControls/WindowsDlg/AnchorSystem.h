@@ -20,3 +20,6 @@ struct WIN_REL_POS{
 
 int SaveWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos);
 int RestoreWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos);
+
+int SnapWindow(HWND hwnd,RECT *rect);
+int SnapSizing(HWND hwnd,RECT *rect,int side);
