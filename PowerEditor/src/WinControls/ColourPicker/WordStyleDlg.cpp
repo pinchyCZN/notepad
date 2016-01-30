@@ -29,6 +29,20 @@
 #include "precompiledHeaders.h"
 #include "WordStyleDlg.h"
 #include "ScintillaEditView.h"
+#include "AnchorSystem.h"
+
+static struct CONTROL_ANCHOR WordStyleAnchors[]={
+	{IDC_LANG_GROUP,ANCHOR_LEFT|ANCHOR_TOP|ANCHOR_BOTTOM,0,0,0},
+	{IDC_LANGUAGES_LIST,ANCHOR_LEFT|ANCHOR_TOP|ANCHOR_BOTTOM,0,0,0},
+	{IDC_STYLES_LIST,ANCHOR_LEFT|ANCHOR_TOP|ANCHOR_BOTTOM,0,0,0},
+	{IDC_DEF_EXT_STATIC,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
+	{IDC_DEF_EXT_EDIT,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
+	{IDC_USER_EXT_STATIC,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
+	{IDC_USER_EXT_EDIT,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
+	{IDC_PLUSSYMBOL_STATIC,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
+	{IDC_STYLER_GRIPPER,ANCHOR_RIGHT|ANCHOR_BOTTOM,0,0,0},
+};
+static struct WIN_REL_POS WinRelPos={0};
 
 BOOL CALLBACK ColourStaticTextHooker::colourStaticProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -166,14 +180,19 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 			updateGlobalOverrideCtrls();
 			setVisualFromStyleList();
 			goToCenter();
+			AnchorInit(_hSelf,WordStyleAnchors,sizeof(WordStyleAnchors)/sizeof(CONTROL_ANCHOR));
 
 			loadLangListFromNppParam();
-
 			return TRUE;
 		}
 		case WM_SHOWWINDOW:
 			if(wParam)
-				goToCenter();
+				RestoreWinRelPosition(_hParent,_hSelf,&WinRelPos);
+			else
+				SaveWinRelPosition(_hParent,_hSelf,&WinRelPos);
+			break;
+		case WM_SIZE:
+			AnchorResize(_hSelf,WordStyleAnchors,sizeof(WordStyleAnchors)/sizeof(CONTROL_ANCHOR));
 			break;
 		case WM_DESTROY:
 		{
@@ -181,6 +200,7 @@ BOOL CALLBACK WordStyleDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPar
 			_pBgColour->destroy();
 			delete _pFgColour;
 			delete _pBgColour;
+			SaveWinRelPosition(_hParent,_hSelf,&WinRelPos);
 			return TRUE;
 		}
 
@@ -754,7 +774,7 @@ void WordStyleDlg::setStyleListFromLexer(int index)
     ::ShowWindow(::GetDlgItem(_hSelf, IDC_DEF_EXT_STATIC), index?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_USER_EXT_EDIT), index?SW_SHOW:SW_HIDE);
     ::ShowWindow(::GetDlgItem(_hSelf, IDC_USER_EXT_STATIC), index?SW_SHOW:SW_HIDE);
-	::ShowWindow(::GetDlgItem(_hSelf, IDC_PLUSSYMBOL2_STATIC), index?SW_SHOW:SW_HIDE);
+	::ShowWindow(::GetDlgItem(_hSelf, IDC_PLUSSYMBOL_STATIC), index?SW_SHOW:SW_HIDE);
 
 	StyleArray & lexerStyler = index?_lsArray.getLexerFromIndex(index-1):_globalStyles;
 
@@ -905,7 +925,7 @@ void WordStyleDlg::setVisualFromStyleList()
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_USER_KEYWORDS_EDIT),showOption);
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_DEF_KEYWORDS_STATIC), showOption);
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_USER_KEYWORDS_STATIC),showOption);
-	::ShowWindow(::GetDlgItem(_hSelf, IDC_PLUSSYMBOL_STATIC),showOption);
+	::ShowWindow(::GetDlgItem(_hSelf, IDC_PLUSSYMBOL2_STATIC),showOption);
 
     redraw();
 }

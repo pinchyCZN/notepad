@@ -65,18 +65,18 @@ int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len)
 					cx=(rparent.right-rparent.left) - delta - x;
 					delta=anchor->rect_parent.bottom -  anchor->rect_ctrl.bottom;
 					cy=(rparent.bottom-rparent.top) - delta - y;
-					flags=SWP_SHOWWINDOW;
+					flags=SWP_NOMOVE;
 				}
 				break;
 			case ANCHOR_LEFT|ANCHOR_RIGHT|ANCHOR_TOP:
 			case ANCHOR_LEFT|ANCHOR_RIGHT:
 				{
 					x=anchor->rect_ctrl.left-anchor->rect_parent.left;
-					y=anchor->rect_ctrl.top-anchor->rect_parent.top;
+					//y=anchor->rect_ctrl.top-anchor->rect_parent.top;
 					delta=anchor->rect_parent.right -  anchor->rect_ctrl.right;
 					cx=(rparent.right-rparent.left) - delta - x;
 					cy=anchor->rect_ctrl.bottom-anchor->rect_ctrl.top;
-					flags=SWP_SHOWWINDOW;
+					flags=SWP_NOMOVE;
 				}
 				break;
 			case ANCHOR_LEFT|ANCHOR_RIGHT|ANCHOR_BOTTOM:
@@ -99,9 +99,21 @@ int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len)
 					flags=SWP_NOSIZE;
 				}
 				break;
+			case ANCHOR_LEFT|ANCHOR_TOP|ANCHOR_BOTTOM:
+			case ANCHOR_TOP|ANCHOR_BOTTOM:
+				{
+					//x=anchor->rect_ctrl.left-anchor->rect_parent.left;
+					y=anchor->rect_ctrl.top-anchor->rect_parent.top;
+					cx=anchor->rect_ctrl.right-anchor->rect_ctrl.left;
+					delta=anchor->rect_parent.bottom -  anchor->rect_ctrl.bottom;
+					cy=(rparent.bottom-rparent.top) - delta - y;
+					flags=SWP_NOMOVE;
+				}
+				break;
 			}
 			if(flags){
-				flags|=SWP_NOZORDER|SWP_SHOWWINDOW|SWP_NOREPOSITION;
+				flags&=~SWP_SHOWWINDOW;
+				flags|=SWP_NOZORDER|SWP_NOREPOSITION;
 				SetWindowPos(hctrl,NULL,x,y,cx,cy,flags);
 			}
 		}
