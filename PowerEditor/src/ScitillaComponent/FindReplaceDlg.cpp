@@ -746,22 +746,17 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			{
 				CharacterRange cr = (*_ppEditView)->getSelection();
 				int nbSelected = cr.cpMax - cr.cpMin;
-
-				_options._isInSelection = isCheckedOrNot(IDC_IN_SELECTION_CHECK)?1:0;
-				int checkVal = _options._isInSelection?BST_CHECKED:BST_UNCHECKED;
+				int checkVal = BST_UNCHECKED;
 				
-				if (!_options._isInSelection)
+				if(nbSelected != 0)
 				{
-					if (nbSelected <= 1024)
-					{
-						checkVal = BST_UNCHECKED;
-						_options._isInSelection = false;
-					}
-					else
-					{
-						checkVal = BST_CHECKED;
-						_options._isInSelection = true;
-					}
+					checkVal = BST_CHECKED;
+					_options._isInSelection = true;
+				}
+				else
+				{
+					checkVal = BST_UNCHECKED;
+					_options._isInSelection = false;
 				}
 				// Searching/replacing in column selection is not allowed 
 				if ((*_ppEditView)->execute(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE)
@@ -771,12 +766,6 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					nbSelected = 0;
 				}
 				::EnableWindow(::GetDlgItem(_hSelf, IDC_IN_SELECTION_CHECK), nbSelected);
-                // uncheck if the control is disable
-                if (!nbSelected)
-                {
-					checkVal = BST_UNCHECKED;
-					_options._isInSelection = false;
-                }
 				::SendDlgItemMessage(_hSelf, IDC_IN_SELECTION_CHECK, BM_SETCHECK, checkVal, 0);
 			}
 			
