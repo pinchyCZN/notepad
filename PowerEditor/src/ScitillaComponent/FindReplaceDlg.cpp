@@ -761,28 +761,25 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				int nbSelected = cr.cpMax - cr.cpMin;
 				int checkVal = BST_UNCHECKED;
 				
-				if(nbSelected != 0)
-				{
+				if(nbSelected != 0){
 					int startline,endline;
 					startline = (*_ppEditView)->execute(SCI_LINEFROMPOSITION, cr.cpMin);
 					endline = (*_ppEditView)->execute(SCI_LINEFROMPOSITION, cr.cpMax);
-					if(startline!=endline){
+					if(startline!=endline)
 						checkVal = BST_CHECKED;
-						_options._isInSelection = true;
-					}
 				}
-				else
-				{
+				else{
 					checkVal = BST_UNCHECKED;
-					_options._isInSelection = false;
 				}
 				// Searching/replacing in column selection is not allowed 
-				if ((*_ppEditView)->execute(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE)
-				{
+				if ((*_ppEditView)->execute(SCI_GETSELECTIONMODE) == SC_SEL_RECTANGLE){
 					checkVal = BST_UNCHECKED;
-					_options._isInSelection = false;
 					nbSelected = 0;
 				}
+				if(checkVal==BST_UNCHECKED)
+					_options._isInSelection = false;
+				else
+					_options._isInSelection = true;
 				::EnableWindow(::GetDlgItem(_hSelf, IDC_IN_SELECTION_CHECK), nbSelected);
 				::SendDlgItemMessage(_hSelf, IDC_IN_SELECTION_CHECK, BM_SETCHECK, checkVal, 0);
 			}
