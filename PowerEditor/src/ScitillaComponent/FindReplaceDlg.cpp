@@ -766,9 +766,10 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					int startline,endline;
 					startline = (*_ppEditView)->execute(SCI_LINEFROMPOSITION, cr.cpMin);
 					endline = (*_ppEditView)->execute(SCI_LINEFROMPOSITION, cr.cpMax);
-					if(startline!=endline)
+					if(startline!=endline){
 						checkVal = BST_CHECKED;
-					_options._isInSelection = true;
+						_options._isInSelection = true;
+					}
 				}
 				else
 				{
