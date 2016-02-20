@@ -1742,24 +1742,22 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 				int lstart = (*_ppEditView)->execute(SCI_POSITIONFROMLINE, lineNumber);
 				int nbChar = lend - lstart;
 
-				// use the static buffer
-				TCHAR lineBuf[1024];
+				static TCHAR lineBuf[4096];
+				int _LINEBUFLEN=sizeof(lineBuf)/sizeof(TCHAR);
 
-				if (nbChar > 1024 - 3)
-					lend = lstart + 1020;
+				if (nbChar > _LINEBUFLEN - 4)
+					lend = lstart + _LINEBUFLEN-4;
 
 				int start_mark = targetStart - lstart;
 				int end_mark = targetEnd - lstart;
 
-				(*_ppEditView)->getGenericText(lineBuf, 1024, lstart, lend, &start_mark, &end_mark);
+				(*_ppEditView)->getGenericText(lineBuf, _LINEBUFLEN, lstart, lend, &start_mark, &end_mark);
+				lineBuf[_LINEBUFLEN-1]=0;
 
-				generic_string line = lineBuf;
-				line += TEXT("\r\n");
 				SearchResultMarking srm;
 				srm._start = start_mark;
 				srm._end = end_mark;
-				_pFinder->add(FoundInfo(targetStart, targetEnd,  fileName), srm, line.c_str(), lineNumber + 1);
-
+				_pFinder->add(FoundInfo(targetStart, targetEnd,  fileName), srm, lineBuf, lineNumber + 1);
 				break; 
 			}
 
@@ -2551,24 +2549,28 @@ void Finder::addSearchHitCount(int count)
 void Finder::add(FoundInfo fi, SearchResultMarking mi, const TCHAR* foundline, int lineNb)
 {
 	_pMainFoundInfos->push_back(fi);
-	generic_string str = TEXT("\tLine ");
+	static TCHAR str[4096];
+	int i,start=0,str_len=sizeof(str)/sizeof(TCHAR);
 
-	TCHAR lnb[16];
-	wsprintf(lnb, TEXT("%d"), lineNb);
-	str += lnb;
-	str += TEXT(": ");
-	mi._start += str.length();
-	mi._end += str.length();
-	str += foundline;
+	wnsprintfW(str,str_len,TEXT("\tLine %d: %s\r\n"),lineNb,foundline);
+	str[str_len-1]=0;
+	str[str_len-2]=TEXT('\n');
+	str[str_len-3]=TEXT('\r');
 
-	if (str.length() >= SC_SEARCHRESULT_LINEBUFFERMAXLENGTH)
-	{
-		const TCHAR * endOfLongLine = TEXT("...\r\n");
-		str = str.substr(0, SC_SEARCHRESULT_LINEBUFFERMAXLENGTH - lstrlen(endOfLongLine) - 1);
-		str += endOfLongLine;
+	for(i=0;i<48;i++){
+		TCHAR a=str[i];
+		if(a==0)
+			break;
+		if(a==TEXT(':')){
+			start=i;
+			break;
+		}
 	}
+	mi._start += start;
+	mi._end += start;
+
 	setFinderReadOnly(false);
-	_scintView.addGenericText(str.c_str(), &mi._start, &mi._end);
+	_scintView.addGenericText(str, &mi._start, &mi._end);
 	setFinderReadOnly(true);
 	_pMainMarkings->push_back(mi);
 }
