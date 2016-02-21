@@ -32,13 +32,13 @@
 #include "Notepad_plus_msgs.h"
 #include "UniConversion.h"
 #include "ToolTip.h"
+#include "FileFilterMask.h"
+#include "FileMask.h"
 
 FindOption * FindReplaceDlg::_env;
 FindOption FindReplaceDlg::_options;
 
 #define SHIFTED 0x8000
-#define BCKGRD_COLOR (RGB(255,102,102))
-#define TXT_COLOR    (RGB(255,255,255))
 
 int Searching::convertExtendedToString(const TCHAR * query, TCHAR * result, int length) {	//query may equal to result, since it always gets smaller
 	int i = 0, j = 0;
@@ -1259,7 +1259,15 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 						folderBrowser(_hSelf, IDD_FINDINFILES_DIR_COMBO, _options._directory.c_str());	
 				}
 				return TRUE;
-
+				
+				case IDD_FINDINFILES_FILTERMASK_BUTTON:
+				{
+					filter_set_hinstance(_hInst);
+					DialogBoxParam(_hInst,MAKEINTRESOURCE(IDD_FILEMASK),_hSelf,(DLGPROC)FileFilterMask,(LPARAM)&findHistory._findHistoryFilterMasks);
+//					int i=GetLastError();
+//					printf("%i\n",i);
+				}
+				return TRUE;
 				default :
 					break;
 			}
@@ -2051,6 +2059,7 @@ void FindReplaceDlg::enableFindInFilesControls(bool isEnable)
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_REPLACEINFILES), isEnable?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_FILTERS_STATIC), isEnable?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_FILTERS_COMBO), isEnable?SW_SHOW:SW_HIDE);
+	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_FILTERMASK_BUTTON), isEnable?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_STATIC), isEnable?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_COMBO), isEnable?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_BROWSE_BUTTON), isEnable?SW_SHOW:SW_HIDE);

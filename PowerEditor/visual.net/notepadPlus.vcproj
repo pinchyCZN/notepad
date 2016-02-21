@@ -309,6 +309,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ScitillaComponent\FileFilterMask.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\WinControls\FindCharsInRange\FindCharsInRange.cpp"
 				>
 			</File>
@@ -700,6 +704,10 @@
 			</File>
 			<File
 				RelativePath="..\src\icons\dupli_on.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ScitillaComponent\FileMask.rc"
 				>
 			</File>
 			<File
@@ -1248,6 +1256,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ScitillaComponent\FileFilterMask.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ScitillaComponent\FileMask.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\MISC\FileNameStringSplitter.h"
 				>
 			</File>
@@ -1381,6 +1397,10 @@
 			</File>
 			<File
 				RelativePath="..\src\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\resource1.h"
 				>
 			</File>
 			<File

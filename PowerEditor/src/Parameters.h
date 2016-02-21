@@ -1059,6 +1059,7 @@ struct FindHistory {
 
     vector<generic_string> _findHistoryPaths;
 	vector<generic_string> _findHistoryFilters;
+	vector<generic_string> _findHistoryFilterMasks;
 	vector<generic_string> _findHistoryFinds;
 	vector<generic_string> _findHistoryReplaces;
 

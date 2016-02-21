@@ -1828,6 +1828,14 @@ void NppParameters::feedFindHistoryParameters(TiXmlNode *node)
 			}
 		}
 	}
+	for (TiXmlNode *childNode = findHistoryRoot->FirstChildElement(TEXT("FilterMask"));
+		childNode && (_findHistory._findHistoryReplaces.size() < NB_MAX_FINDHISTORY_REPLACE);
+		childNode = childNode->NextSibling(TEXT("FilterMask")))
+	{
+		const TCHAR *filtermask = (childNode->ToElement())->Attribute(TEXT("name"));
+		if (filtermask)
+			_findHistory._findHistoryFilterMasks.push_back(generic_string(filtermask));
+	}
 
 	(findHistoryRoot->ToElement())->Attribute(TEXT("nbMaxFindHistoryFind"), &_findHistory._nbMaxFindHistoryFind);
 	if ((_findHistory._nbMaxFindHistoryFind > 0) && (_findHistory._nbMaxFindHistoryFind <= NB_MAX_FINDHISTORY_FIND))
@@ -4872,6 +4880,13 @@ bool NppParameters::writeFindHistory()
 	for (size_t i = 0, len = _findHistory._findHistoryFilters.size(); i < len; i++)
 	{
 		(hist_element.ToElement())->SetAttribute(TEXT("name"), _findHistory._findHistoryFilters[i].c_str());
+		findHistoryRoot->InsertEndChild(hist_element);
+	}
+
+	hist_element.SetValue(TEXT("FilterMask"));
+	for (size_t i = 0, len = _findHistory._findHistoryFilterMasks.size(); i < len; i++)
+	{
+		(hist_element.ToElement())->SetAttribute(TEXT("name"), _findHistory._findHistoryFilterMasks[i].c_str());
 		findHistoryRoot->InsertEndChild(hist_element);
 	}
 
