@@ -9,6 +9,7 @@
 #define IDC_EDIT                        1005
 #define IDC_DELETE                      1006
 #define IDC_GRIPPER                     1007
+#define IDC_FILTERINFO                  1008
 #define IDD_FILEMASK                    1300
 #define IDD_FILEMASK_ENTRY              1301
 
@@ -18,7 +19,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        1302
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

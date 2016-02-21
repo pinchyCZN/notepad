@@ -4676,46 +4676,14 @@ void Notepad_plus::setFindReplaceFolderFilter(const TCHAR *dir, const TCHAR *fil
 	FindHistory & findHistory = pNppParam->getFindHistory();
 
 	// get current directory in case it's not provided.
-	if (!dir && findHistory._isFolderFollowDoc)
-	{
+	if (!dir && findHistory._isFolderFollowDoc){
 		dir = pNppParam->getWorkingDir();
 	}
 
-	// get current language file extensions in case it's not provided.
-	if (!filter && findHistory._isFilterFollowDoc)
-	{
-		// Get current language file extensions
-		const TCHAR *ext = NULL;
-		LangType lt = _pEditView->getCurrentBuffer()->getLangType();
-
-		if (lt == L_USER)
-		{
-			Buffer * buf = _pEditView->getCurrentBuffer();
-			UserLangContainer * userLangContainer = pNppParam->getULCFromName(buf->getUserDefineLangName());
-			if (userLangContainer)
-				ext = userLangContainer->getExtention();
-		}
-		else
-		{
-			ext = NppParameters::getInstance()->getLangExtFromLangType(lt);
-		}
-
-		if (ext && ext[0])
-		{
-			fltr = TEXT("");
-			vector<generic_string> vStr;
-			cutString(ext, vStr);
-			for (size_t i = 0 ,len = vStr.size(); i < len; i++)
-			{
-				fltr += TEXT("*.");
-				fltr += vStr[i] + TEXT(" ");
-			}
-		}
-		else
-		{
-			fltr = TEXT("*.*");
-		}
-		filter = fltr.c_str();
+	if (!filter && findHistory._isFilterFollowDoc){
+		Buffer *pBuf = _pEditView->getCurrentBuffer();
+		if(pBuf!=0)
+			filter=pBuf->getFullPathName();
 	}
 	_findReplaceDlg.setFindInFilesDirFilter(dir, filter);
 }

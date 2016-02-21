@@ -7,6 +7,7 @@ static HINSTANCE ghinstance=0;
 
 static struct CONTROL_ANCHOR FileMaskAnchors[]={
 	{IDC_FILTERLIST,ANCHOR_LEFT|ANCHOR_RIGHT|ANCHOR_TOP|ANCHOR_BOTTOM,0,0,0},
+	{IDC_FILTERINFO,ANCHOR_LEFT|ANCHOR_RIGHT|ANCHOR_BOTTOM,0,0,0},
 	{IDOK,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
 	{IDC_ADD,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
 	{IDC_EDIT,ANCHOR_LEFT|ANCHOR_BOTTOM,0,0,0},
@@ -423,4 +424,45 @@ int wild_card_match(const TCHAR *match,const TCHAR *str)
 		match++;
 
 	return !*match;
+}
+int get_filemask_match(const TCHAR *fname,std::vector<generic_string> *slist,generic_string *out)
+{
+	int result=FALSE;
+	TCHAR name[_MAX_FNAME],ext[_MAX_EXT];
+	name[0]=0;ext[0]=0;
+	_wsplitpath_s(fname,0,0,0,0,name,_countof(name),ext,_countof(ext));
+	wnsprintfW(name,_countof(name),TEXT("%s%s"),name,ext);
+	name[_countof(name)-1]=0;
+	for(std::vector<generic_string>::iterator si = slist->begin();si!=slist->end();si++){
+		int split=si->find(TEXT('|'));
+		if(split>=0){
+			int i,index,len,found=FALSE;
+			generic_string s;
+			s=si->substr(0,split);
+			index=0;
+			len=s.length();
+			for(i=0;i<=len;i++){
+				TCHAR a=s[i];
+				if(a==0 || a==TEXT(';')){
+					int span=i-index;
+					if(span>0){
+						generic_string t=s.substr(index,span);
+						if(wild_card_match(t.c_str(),name)){
+							found=TRUE;
+							break;
+						}
+					}
+					index=i+1;
+				}
+				if(found)
+					break;
+			}
+			if(found){
+				*out=si->substr(split+1);
+				result=TRUE;
+				break;
+			}
+		}
+	}
+	return result;
 }

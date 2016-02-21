@@ -2313,15 +2313,20 @@ void FindReplaceDlg::execSavedCommand(int cmd, int intValue, generic_string stri
 
 void FindReplaceDlg::setFindInFilesDirFilter(const TCHAR *dir, const TCHAR *filters)
 {
-	if (dir)
-	{
+	if(dir){
 		_options._directory = dir;
 		::SetDlgItemText(_hSelf, IDD_FINDINFILES_DIR_COMBO, dir);
 	}
-	if (filters)
-	{
-		_options._filters = filters;
-		::SetDlgItemText(_hSelf, IDD_FINDINFILES_FILTERS_COMBO, filters);
+	if(filters){
+		NppParameters *nppParamInst = NppParameters::getInstance();
+		if(nppParamInst!=0){
+			FindHistory & findHistory = nppParamInst->getFindHistory();
+			generic_string result;
+			if(get_filemask_match(filters,&findHistory._findHistoryFilterMasks,&result)){
+				_options._filters = result.c_str();
+				::SetDlgItemText(_hSelf, IDD_FINDINFILES_FILTERS_COMBO, result.c_str());
+			}
+		}
 	}
 }
 
@@ -2578,7 +2583,7 @@ void Finder::add(FoundInfo fi, SearchResultMarking mi, const TCHAR* foundline, i
 		if(a==0)
 			break;
 		if(a==TEXT(':')){
-			start=i;
+			start=i+2;
 			break;
 		}
 	}
