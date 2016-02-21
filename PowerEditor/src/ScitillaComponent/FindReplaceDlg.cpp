@@ -457,13 +457,14 @@ void Finder::GotoFoundLine()
 	int start = _scintView.execute(SCI_POSITIONFROMLINE, lno);
 	int end = _scintView.execute(SCI_GETLINEENDPOSITION, lno);
 	if (start + 2 >= end) return; // avoid empty lines
-
-	if (_scintView.execute(SCI_GETFOLDLEVEL, lno) & SC_FOLDLEVELHEADERFLAG)
-	{
+#define _LINEHEADER "\tLine "
+	char tmp[sizeof(_LINEHEADER)*2];
+	_scintView.getText(tmp,start,start+sizeof(_LINEHEADER)-1);
+	tmp[sizeof(tmp)-1]=0;
+	if(0!=strcmp(tmp,_LINEHEADER)){
 		_scintView.execute(SCI_TOGGLEFOLD, lno);
 		return;
 	}
-
 	const FoundInfo fInfo = *(_pMainFoundInfos->begin() + lno);
 
 	// Switch to another document
@@ -529,48 +530,16 @@ void Finder::gotoNextFoundResult(int direction)
 	int currentPos = _scintView.execute(SCI_GETCURRENTPOS);
 	int lno = _scintView.execute(SCI_LINEFROMPOSITION, currentPos);
 	int total_lines = _scintView.execute(SCI_GETLINECOUNT);
-	if (total_lines <= 1) return;
-	
-	if (lno == total_lines - 1) lno--; // last line doesn't belong to any search, use last search
+	int start;
 
-	int init_lno = lno;
-	int max_lno = _scintView.execute(SCI_GETLASTCHILD, lno, searchHeaderLevel);
-
-	assert(max_lno <= total_lines - 2);
-
-	// get the line number of the current search (searchHeaderLevel)
-	int level = _scintView.execute(SCI_GETFOLDLEVEL, lno) & SC_FOLDLEVELNUMBERMASK;
-	int min_lno = lno;
-	while (level-- >= fileHeaderLevel)
-	{
-		min_lno = _scintView.execute(SCI_GETFOLDPARENT, min_lno);
-		assert(min_lno >= 0);
-	}
-
-	if (min_lno < 0) min_lno = lno; // when lno is a search header line
-
-	assert(min_lno <= max_lno);
-
-	lno += increment;
-	
-	if      (lno > max_lno) lno = min_lno;
-	else if (lno < min_lno) lno = max_lno;
-
-	while (_scintView.execute(SCI_GETFOLDLEVEL, lno) & SC_FOLDLEVELHEADERFLAG)
-	{
-		lno += increment;
-		if      (lno > max_lno) lno = min_lno;
-		else if (lno < min_lno) lno = max_lno;
-		if (lno == init_lno) break;
-	}
-
-	if ((_scintView.execute(SCI_GETFOLDLEVEL, lno) & SC_FOLDLEVELHEADERFLAG) == 0)
-	{
-		int start = _scintView.execute(SCI_POSITIONFROMLINE, lno);
+	lno+=increment;
+	if(lno>total_lines || lno<0)
+		return;
+	start=_scintView.execute(SCI_POSITIONFROMLINE, lno);
+	if(start>=0){
 		_scintView.execute(SCI_SETSEL, start, start);
 		_scintView.execute(SCI_ENSUREVISIBLE, lno);
 		_scintView.execute(SCI_SCROLLCARET);
-
 		GotoFoundLine();
 	}
 }
