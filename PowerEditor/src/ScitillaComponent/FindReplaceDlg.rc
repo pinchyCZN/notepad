@@ -63,6 +63,8 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,87,94,15
     CONTROL         "In &hidden folders",IDD_FINDINFILES_INHIDDENDIR_CHECK,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,101,94,15
+    CONTROL         "Filter follows doc",IDD_FINDINFILES_FILTERFOLLOWSDOC_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,270,115,94,15
     CONTROL         "Book&mark line",IDC_MARKLINE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,52,100,15
     CONTROL         "Purge for each search",IDC_PURGE_CHECK,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,12,66,99,16
     PUSHBUTTON      "Mark All",IDCMARKALL,268,20,90,14

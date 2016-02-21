@@ -58,7 +58,17 @@ int get_str_width(HWND hwnd,const TCHAR *str)
 	return 0;
 
 }
-
+int lv_get_col_text(HWND hlistview,int index,TCHAR *str,int size)
+{
+	LV_COLUMN col;
+	if(hlistview!=0 && str!=0 && size>0){
+		col.mask = LVCF_TEXT;
+		col.pszText = str;
+		col.cchTextMax = size;
+		return ListView_GetColumn(hlistview,index,&col);
+	}
+	return FALSE;
+}
 int lv_add_column(HWND hlistview,const TCHAR *str,int index)
 {
 	LV_COLUMN col;
@@ -101,22 +111,56 @@ int lv_insert_data(HWND hlistview,int row,int col,const TCHAR *str)
 	}
 	return FALSE;
 }
+int resize_cols(HWND hlistview)
+{
+	int widths[2]={0,0};
+	int i,count;
+	for(i=0;i<_countof(widths);i++){
+		TCHAR tmp[40]={0};
+		lv_get_col_text(hlistview,i,tmp,_countof(tmp));
+		tmp[_countof(tmp)-1]=0;
+		widths[i]=14+get_str_width(hlistview,tmp);
+	}
+	count=ListView_GetItemCount(hlistview);
+	for(i=0;i<count;i++){
+		int j;
+		for(j=0;j<_countof(widths);j++){
+			int w;
+			TCHAR str[80];
+			str[0]=0;
+			ListView_GetItemText(hlistview,i,j,str,_countof(str));
+			str[_countof(str)-1]=0;
+			w=14+get_str_width(hlistview,str);
+			if(w>widths[j])
+				widths[j]=w;
+		}
+	}
+	for(i=0;i<_countof(widths);i++){
+		if(widths[i]>0)
+			ListView_SetColumnWidth(hlistview,i,widths[i]);
+	}
+	return 0;
+}
 int populate_listview(HWND hlistview,std::vector<generic_string> *slist)
 {
+	int result=0;
 	ListView_DeleteAllItems(hlistview);
 	if(slist!=0){
 		int row=0;
-		for(std::vector<generic_string>::iterator i = slist->begin();i!=slist->end();i++){
-			int pos=i->find(TEXT('|'));
+		for(std::vector<generic_string>::iterator si = slist->begin();si!=slist->end();si++){
+			int pos=si->find(TEXT('|'));
 			if(pos>=0){
-				lv_insert_data(hlistview,row,0,i->substr(0,pos).c_str());
-				lv_insert_data(hlistview,row,1,i->substr(pos+1).c_str());
+				generic_string s;
+				s=si->substr(0,pos);
+				lv_insert_data(hlistview,row,0,s.c_str());
+				s=si->substr(pos+1);
+				lv_insert_data(hlistview,row,1,s.c_str());
 				row++;
 			}
 		}
-		return 0;
+		result=row;
 	}
-	return 0;
+	return result;
 }
 int save_list(HWND hlistview,std::vector<generic_string> *slist)
 {
@@ -242,14 +286,8 @@ DLGPROC FileFilterMask(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 					lv_add_column(hlistview,cols[i],i);
 				}
 				populate_listview(hlistview,gslist);
-				//if(0)
-				for(i=0;i<10;i++){
-					for(int j=0;j<2;j++){
-						TCHAR tmp[40]={0};
-						wnsprintfW(tmp,_countof(tmp),TEXT("%04i"),i+j);
-						lv_insert_data(hlistview,i,j,tmp);
-					}
-				}
+				resize_cols(hlistview);
+
 				ghlistview=hlistview;
 			}
 			AnchorInit(hwnd,FileMaskAnchors,sizeof(FileMaskAnchors)/sizeof(struct CONTROL_ANCHOR));
@@ -305,7 +343,8 @@ DLGPROC FileFilterMask(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 				selection=ListView_GetSelectionMark(GetDlgItem(hwnd,IDC_FILTERLIST));
 				if(selection<0 && LOWORD(wparam)==IDC_EDIT)
 					break;
-				DialogBoxParam(ghinstance,MAKEINTRESOURCE(IDD_FILEMASK_ENTRY),hwnd,(DLGPROC)edit_entry,(LPARAM)LOWORD(wparam));
+				if(0!=DialogBoxParam(ghinstance,MAKEINTRESOURCE(IDD_FILEMASK_ENTRY),hwnd,(DLGPROC)edit_entry,(LPARAM)LOWORD(wparam)))
+					resize_cols(GetDlgItem(hwnd,IDC_FILTERLIST));
 			}
 			break;
 		case IDC_DELETE:
@@ -332,6 +371,7 @@ DLGPROC FileFilterMask(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 					if(selected>=0)
 						ListView_SetItemState(hlistview,selected,LVIS_SELECTED,LVIS_SELECTED);
 				}
+				resize_cols(hlistview);
 			}
 			break;
 		case IDCANCEL:
@@ -347,4 +387,40 @@ DLGPROC FileFilterMask(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 		break;
 	}
 	return FALSE;
+}
+int upper_case(TCHAR a)
+{
+	if(((unsigned char)a)>=TEXT('a') && ((unsigned char)a)<=TEXT('z'))
+		return a&(TEXT(' ')^0xFF);
+	else
+		return a;
+}
+int wild_card_match(const TCHAR *match,const TCHAR *str)
+{
+	const TCHAR *mp = NULL;
+	const TCHAR *cp = NULL;
+
+	while (*str){
+		if (*match == TEXT('*')){
+			if (!*++match)
+				return TRUE;
+			mp = match;
+			cp = str + 1;
+		}
+		else if (*match == TEXT('?') || upper_case(*match) == upper_case(*str)){
+			match++;
+			str++;
+		}
+		else if (!cp)
+			return FALSE;
+		else{
+			match = mp;
+			str = cp++;
+		}
+	}
+
+	while (*match == TEXT('*'))
+		match++;
+
+	return !*match;
 }

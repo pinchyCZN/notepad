@@ -303,6 +303,7 @@ void FindReplaceDlg::fillFindHistory()
 	::SendDlgItemMessage(_hSelf, IDD_FINDINFILES_INHIDDENDIR_CHECK, BM_SETCHECK, findHistory._isFifInHiddenFolder, 0);
 	::SendDlgItemMessage(_hSelf, IDD_FINDINFILES_RECURSIVE_CHECK, BM_SETCHECK, findHistory._isFifRecuisive, 0);
     ::SendDlgItemMessage(_hSelf, IDD_FINDINFILES_FOLDERFOLLOWSDOC_CHECK, BM_SETCHECK, findHistory._isFolderFollowDoc, 0);
+	::SendDlgItemMessage(_hSelf, IDD_FINDINFILES_FILTERFOLLOWSDOC_CHECK, BM_SETCHECK, findHistory._isFilterFollowDoc, 0);
 
 	::SendDlgItemMessage(_hSelf, IDNORMAL, BM_SETCHECK, findHistory._searchMode == FindHistory::normal, 0);
 	::SendDlgItemMessage(_hSelf, IDEXTENDED, BM_SETCHECK, findHistory._searchMode == FindHistory::extended, 0);
@@ -1252,6 +1253,13 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 					
 				}
 				return TRUE;
+                
+				case IDD_FINDINFILES_FILTERFOLLOWSDOC_CHECK :
+				{
+					if (_currentStatus == FINDINFILES_DLG)
+						findHistory._isFilterFollowDoc = isCheckedOrNot(IDD_FINDINFILES_FILTERFOLLOWSDOC_CHECK);
+				}
+				return TRUE;
 
 				case IDD_FINDINFILES_BROWSE_BUTTON :
 				{
@@ -1264,8 +1272,6 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 				{
 					filter_set_hinstance(_hInst);
 					DialogBoxParam(_hInst,MAKEINTRESOURCE(IDD_FILEMASK),_hSelf,(DLGPROC)FileFilterMask,(LPARAM)&findHistory._findHistoryFilterMasks);
-//					int i=GetLastError();
-//					printf("%i\n",i);
 				}
 				return TRUE;
 				default :
@@ -2068,6 +2074,7 @@ void FindReplaceDlg::enableFindInFilesControls(bool isEnable)
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_RECURSIVE_CHECK), isEnable?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_INHIDDENDIR_CHECK), isEnable?SW_SHOW:SW_HIDE);
     ::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_FOLDERFOLLOWSDOC_CHECK), isEnable?SW_SHOW:SW_HIDE);
+    ::ShowWindow(::GetDlgItem(_hSelf, IDD_FINDINFILES_FILTERFOLLOWSDOC_CHECK), isEnable?SW_SHOW:SW_HIDE);
 }
 
 void FindReplaceDlg::getPatterns(vector<generic_string> & patternVect)
