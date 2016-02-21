@@ -137,20 +137,39 @@ int save_list(HWND hlistview,std::vector<generic_string> *slist)
 	return 0;
 }
 
-static std::vector<generic_string> *slist=0;
 static int selection=0;
+static HWND ghlistview=0;
 DLGPROC edit_entry(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 {
 	static int mode=0;
 	switch(msg){
 	case WM_INITDIALOG:
-		mode=(int)lparam;
-		if(slist!=0){
-			if(selection>=0 && selection<(int)slist->size()){
-				generic_string *str=&slist->at(selection);
-				int pos=str->find(TEXT('|'));
-				if(pos>0){
-					
+		{
+			int i,count;
+			mode=(int)lparam;
+			if(mode==IDC_ADD)
+				SetWindowText(hwnd,TEXT("ADD"));
+			else if(mode==IDC_EDIT)
+				SetWindowText(hwnd,TEXT("EDIT"));
+			count=ListView_GetItemCount(ghlistview);
+			for(i=0;i<count;i++){
+				int j,ctrl[]={IDC_FILEPATTERN,IDC_FILTERMASK};
+				for(j=0;j<_countof(ctrl);j++){
+					TCHAR tmp[80];
+					tmp[0]=0;
+					ListView_GetItemText(ghlistview,i,j,tmp,_countof(tmp));
+					tmp[_countof(tmp)-1]=0;
+					SendDlgItemMessage(hwnd,ctrl[j],CB_ADDSTRING,0,(LPARAM)tmp);
+				}
+			}
+			if(mode==IDC_EDIT && selection>=0){
+				int i,ctrl[]={IDC_FILEPATTERN,IDC_FILTERMASK};
+				for(i=0;i<_countof(ctrl);i++){
+					TCHAR tmp[80];
+					tmp[0]=0;
+					ListView_GetItemText(ghlistview,selection,i,tmp,_countof(tmp));
+					tmp[_countof(tmp)-1]=0;
+					SetDlgItemText(hwnd,ctrl[i],tmp);
 				}
 			}
 		}
@@ -158,26 +177,42 @@ DLGPROC edit_entry(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 	case WM_COMMAND:
 		switch(LOWORD(wparam)){
 		case IDOK:
+			{
+			int end=FALSE;
 			if(mode==IDC_ADD){
-				TCHAR a[80],b[80],s[160];
-				GetDlgItemText(hwnd,IDC_FILEPATTERN,a,_countof(a));
-				GetDlgItemText(hwnd,IDC_FILTERMASK,b,_countof(b));
-				wnsprintfW(s,_countof(s),TEXT("%s|%s"),a,b);
-				s[_countof(s)-1]=0;
-				slist->push_back(s);
-			}
-			else if(mode==IDC_EDIT){
-				if(selection>=0 && selection<(int)slist->size()){
-					TCHAR a[80],b[80],s[160];
-					generic_string *str=&slist->at(selection);
-					GetDlgItemText(hwnd,IDC_FILEPATTERN,a,_countof(a));
-					GetDlgItemText(hwnd,IDC_FILTERMASK,b,_countof(b));
-					wnsprintfW(s,_countof(s),TEXT("%s|%s"),a,b);
-					s[_countof(s)-1]=0;
-					*str=s;
+				int i,ctrl[]={IDC_FILEPATTERN,IDC_FILTERMASK};
+				TCHAR tmp[2][80];
+				end=TRUE;
+				for(i=0;i<_countof(ctrl);i++){
+					if(0==GetDlgItemText(hwnd,ctrl[i],tmp[i],_countof(tmp[i])))
+						end=FALSE;
+					tmp[i][_countof(tmp[i])-1]=0;
+				}
+				if(end){
+					int index=ListView_GetItemCount(ghlistview);
+					for(i=0;i<_countof(ctrl);i++)
+						lv_insert_data(ghlistview,index,i,tmp[i]);
 				}
 			}
-			EndDialog(hwnd,1);
+			else if(mode==IDC_EDIT){
+				if(selection>=0){
+					int i,ctrl[]={IDC_FILEPATTERN,IDC_FILTERMASK};
+					TCHAR tmp[2][80];
+					end=TRUE;
+					for(i=0;i<_countof(ctrl);i++){
+						if(0==GetDlgItemText(hwnd,ctrl[i],tmp[i],_countof(tmp[i])))
+							end=FALSE;
+						tmp[i][_countof(tmp[i])-1]=0;
+					}
+					if(end){
+						for(i=0;i<_countof(ctrl);i++)
+							ListView_SetItemText(ghlistview,selection,i,tmp[i]);
+					}
+				}
+			}
+			if(end)
+				EndDialog(hwnd,1);
+			}
 			break;
 		case IDCANCEL:
 			EndDialog(hwnd,0);
@@ -189,28 +224,33 @@ DLGPROC edit_entry(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 }
 DLGPROC FileFilterMask(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 {
-
+	static std::vector<generic_string> *gslist=0;
 	switch(msg){
 	case WM_INITDIALOG:
 		{
-			slist=(std::vector<generic_string> *)lparam;
+			gslist=(std::vector<generic_string> *)lparam;
 			HWND hlistview=GetDlgItem(hwnd,IDC_FILTERLIST);
 			if(hlistview!=0){
 				const TCHAR *cols[]={TEXT("If file matches ..."),TEXT("Set mask to ...")};
-				int i,style=WS_TABSTOP|WS_CHILD|WS_VISIBLE|LVS_REPORT|LVS_SHOWSELALWAYS;
-				SetWindowLong(hlistview,GWL_STYLE,style);
-				ListView_SetExtendedListViewStyle(hlistview,
-					ListView_GetExtendedListViewStyle(hlistview)|LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
+				int i;
+				ListView_SetExtendedListViewStyle(hlistview, 
+					ListView_GetExtendedListViewStyle(hlistview)|LVS_EX_GRIDLINES|LVS_EX_FULLROWSELECT);
+				for(i=sizeof(cols)/sizeof(TCHAR*)-1;i>=0;i--){
+					ListView_DeleteColumn(hlistview,i);
+				}
 				for(i=0;i<sizeof(cols)/sizeof(TCHAR*);i++){
 					lv_add_column(hlistview,cols[i],i);
 				}
-				populate_listview(hlistview,slist);
-			}
-			{
-				HWND hgrippy=GetDlgItem(hwnd,IDC_GRIPPER);
-				if(hgrippy){
-					SetWindowLong(hlistview,GWL_STYLE,WS_CHILD|WS_VISIBLE|SBS_SIZEGRIP);
+				populate_listview(hlistview,gslist);
+				//if(0)
+				for(i=0;i<10;i++){
+					for(int j=0;j<2;j++){
+						TCHAR tmp[40]={0};
+						wnsprintfW(tmp,_countof(tmp),TEXT("%04i"),i+j);
+						lv_insert_data(hlistview,i,j,tmp);
+					}
 				}
+				ghlistview=hlistview;
 			}
 			AnchorInit(hwnd,FileMaskAnchors,sizeof(FileMaskAnchors)/sizeof(struct CONTROL_ANCHOR));
 			RestoreWinRelPosition(GetParent(hwnd),hwnd,&WinRelPos);
@@ -219,24 +259,87 @@ DLGPROC FileFilterMask(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 	case WM_SIZE:
 		AnchorResize(hwnd,FileMaskAnchors,sizeof(FileMaskAnchors)/sizeof(struct CONTROL_ANCHOR));
 		break;
+	case WM_NOTIFY:
+		if(wparam==IDC_FILTERLIST){
+			NMHDR *nmhdr=(NMHDR *)lparam;
+			if(nmhdr!=0){
+				switch(nmhdr->code){
+				case NM_DBLCLK:
+					{
+						LV_HITTESTINFO ht={0};
+						GetCursorPos(&ht.pt);
+						MapWindowPoints(NULL,GetDlgItem(hwnd,IDC_FILTERLIST),&ht.pt,1);
+						ListView_HitTest(GetDlgItem(hwnd,IDC_FILTERLIST),&ht);
+						if(ht.flags==LVHT_NOWHERE)
+							PostMessage(hwnd,WM_COMMAND,IDC_ADD,0);
+						else
+							PostMessage(hwnd,WM_COMMAND,IDC_EDIT,0);
+					}
+					break;
+				case LVN_KEYDOWN:
+					{
+						LV_KEYDOWN *key=(LV_KEYDOWN *)lparam;
+						switch(key->wVKey){
+						case VK_F2:
+							PostMessage(hwnd,WM_COMMAND,IDC_EDIT,0);
+							break;
+						case VK_INSERT:
+							PostMessage(hwnd,WM_COMMAND,IDC_ADD,0);
+							break;
+						case VK_DELETE:
+							PostMessage(hwnd,WM_COMMAND,IDC_DELETE,0);
+							break;
+						}
+					}
+					break;
+				}
+			}
+		
+		}
+		break;
 	case WM_COMMAND:
 		switch(LOWORD(wparam)){
 		case IDC_ADD:
 		case IDC_EDIT:
-			{
-				int r=DialogBoxParam(ghinstance,MAKEINTRESOURCE(IDD_FILEMASK_ENTRY),hwnd,(DLGPROC)edit_entry,(LPARAM)LOWORD(wparam));
-				if(r>0)
-					populate_listview(GetDlgItem(hwnd,IDC_FILTERLIST),slist);
+			{	
+				selection=ListView_GetSelectionMark(GetDlgItem(hwnd,IDC_FILTERLIST));
+				if(selection<0 && LOWORD(wparam)==IDC_EDIT)
+					break;
+				DialogBoxParam(ghinstance,MAKEINTRESOURCE(IDD_FILEMASK_ENTRY),hwnd,(DLGPROC)edit_entry,(LPARAM)LOWORD(wparam));
 			}
 			break;
 		case IDC_DELETE:
+			{
+				HWND hlistview=GetDlgItem(hwnd,IDC_FILTERLIST);
+				int i,count,selected;
+				count=ListView_GetSelectedCount(hlistview);
+				if(count>1){
+					if(IDOK!=MessageBox(hwnd,TEXT("Are you sure you want to delete the selected items?"),TEXT("Warning"),MB_OKCANCEL|MB_SYSTEMMODAL))
+						break;
+				}
+				selected=ListView_GetNextItem(hlistview,-1,LVIS_SELECTED);
+				count=ListView_GetItemCount(hlistview);
+				for(i=count-1;i>=0;i--){
+					int state;
+					state=ListView_GetItemState(hlistview,i,LVIS_SELECTED);
+					if(state==LVIS_SELECTED)
+						ListView_DeleteItem(hlistview,i);
+				}
+				if(selected>=0){
+					count=ListView_GetItemCount(hlistview);
+					if(selected>=count)
+						selected=count-1;
+					if(selected>=0)
+						ListView_SetItemState(hlistview,selected,LVIS_SELECTED,LVIS_SELECTED);
+				}
+			}
 			break;
 		case IDCANCEL:
 			SaveWinRelPosition(GetParent(hwnd),hwnd,&WinRelPos);
 			EndDialog(hwnd,0);
 			break;
 		case IDOK:
-			save_list(GetDlgItem(hwnd,IDC_FILTERLIST),slist);
+			save_list(GetDlgItem(hwnd,IDC_FILTERLIST),gslist);
 			SaveWinRelPosition(GetParent(hwnd),hwnd,&WinRelPos);
 			EndDialog(hwnd,0);
 			break;
