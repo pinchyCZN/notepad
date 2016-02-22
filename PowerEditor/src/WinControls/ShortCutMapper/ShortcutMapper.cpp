@@ -191,7 +191,7 @@ void ShortcutMapper::initList()
 		ListView_InsertColumn(hlistview,i,&col);
 	}
 	ListView_SetExtendedListViewStyle(hlistview,
-		ListView_GetExtendedListViewStyle(hlistview)|LVS_EX_FULLROWSELECT);
+		ListView_GetExtendedListViewStyle(hlistview)|LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
 }
 int ShortcutMapper::getselectedrow()
 {
