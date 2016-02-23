@@ -217,6 +217,7 @@ DLGPROC edit_entry(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 					SetDlgItemText(hwnd,ctrl[i],tmp);
 				}
 			}
+			SetFocus(GetDlgItem(hwnd,IDC_FILEPATTERN));
 		}
 		break;
 	case WM_COMMAND:
