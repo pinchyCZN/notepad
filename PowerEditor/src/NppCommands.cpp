@@ -2006,6 +2006,17 @@ void Notepad_plus::command(int id)
 			switchToFile(bufID);
             break;
         }
+		case IDM_SETTING_SAVE:
+			{
+				NppParameters *pNppParam = NppParameters::getInstance();
+			    saveFindHistory(); //writeFindHistory
+			    _lastRecentFileList.saveLRFL(); //writeRecentFileHistorySettings, writeHistory
+			    saveScintillaParams(); //writeScintillaParams
+			    saveGUIParams(); //writeGUIParams
+				saveProjectPanelsParams(); //writeProjectPanelsSettings
+				pNppParam->saveConfig_xml();
+			}
+			break;
 
         case IDM_VIEW_GOTO_ANOTHER_VIEW:
             docGotoAnotherEditView(TransferMove);

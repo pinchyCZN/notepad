@@ -762,6 +762,7 @@ BEGIN
         MENUITEM "Preferences...",          IDM_SETTING_PREFERECE
         MENUITEM "Style Configurator...",   IDM_LANGSTYLE_CONFIG_DLG
         MENUITEM "Shortcut Mapper...",      IDM_SETTING_SHORTCUT_MAPPER
+        MENUITEM "Save Settings",           IDM_SETTING_SAVE
         MENUITEM SEPARATOR
         POPUP "Import"
         BEGIN
