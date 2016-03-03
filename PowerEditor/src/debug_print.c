@@ -469,62 +469,54 @@ char *virtual_keys[256]={
 "OEM_CLEAR", //254
 "key255", //255
 };
+HWND ghconsole=0;
 int move_console(int x,int y,int w,int h)
 {
-	char title[MAX_PATH]={0}; 
-	HWND hcon; 
-	GetConsoleTitle(title,sizeof(title));
-	if(title[0]!=0){
-		hcon=FindWindow(NULL,title);
-		SetWindowPos(hcon,0,x,y,w,h,SWP_NOZORDER);
-	}
+	if(ghconsole!=0)
+		SetWindowPos(ghconsole,0,x,y,w,h,SWP_NOZORDER);
 	return 0;
 }
 #define _O_TEXT         0x4000  /* file mode is text (translated) */
 void open_console()
 {
-	char title[MAX_PATH]={0}; 
-	HWND hcon; 
+	HWND hcon;
 	FILE *hf;
 	static BYTE consolecreated=FALSE;
 	static int hcrt=0;
-	
+	static HWND (*GetConsoleWindow)(void)=0;
+
 	if(consolecreated==TRUE)
 	{
-		GetConsoleTitle(title,sizeof(title));
-		if(title[0]!=0){
-			hcon=FindWindow(NULL,title);
-			ShowWindow(hcon,SW_SHOW);
-		}
+		if(ghconsole!=0)
+			ShowWindow(ghconsole,SW_SHOW);
 		hcon=(HWND)GetStdHandle(STD_INPUT_HANDLE);
 		FlushConsoleInputBuffer(hcon);
 		return;
 	}
-	AllocConsole(); 
+	AllocConsole();
 	hcrt=_open_osfhandle((long)GetStdHandle(STD_OUTPUT_HANDLE),_O_TEXT);
 
 	fflush(stdin);
-	hf=_fdopen(hcrt,"w"); 
-	*stdout=*hf; 
+	hf=_fdopen(hcrt,"w");
+	*stdout=*hf;
 	setvbuf(stdout,NULL,_IONBF,0);
-	GetConsoleTitle(title,sizeof(title));
-	if(title[0]!=0){
-		hcon=FindWindow(NULL,title);
-		ShowWindow(hcon,SW_SHOW); 
-		SetForegroundWindow(hcon);
-	}
 	consolecreated=TRUE;
+	if(GetConsoleWindow==0){
+		HMODULE hmod=LoadLibrary("kernel32.dll");
+		if(hmod!=0){
+			GetConsoleWindow=(HWND)GetProcAddress(hmod,"GetConsoleWindow");
+			if(GetConsoleWindow!=0){
+				ghconsole=GetConsoleWindow();
+			}
+		}
+	}
+
 }
 void hide_console()
 {
-	char title[MAX_PATH]={0}; 
-	HANDLE hcon; 
-	
-	GetConsoleTitle(title,sizeof(title));
-	if(title[0]!=0){
-		hcon=FindWindow(NULL,title);
-		ShowWindow(hcon,SW_HIDE);
-		SetForegroundWindow(hcon);
+	if(ghconsole!=0){
+		ShowWindow(ghconsole,SW_HIDE);
+		SetForegroundWindow(ghconsole);
 	}
 }
 void print_key(int key)
