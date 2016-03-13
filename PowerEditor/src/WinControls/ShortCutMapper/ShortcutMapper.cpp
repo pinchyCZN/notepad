@@ -43,6 +43,7 @@ static struct CONTROL_ANCHOR ShortcutAnchors[]={
 	{IDC_SHORTCUT_GRIPPER,ANCHOR_RIGHT|ANCHOR_BOTTOM,0,0,0}
 };
 static struct WIN_REL_POS WinRelPos={0};
+static RECT default_sm_size={0};
 
 void ShortcutMapper::initTabs() {
 	HWND hTab = _hTabCtrl = ::GetDlgItem(_hSelf, IDC_SHORTCUT_TABBAR);
@@ -502,6 +503,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			initList();
 			populateShortCuts();
 			goToCenter();
+			GetWindowRect(_hSelf,&default_sm_size);
 			AnchorInit(_hSelf,ShortcutAnchors,sizeof(ShortcutAnchors)/sizeof(CONTROL_ANCHOR));
 			RestoreWinRelPosition(_hParent,_hSelf,&WinRelPos);
 			return TRUE;
@@ -511,6 +513,9 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 			break;
 		case WM_SIZE:
 			AnchorResize(_hSelf,ShortcutAnchors,sizeof(ShortcutAnchors)/sizeof(CONTROL_ANCHOR));
+			break;
+		case WM_SIZING:
+			return ClampMinWindowSize(&default_sm_size,wParam,(RECT*)lParam);
 			break;
 		case WM_NOTIFY: {
 			NMHDR nmh = *((NMHDR*)lParam);

@@ -14,7 +14,7 @@ int AnchorInit(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len);
 int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len);
 
 struct WIN_REL_POS{
-	RECT rparent,rwin;
+	WINDOWPLACEMENT parent,win;
 	int initialized;
 };
 
@@ -23,3 +23,5 @@ int RestoreWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos);
 
 int SnapWindow(HWND hwnd,RECT *rect);
 int SnapSizing(HWND hwnd,RECT *rect,int side);
+
+int ClampMinWindowSize(RECT *default_size,int side,RECT *srect);

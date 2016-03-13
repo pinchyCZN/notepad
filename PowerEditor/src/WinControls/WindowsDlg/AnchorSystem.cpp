@@ -124,31 +124,40 @@ int AnchorResize(HWND hparent,struct CONTROL_ANCHOR *clist,int clist_len)
 int SaveWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos)
 {
 	int result=FALSE;
-	WINDOWPLACEMENT wp={0};
-	wp.length=sizeof(WINDOWPLACEMENT);
-	if(GetWindowPlacement(hparent,&wp)){
-		relpos->rparent=wp.rcNormalPosition;
-		if(GetWindowPlacement(hwin,&wp)){
-			relpos->rwin=wp.rcNormalPosition;
+	memset(&relpos->parent,0,sizeof(relpos->parent));
+	relpos->parent.length=sizeof(WINDOWPLACEMENT);
+	if(GetWindowPlacement(hparent,&relpos->parent)){
+		if(relpos->parent.showCmd==SW_SHOWMAXIMIZED)
+			GetWindowRect(hparent,&relpos->parent.rcNormalPosition);
+		memset(&relpos->win,0,sizeof(relpos->win));
+		relpos->win.length=sizeof(WINDOWPLACEMENT);
+		if(GetWindowPlacement(hwin,&relpos->win)){
 			result=TRUE;
 		}
 	}
 	relpos->initialized=result;
-	return 0;
+	return result;
 }
+
 int RestoreWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos)
 {
 	//clamp window to nearest monitor
 	if(relpos->initialized){
-		RECT rparent;
-		if(GetWindowRect(hparent,&rparent)){
+		WINDOWPLACEMENT *wp_parent,*wp_win;
+		RECT rparent={0};
+		RECT orig_parent={0};
+		wp_parent=&relpos->parent;
+		wp_win=&relpos->win;
+		orig_parent=relpos->parent.rcNormalPosition;
+		if((!(SW_SHOWMAXIMIZED==wp_win->showCmd || SW_SHOWMINIMIZED==wp_win->showCmd)) 
+			&& GetWindowRect(hparent,&rparent)){
 			HMONITOR hmon;
 			RECT rwin;
 			int x,y,cx,cy;
-			x=relpos->rwin.left-relpos->rparent.left;
-			y=relpos->rwin.top-relpos->rparent.top;
-			cx=relpos->rwin.right-relpos->rwin.left;
-			cy=relpos->rwin.bottom-relpos->rwin.top;
+			x=wp_win->rcNormalPosition.left-orig_parent.left;
+			y=wp_win->rcNormalPosition.top-orig_parent.top;
+			cx=wp_win->rcNormalPosition.right-wp_win->rcNormalPosition.left;
+			cy=wp_win->rcNormalPosition.bottom-wp_win->rcNormalPosition.top;
 			rwin.left=rparent.left+x;
 			rwin.top=rparent.top+y;
 			rwin.right=rwin.left+cx;
@@ -174,8 +183,7 @@ int RestoreWinRelPosition(HWND hparent,HWND hwin,struct WIN_REL_POS *relpos)
 						x=rmon.right-cx;
 					if((y+cy)>rmon.bottom)
 						y=rmon.bottom-cy;
-					SetWindowPos(hwin,NULL,x,y,cx,cy,
-						SWP_SHOWWINDOW|SWP_NOZORDER);
+					SetWindowPos(hwin,NULL,x,y,cx,cy,SWP_NOZORDER);
 				}
 			}
 			
@@ -256,4 +264,49 @@ int SnapSizing(HWND hwnd,RECT *rect,int side)
 		}
 	}
 	return result;
+}
+
+int ClampMinWindowSize(RECT *default_size,int side,RECT *srect)
+{
+	int processed=FALSE;
+	int w,h,dw,dh;
+	if(default_size==0 || srect==0)
+		return processed;
+	w=srect->right-srect->left;
+	h=srect->bottom-srect->top;
+	dw=default_size->right-default_size->left;
+	dh=default_size->bottom-default_size->top;
+	if(dw<=0 || dh<=0)
+		return processed;
+	if(w<dw){
+		processed=TRUE;
+		switch(side){
+		case WMSZ_BOTTOMRIGHT:
+		case WMSZ_TOPRIGHT:
+		case WMSZ_RIGHT:
+				srect->right=srect->left+dw;
+			break;
+		case WMSZ_BOTTOMLEFT:
+		case WMSZ_TOPLEFT:
+		case WMSZ_LEFT:
+				srect->left=srect->right-dw;
+			break;
+		}
+	}
+	if(h<dh){
+		processed=TRUE;
+		switch(side){
+		case WMSZ_TOPRIGHT:
+		case WMSZ_TOPLEFT:
+		case WMSZ_TOP:
+			srect->top=srect->bottom-dh;
+			break;
+		case WMSZ_BOTTOMRIGHT:
+		case WMSZ_BOTTOMLEFT:
+		case WMSZ_BOTTOM:
+			srect->bottom=srect->top+dh;
+			break;
+		}
+	}
+	return processed;
 }
