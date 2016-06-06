@@ -2759,7 +2759,7 @@ void FindIncrementDlg::destroy()
 	}
 }
 
-void FindIncrementDlg::display(bool toShow) const
+void FindIncrementDlg::display(bool toShow)
 {
 	if (!_pRebar)
 	{
@@ -2771,8 +2771,17 @@ void FindIncrementDlg::display(bool toShow) const
 		::SetFocus(::GetDlgItem(_hSelf, IDC_INCFINDTEXT));
 		// select the whole find editor text
 		::SendDlgItemMessage(_hSelf, IDC_INCFINDTEXT, EM_SETSEL, 0, -1);
+
+		orig_pos.cpMin=(*(_pFRDlg->_ppEditView))->execute(SCI_GETSELECTIONSTART);
+		orig_pos.cpMax=(*(_pFRDlg->_ppEditView))->execute(SCI_GETSELECTIONEND);
+		orig_line=(*(_pFRDlg->_ppEditView))->execute(SCI_GETFIRSTVISIBLELINE);
 	}
 	_pRebar->setIDVisible(_rbBand.wID, toShow);
+}
+void FindIncrementDlg::restore_orig_pos()
+{
+	(*(_pFRDlg->_ppEditView))->execute(SCI_SETSEL,orig_pos.cpMin,orig_pos.cpMax);
+	(*(_pFRDlg->_ppEditView))->execute(SCI_SETFIRSTVISIBLELINE,orig_line);
 }
 
 BOOL CALLBACK FindIncrementDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
@@ -2802,7 +2811,9 @@ BOOL CALLBACK FindIncrementDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 				case IDCANCEL :
 					(*(_pFRDlg->_ppEditView))->clearIndicator(SCE_UNIVERSAL_FOUND_STYLE_INC);
 					::SetFocus((*(_pFRDlg->_ppEditView))->getHSelf());
-
+					if(_findStatus!=FSFound){
+						restore_orig_pos();
+					}
 					display(false);
 					return TRUE;
 
@@ -2841,8 +2852,12 @@ BOOL CALLBACK FindIncrementDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 							fo._incrementalType = FirstIncremental;
 							
 							generic_string str2Search = _pFRDlg->getTextFromCombo(::GetDlgItem(_hSelf, IDC_INCFINDTEXT), isUnicode);
-							_pFRDlg->processFindNext(str2Search.c_str(), &fo, &findStatus);
-							setFindStatus(findStatus);
+							if(str2Search.length()==0){
+								restore_orig_pos();
+							}else{
+								_pFRDlg->processFindNext(str2Search.c_str(), &fo, &findStatus);
+								setFindStatus(findStatus);
+							}
 						}
 					return TRUE;
 					case EN_KILLFOCUS :

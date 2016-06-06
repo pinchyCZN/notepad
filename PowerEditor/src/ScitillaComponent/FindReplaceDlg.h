@@ -387,35 +387,15 @@ private :
 class FindIncrementDlg : public StaticDialog
 {
 public :
-	FindIncrementDlg() : _pFRDlg(NULL), _pRebar(NULL), _findStatus(FSFound) {};
+	FindIncrementDlg() : _pFRDlg(NULL), _pRebar(NULL), _findStatus(FSFound),
+		orig_pos(),orig_line(0)
+		{};
 	void init(HINSTANCE hInst, HWND hPere, FindReplaceDlg *pFRDlg, bool isRTL = false);
 	virtual void destroy();
-	virtual void display(bool toShow = true) const;
-#ifdef UNICODE
+	virtual void display(bool toShow = true);
 	void setSearchText(const TCHAR * txt2find, bool) {
 		::SendDlgItemMessage(_hSelf, IDC_INCFINDTEXT, WM_SETTEXT, 0, (LPARAM)txt2find);
 	};
-#else
-	void setSearchText(const TCHAR * txt2find, bool isUTF8 = false) {
-		if (!isUTF8)
-		{
-			::SendDlgItemMessage(_hSelf, IDC_INCFINDTEXT, WM_SETTEXT, 0, (LPARAM)txt2find);
-			return;
-		}
-		const int wideBufferSize = 256;
-		WCHAR wchars[wideBufferSize];
-		::MultiByteToWideChar(CP_UTF8, 0, txt2find, -1, wchars, wideBufferSize);
-		winVer winVersion = NppParameters::getInstance()->getWinVersion();
-		if (winVersion <= WV_ME) {
-			//Cannot simply take txt2find since its UTF8
-			char ansiBuffer[wideBufferSize];	//Assuming no more than 2 bytes for each wchar (SBCS or DBCS, no UTF8 and sorts)
-			::WideCharToMultiByte(CP_ACP, 0, wchars, -1, ansiBuffer, wideBufferSize, NULL, NULL);
-			::SendDlgItemMessageA(_hSelf, IDC_INCFINDTEXT, WM_SETTEXT, 0, (LPARAM)ansiBuffer);
-		} else {
-			::SendDlgItemMessageW(_hSelf, IDC_INCFINDTEXT, WM_SETTEXT, 0, (LPARAM)wchars);
-		}
-	};
-#endif
 
 	void setFindStatus(FindStatus iStatus);
 	
@@ -426,6 +406,8 @@ public :
 	void addToRebar(ReBar * rebar);
 private :
 	bool _isRTL;
+	CharacterRange orig_pos;
+	int orig_line;
 	FindReplaceDlg *_pFRDlg;
 	FindStatus _findStatus;
 
@@ -434,6 +416,7 @@ private :
 
 	virtual BOOL CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
 	void markSelectedTextInc(bool enable, FindOption *opt = NULL);
+	void restore_orig_pos();
 };
 
 
