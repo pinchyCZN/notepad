@@ -817,7 +817,7 @@ void WordStyleDlg::setStyleListFromLexer(int index)
     ::ShowWindow(::GetDlgItem(_hSelf, IDC_USER_EXT_STATIC), index?SW_SHOW:SW_HIDE);
 	::ShowWindow(::GetDlgItem(_hSelf, IDC_PLUSSYMBOL_STATIC), index?SW_SHOW:SW_HIDE);
 
-	StyleArray & lexerStyler = index?_lsArray.getLexerFromIndex(index-1):_globalStyles;
+	StyleArray & lexerStyler = index?(StyleArray&)_lsArray.getLexerFromIndex(index-1):(StyleArray&)_globalStyles;
 
     for (int i = 0, nb = lexerStyler.getNbStyler(); i < nb ; i++)
     {

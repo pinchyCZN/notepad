@@ -1281,32 +1281,42 @@ void Notepad_plus::doTrim(trimOp whichPart)
 
 void Notepad_plus::removeEmptyLine(bool isBlankContained)
 {
-	// whichPart : line head or line tail
-	FindOption env;
-	if (isBlankContained)
-	{
-		env._str2Search = TEXT("^[\\t ]*$(\\r\\n|\\r|\\n)");
+	int i,line_count;
+	const int MAX_LEN=4096;
+	unsigned char *buf;
+	buf=new unsigned char[MAX_LEN];
+	if(0==buf)
+		return;
+	line_count=int(_pEditView->execute(SCI_GETLINECOUNT));
+	for(i=line_count-1;i>=0;i--){
+		int len;
+		len=int(_pEditView->execute(SCI_LINELENGTH,i));
+		if(len<=MAX_LEN){
+			int j;
+			bool del_line=false;
+			_pEditView->execute(SCI_GETLINE,i,(LPARAM)buf);
+			if(1==len && buf[0]=='\n')
+				del_line=true;
+			if(2==len && buf[0]=='\r' && buf[1]=='\n')
+				del_line=true;
+			if(isBlankContained){
+				del_line=true;
+				for(j=0;j<len;j++){
+					unsigned char a;
+					a=buf[j];
+					if(!(a<=0xD || a==' ')){
+						del_line=false;
+						break;
+					}
+				}
+			}
+			if(0==len || del_line){
+				_pEditView->execute(SCI_GOTOLINE,i);
+				_pEditView->execute(SCI_LINEDELETE);
+			}
+		}
 	}
-	else
-	{
-		env._str2Search = TEXT("^$(\\r\\n|\\r|\\n)");
-	}
-	env._str4Replace = TEXT("");
-    env._searchType = FindRegex;
-	
-	_findReplaceDlg.processAll(ProcessReplaceAll, &env, true);
-
-
-	// remove the last line if it's an empty line.
-	if (isBlankContained)
-	{
-		env._str2Search = TEXT("(\\r\\n|\\r|\\n)^[\\t ]*$");
-	}
-	else
-	{
-		env._str2Search = TEXT("(\\r\\n|\\r|\\n)^$");
-	}
-	_findReplaceDlg.processAll(ProcessReplaceAll, &env, true);
+	delete buf;
 }
 
 void Notepad_plus::getMatchedFileNames(const TCHAR *dir, const vector<generic_string> & patterns, vector<generic_string> & fileNames, bool isRecursive, bool isInHiddenDir)
