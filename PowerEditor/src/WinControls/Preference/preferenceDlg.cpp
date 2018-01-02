@@ -175,6 +175,8 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 			ETDTProc enableDlgTheme = (ETDTProc)pNppParam->getEnableThemeDlgTexture();
 			if (enableDlgTheme)
 				enableDlgTheme(_hSelf, ETDT_ENABLETAB);
+			generic_string str=pNppParam->getUserPath();
+			SetDlgItemText(_settingsDlg.getHSelf(),IDC_SETTINGS_PATH,str.c_str());
 			return TRUE;
 		}
 		case WM_SHOWWINDOW:
