@@ -216,7 +216,12 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 	//
 	// DRAW TEXT
 	//
-	COLORREF textColor = GetSysColor(COLOR_WINDOWTEXT);
+	COLORREF textColor;
+	if(lpDrawItemStruct->itemState&ODS_SELECTED)
+		textColor = GetSysColor(COLOR_HIGHLIGHTTEXT);
+	else
+		textColor = GetSysColor(COLOR_WINDOWTEXT);
+
 	::SetTextColor(hDC, textColor);
 	rect.top -= ::GetSystemMetrics(SM_CYEDGE);
 		
