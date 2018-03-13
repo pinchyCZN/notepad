@@ -198,6 +198,10 @@ notepad++ [--help] [-multiInst] [-noPlugin] [-lLanguage] [-nLineNumber] [-cColum
     -loadingTime : Display Notepad++ loading time\r\n\
     -alwaysOnTop : Make Notepad++ always on top\r\n\
     fullFilePathName : file name to open (absolute or relative path name)\r\n\
+\r\n\
+    doLocalConf.xml in exe folder to use local config file\r\n\
+    allowAppDataPlugins.xml Check to see if loading plugins from %APPDATA%\\Notepad++\\plugins\\\r\n\
+    asNotepad.xml sets true multiInst,notabbar,nosession\r\n\
 ");
 
 void doException(Notepad_plus_Window & notepad_plus_plus);
