@@ -1027,7 +1027,7 @@ struct SearchResultMarking {
 
 struct SearchResultMarkings {
 	long _length;
-	SearchResultMarking *_markings;
+	struct SearchResultMarking *_markings;
 };
 
 #ifdef SCI_NAMESPACE
