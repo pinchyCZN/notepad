@@ -241,7 +241,8 @@ BOOL CALLBACK RunDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 					TCHAR cmd[MAX_PATH];
 					::GetDlgItemText(_hSelf, IDC_COMBO_RUN_PATH, cmd, MAX_PATH);
 					_cmdLine = cmd;
-
+					if(BST_CHECKED==IsDlgButtonChecked(_hSelf,IDC_SAVE_ON_RUN))
+						MainFileManager->_pNotepadPlus->fileSave();
 					HINSTANCE hInst = run(_hParent);
 					if (int(hInst) > 32)
 					{
