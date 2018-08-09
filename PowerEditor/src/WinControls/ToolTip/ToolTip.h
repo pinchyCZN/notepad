@@ -61,5 +61,5 @@ protected:
 	LRESULT runProc(UINT Message, WPARAM wParam, LPARAM lParam);
 	void SendHitMessage();
 };
-
+int set_tooltip_pos(HWND hparent, HWND htooltip);
 #endif // __TOOLTIP_H__

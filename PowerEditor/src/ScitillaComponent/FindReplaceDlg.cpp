@@ -588,47 +588,8 @@ TEXT("\\B	non word boundary\r\n")
 TEXT("==MISC==\r\n")
 TEXT("escape these outside char class:.^$*+?()[{\\|\r\n")
 TEXT("escape these inside char class:^-]\\");
-static int set_tooltip_pos(HWND hparent, HWND htooltip)
-{
-	RECT rparent={0},rtool={0};
-	HMONITOR hmon;
-	GetWindowRect(hparent,&rparent);
-	GetWindowRect(htooltip,&rtool);
-	hmon=MonitorFromRect(&rparent,MONITOR_DEFAULTTONEAREST);
-	if(hmon){
-		MONITORINFO mi;
-		mi.cbSize=sizeof(mi);
-		if(GetMonitorInfo(hmon,&mi)){
-			int x,y,center;
-			int width,height;
-			width=rtool.right-rtool.left;
-			height=rtool.bottom-rtool.top;
-			x=rparent.right;
-			y=(height-(rparent.bottom-rparent.top))/2; //half the difference in heights
-			y=rparent.top-y; //center tooltip to parent
-			center=y;
-			if(y<0 || y<mi.rcWork.top)
-				y=rparent.top;
-			else if((y+height)>mi.rcWork.bottom){
-				y=rparent.bottom-height;
-				if(y<mi.rcWork.top)
-					y=center;
-			}
-			if(rparent.right+width>mi.rcWork.right){
-				if(rparent.left-width<mi.rcWork.left){
-					int left=mi.rcWork.left-(rparent.left-width);
-					int right=rparent.right+width-mi.rcWork.right;
-					if(left<right)
-						x=rparent.left-width;
-				}
-				else
-					x=rparent.left-width;
-			}
-			::SendMessage(htooltip, TTM_TRACKPOSITION, 0, (LPARAM)(DWORD) MAKELONG(x,y));
-		}
-	}
-	return 0;
-}
+
+
 BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static ToolTip	toolTip;

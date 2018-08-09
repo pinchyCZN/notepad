@@ -1,0 +1,15 @@
+*.obj
+*.res
+*.htm
+*.dll
+*.pch
+*.ncb
+*.idb
+*.pdb
+*.suo
+*.dep
+*.ilk
+*.exe
+*.user
+*.xml
+*.manifest

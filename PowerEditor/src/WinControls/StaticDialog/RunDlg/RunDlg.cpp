@@ -22,6 +22,7 @@
 #include "shortcut.h"
 #include "Parameters.h"
 #include "Notepad_plus.h"
+#include "ToolTip.h"
 
 
 void Command::extractArgs(TCHAR *cmd2Exec, TCHAR *args, const TCHAR *cmdEntier)
@@ -195,17 +196,44 @@ HINSTANCE Command::run(HWND hWnd)
 	HINSTANCE res = ::ShellExecute(hWnd, TEXT("open"), cmd2Exec, args2Exec, TEXT("."), SW_SHOW);
 	return res;
 }
+const TCHAR *rundlg_help = 
+TEXT("$(FULL_CURRENT_PATH) : E:\\my Web\\main\\welcome.html\r\n")
+TEXT("$(CURRENT_DIRECTORY) : E:\\my Web\\main\\\r\n")
+TEXT("$(FILE_NAME) : welcome.html\r\n")
+TEXT("$(NAME_PART) : welcome\r\n")
+TEXT("$(EXT_PART) : html\r\n")
+TEXT("$(CURRENT_WORD)\r\n")
+TEXT("$(NPP_DIRECTORY)\r\n")
+TEXT("$(CURRENT_LINE)\r\n")
+TEXT("$(CURRENT_COLUMN)\r\n");
 
 BOOL CALLBACK RunDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 {
+	static ToolTip toolTip;
 	switch (message) 
 	{
+		case WM_HELP:
+			{
+				RECT rect;
+				if(toolTip.isVisible()){
+					toolTip.destroy();
+					return TRUE;
+				}
+				toolTip.init(_hInst, _hSelf);
+				getWindowRect(rect);
+				SendMessage(toolTip.getHSelf(), TTM_SETMAXTIPWIDTH, 0, 800);
+				toolTip.SetColors(GetSysColor(COLOR_WINDOWTEXT),GetSysColor(COLOR_WINDOW));
+				toolTip.Show(rect, rundlg_help, rect.right - rect.left, 0);
+				set_tooltip_pos(_hSelf,toolTip.getHSelf());
+			}
+			return TRUE;
 		case WM_COMMAND : 
 		{
 			switch (wParam)
 			{
 				case IDCANCEL :
 					display(false);
+					toolTip.destroy();
 					return TRUE;
 				
 				case IDOK :
@@ -219,6 +247,7 @@ BOOL CALLBACK RunDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 					{
 						addTextToCombo(_cmdLine.c_str());
 						display(false);
+						toolTip.destroy();
 					}
 					else
 					{
