@@ -805,7 +805,7 @@ struct NppGUI
         bool _doAutoUpdate;
         int _intervalDays;
         Date _nextUpdateDate;
-        AutoUpdateOptions(): _doAutoUpdate(true), _intervalDays(15), _nextUpdateDate(Date()) {};
+        AutoUpdateOptions(): _doAutoUpdate(false), _intervalDays(15), _nextUpdateDate(Date()) {};
     } _autoUpdateOpt;
 
 	bool _doesExistUpdater;
@@ -1524,7 +1524,8 @@ public:
 	};
 
 	void saveConfig_xml() {
-		_pXmlUserDoc->SaveFile();
+		if(_pXmlUserDoc)
+			_pXmlUserDoc->SaveFile();
 	};
 
 	generic_string getUserPath() const {
