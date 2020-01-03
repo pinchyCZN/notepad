@@ -1,0 +1,1 @@
+int read_zip_file(void *buf,int buf_len,void **out,int *out_len);

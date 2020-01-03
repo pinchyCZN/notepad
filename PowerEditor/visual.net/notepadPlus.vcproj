@@ -584,6 +584,10 @@
 				RelativePath="..\src\ScitillaComponent\xmlMatchedTagsHighlighter.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\zip_file.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -1401,6 +1405,10 @@
 			</File>
 			<File
 				RelativePath="..\src\ScitillaComponent\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\WinControls\StaticDialog\RunDlg\resource.h"
 				>
 			</File>
 			<File

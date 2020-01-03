@@ -1,4 +1,4 @@
-#include "precompiledHeaders.h"
+//#include "precompiledHeaders.h"
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
@@ -116,6 +116,9 @@ typedef struct stbi__stream
 	void *cookie_in;
 	void *cookie_out;
 
+	void *data_out;
+	int data_len;
+
 	size_t total_in;
 	size_t total_out;
 
@@ -167,33 +170,33 @@ static int mem_fseek(FILE *f,long offset,int flag)
 {
 	int result=-1;
 	switch(flag){
-case SEEK_END:
-	if(offset<=0 && (-offset)<=f->_bufsiz){
-		size_t pos=(size_t)f->_base+f->_bufsiz;
-		f->_ptr=(char*)pos+offset;
-		result=0;
-	}
-	break;
-case SEEK_SET:
-	{
-		if(offset>=0 && offset<f->_bufsiz){
-			f->_ptr=f->_base+offset;
+	case SEEK_END:
+		if(offset<=0 && (-offset)<=f->_bufsiz){
+			size_t pos=(size_t)f->_base+f->_bufsiz;
+			f->_ptr=(char*)pos+offset;
 			result=0;
 		}
-	}
-	break;
-case SEEK_CUR:
-	{
-		size_t start=(size_t)f->_base;
-		size_t end=(size_t)f->_base+f->_bufsiz;
-		size_t pos=(size_t)f->_ptr;
-		size_t target=pos+offset;
-		if(target>=start && target<=end){
-			f->_ptr=(char*)target;
-			result=0;
+		break;
+	case SEEK_SET:
+		{
+			if(offset>=0 && offset<f->_bufsiz){
+				f->_ptr=f->_base+offset;
+				result=0;
+			}
 		}
-	}
-	break;
+		break;
+	case SEEK_CUR:
+		{
+			size_t start=(size_t)f->_base;
+			size_t end=(size_t)f->_base+f->_bufsiz;
+			size_t pos=(size_t)f->_ptr;
+			size_t target=pos+offset;
+			if(target>=start && target<=end){
+				f->_ptr=(char*)target;
+				result=0;
+			}
+		}
+		break;
 	}
 	return result;
 }
@@ -240,6 +243,39 @@ int flush_stdio(struct stbi__stream *stream) {
 	if (n) {
 		stream->next_out = stream->start_out;
 		return 0;
+	}
+	return -1;
+}
+
+int flush_stream_mem(struct stbi__stream *stream)
+{
+	int res=0;
+	char *tmp;
+	size_t len;
+	len=stream->next_out - stream->start_out;
+	if(len!=0){
+		tmp=stream->data_out;
+		tmp=realloc(tmp,len+stream->data_len);
+		if(tmp){
+			size_t offset=stream->data_len;
+			memcpy(tmp+offset,stream->start_out,len);
+			stream->data_len+=len;
+			stream->data_out=tmp;
+			{
+				int i;
+				for(i=0;i<len;i++){
+					unsigned char a=tmp[offset+i];
+					if(a>=0x7E){
+						i++;
+					}
+				}
+			}
+			printf("%.*s",len,stream->start_out);
+			stream->next_out = stream->start_out;
+			return 0;
+		}
+	}else{
+		printf("fdfgsdf\n");
 	}
 	return -1;
 }
@@ -752,19 +788,19 @@ static int zip_seek(FILE *stream, const struct zip_entry *entry) {
 
 int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 {
-	int result=FALSE;
+	int result=0;
 	FILE fbuf={0};
 	struct zip_entry *entries = NULL;
-	size_t i,count;
+	size_t count;
 	fbuf._base=(char*)buf;
 	fbuf._bufsiz=buf_len;
 	fbuf._ptr=(char*)buf;
 	count=zip_read(&entries,&fbuf);
 	if(count>0)
 	{
-		struct stbi__stream stream;
+		struct stbi__stream stream={0};
 		char buffer[BUFSIZ];
-		uint8_t window[1 << 15];
+		uint8_t window[4];
 		struct zip_entry *e=&entries[0];
 		memset(&stream, 0, sizeof(stream));
 		if (zip_seek(&fbuf, e)) {
@@ -773,18 +809,49 @@ int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 		stream.start_in = (uint8_t*)buffer;
 		stream.end_in = stream.next_in = (uint8_t*)buffer + sizeof(buffer);
 		stream.cookie_in = &fbuf;
-		stream.refill = refill_stdio;
 		stream.refill = refill_buf;
 
 		stream.start_out = stream.next_out = window;
 		stream.end_out = window + sizeof(window);
 		stream.cookie_out = stdout;
-		stream.flush = flush_stdio;
+		stream.flush = flush_stream_mem;
+		//stream.flush=flush_stdio;
 
+		result=1;
 		if (!stb_inflate(&stream)) {
-			printf("asdasd\n");
+			result=0;
 		}
 	}
 ERROR:
+	if(entries)
+		free(entries);
 	return result;
+}
+
+#include <conio.h>
+
+int main(int argc,char **argv)
+{
+	if(argc>=2){
+		int len=0;
+		char *buf=0;
+		FILE *f;
+		char *fname=argv[1];
+		f=fopen(fname,"rb");
+		if(f){
+			fseek(f,0,SEEK_END);
+			len=ftell(f);
+			fseek(f,0,SEEK_SET);
+			buf=calloc(1,len);
+			fread(buf,1,len,f);
+			fclose(f);
+		}
+		if(buf){
+			char *tmp=0;
+			int tmp_len=0;
+			read_zip_file(buf,len,&tmp,&tmp_len);
+		}
+	}
+	getch();
+	printf("done\n");
 }
