@@ -833,18 +833,19 @@ EXIT_ERROR:
 }
 
 typedef struct{
-	size_t zip_data;
-	size_t zip_len;
+	void *zip_data;
+	int zip_len;
 	const char *name;
 }ZIP_FILE_INFO;
 
-extern ZIP_FILE_INFO zip_file_list[];
+extern "C" ZIP_FILE_INFO *zip_file_list;
 
 int read_zip_file_name(const char *name,void **out,int *out_len)
 {
+	int result=0;
 	int index=0;
 	ZIP_FILE_INFO *entry=0;
-	while(1){
+	for(;;){
 		ZIP_FILE_INFO *e=&zip_file_list[index];
 		if(0==strcmp(e->name,name)){
 			entry=e;
@@ -853,8 +854,9 @@ int read_zip_file_name(const char *name,void **out,int *out_len)
 		index++;
 	}
 	if(entry){
-
+		result=read_zip_file(entry->zip_data,entry->zip_len,out,out_len);
 	}
+	return result;
 }
 
 
