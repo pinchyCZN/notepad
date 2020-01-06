@@ -784,7 +784,7 @@ bool NppParameters::reloadLang()
 bool NppParameters::load()
 {
 	L_END = L_EXTERNAL;
-	bool isAllLaoded = true;
+	bool isAllLoaded = true;
 	for (int i = 0 ; i < NB_LANG ; _langList[i] = NULL, i++);
 	
 	// Make localConf.xml path
@@ -866,7 +866,7 @@ bool NppParameters::load()
 		::MessageBox(NULL, TEXT("Load langs.xml failed!"), TEXT("Configurator"),MB_OK);
 		delete _pXmlDoc;
 		_pXmlDoc = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 	else
 		getLangKeywordsFromXmlTree();
@@ -899,7 +899,7 @@ bool NppParameters::load()
 				::MessageBox(NULL, TEXT("Recover config.xml failed!"), TEXT("Configurator"),MB_OK);
 				delete _pXmlUserDoc;
 				_pXmlUserDoc = NULL;
-				isAllLaoded = false;
+				isAllLoaded = false;
 			}
 			else
 				getUserParametersFromXmlTree();
@@ -908,7 +908,7 @@ bool NppParameters::load()
 		{
 			delete _pXmlUserDoc;
 			_pXmlUserDoc = NULL;
-			isAllLaoded = false;
+			isAllLoaded = false;
 		}
 	}
 	else
@@ -939,7 +939,7 @@ bool NppParameters::load()
 		::MessageBox(NULL, TEXT("Load stylers.xml failed!"), _stylerPath.c_str(), MB_OK);
 		delete _pXmlUserStylerDoc;
 		_pXmlUserStylerDoc = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 	else
 		getUserStylersFromXmlTree();
@@ -960,7 +960,7 @@ bool NppParameters::load()
 	{
 		delete _pXmlUserLangDoc;
 		_pXmlUserLangDoc = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 	else
 		getUserDefineLangsFromXmlTree();
@@ -991,7 +991,7 @@ bool NppParameters::load()
 	{
 		delete _pXmlNativeLangDocA;
 		_pXmlNativeLangDocA = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 
 	//---------------------------------//
@@ -1006,7 +1006,7 @@ bool NppParameters::load()
 	{
 		delete _pXmlToolIconsDoc;
 		_pXmlToolIconsDoc = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 
 	//------------------------------//
@@ -1015,12 +1015,8 @@ bool NppParameters::load()
 	_shortcutsPath = _userPath;
 	PathAppend(_shortcutsPath, TEXT("shortcuts.xml"));
 
-	if (!PathFileExists(_shortcutsPath.c_str()))
-	{
-		generic_string srcShortcutsPath(_nppPath);
-		PathAppend(srcShortcutsPath, TEXT("shortcuts.xml"));
-
-		::CopyFile(srcShortcutsPath.c_str(), _shortcutsPath.c_str(), TRUE);
+	if (!PathFileExists(_shortcutsPath.c_str())){
+		extract_zip_file(_shortcutsPath.c_str(),"shortcuts");
 	}
 
 	_pXmlShortcutDoc = new TiXmlDocument(_shortcutsPath);
@@ -1029,7 +1025,7 @@ bool NppParameters::load()
 	{
 		delete _pXmlShortcutDoc;
 		_pXmlShortcutDoc = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 	else
 	{
@@ -1062,7 +1058,7 @@ bool NppParameters::load()
 	{
 		delete _pXmlContextMenuDocA;
 		_pXmlContextMenuDocA = NULL;
-		isAllLaoded = false;
+		isAllLoaded = false;
 	}
 
 	//----------------------------//
@@ -1078,7 +1074,7 @@ bool NppParameters::load()
 		_pXmlSessionDoc = new TiXmlDocument(_sessionPath);
 		loadOkay = _pXmlSessionDoc->LoadFile();
 		if (!loadOkay)
-			isAllLaoded = false;
+			isAllLoaded = false;
 		else
 			getSessionFromXmlTree();
 
@@ -1105,7 +1101,7 @@ bool NppParameters::load()
             getBlackListFromXmlTree();
         }
     }
-	return isAllLaoded;
+	return isAllLoaded;
 }
 
 void NppParameters::destroyInstance()
