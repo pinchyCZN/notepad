@@ -13,3 +13,12 @@
 *.user
 *.xml
 *.manifest
+
+*.tlog
+*.aps
+*.ipch
+/.vs
+*.db
+*.log
+*.opt
+*.plg

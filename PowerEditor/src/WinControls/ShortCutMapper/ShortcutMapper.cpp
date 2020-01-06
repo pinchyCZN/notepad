@@ -134,7 +134,7 @@ static bool GetShortcutKeys(GridState gs,int i,NppParameters *nppParam,TCHAR *st
 			int j,max=cshortcuts[i].getSize();
 			for(j=0;j<max;j++){
 				generic_string s=cshortcuts[i].toString(j);
-				_sntprintf_s(str,len,_TRUNCATE,L"%s%s%c",str,s.c_str(),j<(max-1)?L';':L'');
+				_sntprintf_s(str,len,_TRUNCATE,L"%s%s%c",str,s.c_str(),j<(max-1)?L';':L'\0');
 			}
 			return TRUE ;
 		}
@@ -734,7 +734,7 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								max=skm.getSize();
 								for(i=0;i<max;i++){
 									generic_string keys=skm.toString(i);
-									_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%s%s%c",str,keys.c_str(),i<(max-1)?L';':L'');
+									_sntprintf_s(str,sizeof(str)/sizeof(TCHAR),_TRUNCATE,L"%s%s%c",str,keys.c_str(),i<(max-1)?L';':L'\0');
 								}
 								ListView_SetItemText(hlistview,selected_row,2,(LPWSTR)str);
 								update_col_width(str,2);

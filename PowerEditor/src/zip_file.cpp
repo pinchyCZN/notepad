@@ -1,4 +1,18 @@
-#include "precompiledHeaders.h"
+#ifndef _FILE_DEFINED
+#define _FILE_DEFINED
+struct _iobuf {
+	char *_ptr;
+	int   _cnt;
+	char *_base;
+	int   _flag;
+	int   _file;
+	int   _charbuf;
+	int   _bufsiz;
+	char *_tmpfname;
+};
+typedef struct _iobuf FILE;
+#endif
+//#include "precompiledHeaders.h"
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
@@ -602,8 +616,8 @@ static size_t zip_read(struct zip_entry **ptr, FILE *stream) {
 	// find the end of central directory record
 	uint32_t signature;
 	long offset;
-	struct end_of_central_dir_record eocdr;
-	struct end_of_central_dir_record64 eocdr64;
+	struct end_of_central_dir_record eocdr={0};
+	struct end_of_central_dir_record64 eocdr64={0};
 	int zip64;
 	struct zip_entry *entries;
 	char *strings;
@@ -752,7 +766,7 @@ static int zip_seek(FILE *stream, const struct zip_entry *entry) {
 
 int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 {
-	int result=FALSE;
+	int result=0;
 	FILE fbuf={0};
 	struct zip_entry *entries = NULL;
 	size_t i,count;
@@ -768,7 +782,7 @@ int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 		struct zip_entry *e=&entries[0];
 		memset(&stream, 0, sizeof(stream));
 		if (zip_seek(&fbuf, e)) {
-			goto ERROR;
+			goto EXIT;
 		}
 		stream.start_in = (uint8_t*)buffer;
 		stream.end_in = stream.next_in = (uint8_t*)buffer + sizeof(buffer);
@@ -785,6 +799,6 @@ int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 			printf("asdasd\n");
 		}
 	}
-ERROR:
+EXIT:
 	return result;
 }
