@@ -349,6 +349,28 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\zip\incbin.asm"
+				>
+				<FileConfiguration
+					Name="Unicode Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -I &quot;$(InputDir)\&quot; -t -f  win32 -o &quot;$(TargetDir)$(InputName).obj&quot; -Xvc &quot;$(InputDir)$(InputName).asm&quot;"
+						Outputs="$(TargetDir)$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Unicode Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -I &quot;$(InputDir)\&quot; -t -f  win32 -o &quot;$(TargetDir)$(InputName).obj&quot; -Xvc &quot;$(InputDir)$(InputName).asm&quot;"
+						Outputs="$(TargetDir)$(InputName).obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\lastRecentFileList.cpp"
 				>
 			</File>
@@ -1585,6 +1607,10 @@
 			</File>
 			<File
 				RelativePath="..\src\xpm_icons.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\zip_file.h"
 				>
 			</File>
 		</Filter>

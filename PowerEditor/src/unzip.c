@@ -249,33 +249,22 @@ int flush_stdio(struct stbi__stream *stream) {
 
 int flush_stream_mem(struct stbi__stream *stream)
 {
-	int res=0;
 	char *tmp;
 	size_t len;
 	len=stream->next_out - stream->start_out;
 	if(len!=0){
-		tmp=stream->data_out;
-		tmp=realloc(tmp,len+stream->data_len);
+		tmp=(char*)stream->data_out;
+		tmp=(char*)realloc(tmp,len+stream->data_len);
 		if(tmp){
 			size_t offset=stream->data_len;
 			memcpy(tmp+offset,stream->start_out,len);
 			stream->data_len+=len;
 			stream->data_out=tmp;
-			{
-				int i;
-				for(i=0;i<len;i++){
-					unsigned char a=tmp[offset+i];
-					if(a>=0x7E){
-						i++;
-					}
-				}
-			}
-			printf("%.*s",len,stream->start_out);
 			stream->next_out = stream->start_out;
 			return 0;
 		}
 	}else{
-		printf("fdfgsdf\n");
+		printf("ERROR realloc\n");
 	}
 	return -1;
 }
@@ -638,8 +627,8 @@ static size_t zip_read(struct zip_entry **ptr, FILE *stream) {
 	// find the end of central directory record
 	uint32_t signature;
 	long offset;
-	struct end_of_central_dir_record eocdr;
-	struct end_of_central_dir_record64 eocdr64;
+	struct end_of_central_dir_record eocdr={0};
+	struct end_of_central_dir_record64 eocdr64={0};
 	int zip64;
 	struct zip_entry *entries;
 	char *strings;
@@ -800,11 +789,11 @@ int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 	{
 		struct stbi__stream stream={0};
 		char buffer[BUFSIZ];
-		uint8_t window[4];
+		uint8_t window[1<<15];
 		struct zip_entry *e=&entries[0];
 		memset(&stream, 0, sizeof(stream));
 		if (zip_seek(&fbuf, e)) {
-			goto ERROR;
+			goto EXIT_ERROR;
 		}
 		stream.start_in = (uint8_t*)buffer;
 		stream.end_in = stream.next_in = (uint8_t*)buffer + sizeof(buffer);
@@ -817,12 +806,13 @@ int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 		stream.flush = flush_stream_mem;
 		//stream.flush=flush_stdio;
 
-		result=1;
-		if (!stb_inflate(&stream)) {
-			result=0;
+		if(stb_inflate(&stream)) {
+			*out=stream.data_out;
+			*out_len=stream.data_len;
+			result=1;
 		}
 	}
-ERROR:
+EXIT_ERROR:
 	if(entries)
 		free(entries);
 	return result;
@@ -832,24 +822,28 @@ ERROR:
 
 int main(int argc,char **argv)
 {
-	if(argc>=2){
+	if(argc)
+	{
 		int len=0;
 		char *buf=0;
 		FILE *f;
 		char *fname=argv[1];
+		if(argc<=1){
+			fname="c:\\Users\\benstembridge\\AppData\\Roaming\\Notepad++\\langs.zip";
+		}
 		f=fopen(fname,"rb");
 		if(f){
 			fseek(f,0,SEEK_END);
 			len=ftell(f);
 			fseek(f,0,SEEK_SET);
-			buf=calloc(1,len);
+			buf=(char*)calloc(1,len);
 			fread(buf,1,len,f);
 			fclose(f);
 		}
 		if(buf){
 			char *tmp=0;
 			int tmp_len=0;
-			read_zip_file(buf,len,&tmp,&tmp_len);
+			read_zip_file(buf,len,(void**)&tmp,&tmp_len);
 		}
 	}
 	getch();

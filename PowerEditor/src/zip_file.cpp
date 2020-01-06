@@ -1,18 +1,18 @@
 #ifndef _FILE_DEFINED
-#define _FILE_DEFINED
 struct _iobuf {
-	char *_ptr;
-	int   _cnt;
-	char *_base;
-	int   _flag;
-	int   _file;
-	int   _charbuf;
-	int   _bufsiz;
-	char *_tmpfname;
-};
+        char *_ptr;
+        int   _cnt;
+        char *_base;
+        int   _flag;
+        int   _file;
+        int   _charbuf;
+        int   _bufsiz;
+        char *_tmpfname;
+        };
 typedef struct _iobuf FILE;
+#define _FILE_DEFINED
 #endif
-//#include "precompiledHeaders.h"
+#include "precompiledHeaders.h"
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
@@ -130,6 +130,9 @@ typedef struct stbi__stream
 	void *cookie_in;
 	void *cookie_out;
 
+	void *data_out;
+	int data_len;
+
 	size_t total_in;
 	size_t total_out;
 
@@ -181,33 +184,33 @@ static int mem_fseek(FILE *f,long offset,int flag)
 {
 	int result=-1;
 	switch(flag){
-case SEEK_END:
-	if(offset<=0 && (-offset)<=f->_bufsiz){
-		size_t pos=(size_t)f->_base+f->_bufsiz;
-		f->_ptr=(char*)pos+offset;
-		result=0;
-	}
-	break;
-case SEEK_SET:
-	{
-		if(offset>=0 && offset<f->_bufsiz){
-			f->_ptr=f->_base+offset;
+	case SEEK_END:
+		if(offset<=0 && (-offset)<=f->_bufsiz){
+			size_t pos=(size_t)f->_base+f->_bufsiz;
+			f->_ptr=(char*)pos+offset;
 			result=0;
 		}
-	}
-	break;
-case SEEK_CUR:
-	{
-		size_t start=(size_t)f->_base;
-		size_t end=(size_t)f->_base+f->_bufsiz;
-		size_t pos=(size_t)f->_ptr;
-		size_t target=pos+offset;
-		if(target>=start && target<=end){
-			f->_ptr=(char*)target;
-			result=0;
+		break;
+	case SEEK_SET:
+		{
+			if(offset>=0 && offset<f->_bufsiz){
+				f->_ptr=f->_base+offset;
+				result=0;
+			}
 		}
-	}
-	break;
+		break;
+	case SEEK_CUR:
+		{
+			size_t start=(size_t)f->_base;
+			size_t end=(size_t)f->_base+f->_bufsiz;
+			size_t pos=(size_t)f->_ptr;
+			size_t target=pos+offset;
+			if(target>=start && target<=end){
+				f->_ptr=(char*)target;
+				result=0;
+			}
+		}
+		break;
 	}
 	return result;
 }
@@ -254,6 +257,28 @@ int flush_stdio(struct stbi__stream *stream) {
 	if (n) {
 		stream->next_out = stream->start_out;
 		return 0;
+	}
+	return -1;
+}
+
+int flush_stream_mem(struct stbi__stream *stream)
+{
+	char *tmp;
+	size_t len;
+	len=stream->next_out - stream->start_out;
+	if(len!=0){
+		tmp=(char*)stream->data_out;
+		tmp=(char*)realloc(tmp,len+stream->data_len);
+		if(tmp){
+			size_t offset=stream->data_len;
+			memcpy(tmp+offset,stream->start_out,len);
+			stream->data_len+=len;
+			stream->data_out=tmp;
+			stream->next_out = stream->start_out;
+			return 0;
+		}
+	}else{
+		printf("ERROR realloc\n");
 	}
 	return -1;
 }
@@ -769,36 +794,98 @@ int read_zip_file(void *buf,int buf_len,void **out,int *out_len)
 	int result=0;
 	FILE fbuf={0};
 	struct zip_entry *entries = NULL;
-	size_t i,count;
+	size_t count;
 	fbuf._base=(char*)buf;
 	fbuf._bufsiz=buf_len;
 	fbuf._ptr=(char*)buf;
 	count=zip_read(&entries,&fbuf);
 	if(count>0)
 	{
-		struct stbi__stream stream;
+		struct stbi__stream stream={0};
 		char buffer[BUFSIZ];
-		uint8_t window[1 << 15];
+		uint8_t window[1<<15];
 		struct zip_entry *e=&entries[0];
 		memset(&stream, 0, sizeof(stream));
 		if (zip_seek(&fbuf, e)) {
-			goto EXIT;
+			goto EXIT_ERROR;
 		}
 		stream.start_in = (uint8_t*)buffer;
 		stream.end_in = stream.next_in = (uint8_t*)buffer + sizeof(buffer);
 		stream.cookie_in = &fbuf;
-		stream.refill = refill_stdio;
 		stream.refill = refill_buf;
 
 		stream.start_out = stream.next_out = window;
 		stream.end_out = window + sizeof(window);
 		stream.cookie_out = stdout;
-		stream.flush = flush_stdio;
+		stream.flush = flush_stream_mem;
+		//stream.flush=flush_stdio;
 
-		if (!stb_inflate(&stream)) {
-			printf("asdasd\n");
+		if(stb_inflate(&stream)) {
+			*out=stream.data_out;
+			*out_len=stream.data_len;
+			result=1;
 		}
 	}
-EXIT:
+EXIT_ERROR:
+	if(entries)
+		free(entries);
 	return result;
+}
+
+typedef struct{
+	size_t zip_data;
+	size_t zip_len;
+	const char *name;
+}ZIP_FILE_INFO;
+
+extern ZIP_FILE_INFO zip_file_list[];
+
+int read_zip_file_name(const char *name,void **out,int *out_len)
+{
+	int index=0;
+	ZIP_FILE_INFO *entry=0;
+	while(1){
+		ZIP_FILE_INFO *e=&zip_file_list[index];
+		if(0==strcmp(e->name,name)){
+			entry=e;
+			break;
+		}
+		index++;
+	}
+	if(entry){
+
+	}
+}
+
+
+#include <conio.h>
+
+int main(int argc,char **argv)
+{
+	if(argc)
+	{
+		int len=0;
+		char *buf=0;
+		FILE *f;
+		char *fname=argv[1];
+		if(argc<=1){
+			fname="c:\\Users\\benstembridge\\AppData\\Roaming\\Notepad++\\langs.zip";
+		}
+		f=fopen(fname,"rb");
+		if(f){
+			fseek(f,0,SEEK_END);
+			len=ftell(f);
+			fseek(f,0,SEEK_SET);
+			buf=(char*)calloc(1,len);
+			fread(buf,1,len,f);
+			fclose(f);
+		}
+		if(buf){
+			char *tmp=0;
+			int tmp_len=0;
+			read_zip_file(buf,len,(void**)&tmp,&tmp_len);
+		}
+	}
+	getch();
+	printf("done\n");
 }
