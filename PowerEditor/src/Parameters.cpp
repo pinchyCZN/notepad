@@ -33,6 +33,7 @@
 #include "keys.h"
 #include "localization.h"
 #include "UserDefineDialog.h"
+#include "zip_file.h"
 
 struct WinMenuKeyDefinition {	//more or less matches accelerator table definition, easy copy/paste
 	//const TCHAR * name;	//name retrieved from menu?
@@ -854,28 +855,11 @@ bool NppParameters::load()
 	generic_string langs_xml_path(_userPath);
 	PathAppend(langs_xml_path, TEXT("langs.xml"));
 
-    BOOL doRecover = FALSE;
-    if (::PathFileExists(langs_xml_path.c_str()))
-    {
-        struct _stat buf;
-	    
-        if (generic_stat(langs_xml_path.c_str(), &buf)==0)
-            if (buf.st_size == 0)
-                doRecover = ::MessageBox(NULL, TEXT("Load langs.xml failed!\rDo you want to recover your langs.xml?"), TEXT("Configurator"),MB_YESNO);
+    if (!::PathFileExists(langs_xml_path.c_str())){
+		extract_zip_file(langs_xml_path.c_str(),"langs");
     }
-    else
-        doRecover = true;
-	
-    if (doRecover)
-	{
-		generic_string srcLangsPath(_nppPath);
-		PathAppend(srcLangsPath, TEXT("langs.model.xml"));
-		::CopyFile(srcLangsPath.c_str(), langs_xml_path.c_str(), FALSE);
-	}
 
 	_pXmlDoc = new TiXmlDocument(langs_xml_path);
-	
-
 	bool loadOkay = _pXmlDoc->LoadFile();
 	if (!loadOkay)
 	{
@@ -893,11 +877,10 @@ bool NppParameters::load()
 	generic_string configPath(_userPath);
 	PathAppend(configPath, TEXT("config.xml"));
 	
-	generic_string srcConfigPath(_nppPath);
-	PathAppend(srcConfigPath, TEXT("config.model.xml"));
 
-	if (!::PathFileExists(configPath.c_str()))
-		::CopyFile(srcConfigPath.c_str(), configPath.c_str(), FALSE);
+	if (!::PathFileExists(configPath.c_str())){
+		extract_zip_file(configPath.c_str(),"config");
+	}
 
 	_pXmlUserDoc = new TiXmlDocument(configPath);
 	loadOkay = _pXmlUserDoc->LoadFile();
@@ -906,6 +889,8 @@ bool NppParameters::load()
 		int res = ::MessageBox(NULL, TEXT("Load config.xml failed!\rDo you want to recover your config.xml?"), TEXT("Configurator"),MB_YESNO);
 		if (res ==IDYES)
 		{
+			generic_string srcConfigPath(_nppPath);
+			PathAppend(srcConfigPath, TEXT("config.model.xml"));
 			::CopyFile(srcConfigPath.c_str(), configPath.c_str(), FALSE);
 
 			loadOkay = _pXmlUserDoc->LoadFile();
@@ -938,10 +923,7 @@ bool NppParameters::load()
 
 	if (!PathFileExists(_stylerPath.c_str()))
 	{
-		generic_string srcStylersPath(_nppPath);
-		PathAppend(srcStylersPath, TEXT("stylers.model.xml"));
-
-		::CopyFile(srcStylersPath.c_str(), _stylerPath.c_str(), TRUE);
+		extract_zip_file(_stylerPath.c_str(),"stylers");
 	}
 
 	if ( _nppGUI._themeName.empty() || (!PathFileExists(_nppGUI._themeName.c_str())) )

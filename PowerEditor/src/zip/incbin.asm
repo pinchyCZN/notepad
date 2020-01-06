@@ -19,13 +19,15 @@ incbin "stylers.zip"
 _zip_stylers_string:
 db "stylers",0
  
+_zip_config:
+incbin "config.zip"
+_zip_config_string:
+db "config",0
 
- 
 
+ global _zip_file_list
+_zip_file_list:
 
-
-global _zip_file_list
-_zip_font_list:
 
 dd _zip_lang
 dd _zip_lang_string - _zip_lang
@@ -38,5 +40,9 @@ dd _zip_shortcuts_string
 dd _zip_stylers
 dd _zip_stylers_string - _zip_stylers
 dd _zip_stylers_string
+
+dd _zip_config
+dd _zip_config_string - _zip_config
+dd _zip_config_string
 
 dd 0,0,0,0,0,0

@@ -829,7 +829,7 @@ int main(int argc,char **argv)
 		FILE *f;
 		char *fname=argv[1];
 		if(argc<=1){
-			fname="c:\\Users\\benstembridge\\AppData\\Roaming\\Notepad++\\langs.zip";
+			fname="c:\\temp\\langs.zip";
 		}
 		f=fopen(fname,"rb");
 		if(f){

@@ -838,7 +838,7 @@ typedef struct{
 	const char *name;
 }ZIP_FILE_INFO;
 
-extern "C" ZIP_FILE_INFO *zip_file_list;
+extern "C" ZIP_FILE_INFO zip_file_list[];
 
 int read_zip_file_name(const char *name,void **out,int *out_len)
 {
@@ -847,7 +847,7 @@ int read_zip_file_name(const char *name,void **out,int *out_len)
 	ZIP_FILE_INFO *entry=0;
 	for(;;){
 		ZIP_FILE_INFO *e=&zip_file_list[index];
-		if(0==strcmp(e->name,name)){
+		if(0==stricmp(e->name,name)){
 			entry=e;
 			break;
 		}
@@ -859,35 +859,22 @@ int read_zip_file_name(const char *name,void **out,int *out_len)
 	return result;
 }
 
-
-#include <conio.h>
-
-int main(int argc,char **argv)
+int extract_zip_file(const WCHAR *dest,const char *name)
 {
-	if(argc)
-	{
-		int len=0;
-		char *buf=0;
+	int result=0;
+	void *tmp=0;
+	int len=0;
+	int res;
+	res=read_zip_file_name(name,&tmp,&len);
+	if(res){
 		FILE *f;
-		char *fname=argv[1];
-		if(argc<=1){
-			fname="c:\\Users\\benstembridge\\AppData\\Roaming\\Notepad++\\langs.zip";
-		}
-		f=fopen(fname,"rb");
+		f=_wfopen(dest,L"wb");
 		if(f){
-			fseek(f,0,SEEK_END);
-			len=ftell(f);
-			fseek(f,0,SEEK_SET);
-			buf=(char*)calloc(1,len);
-			fread(buf,1,len,f);
+			fwrite(tmp,len,1,f);
 			fclose(f);
-		}
-		if(buf){
-			char *tmp=0;
-			int tmp_len=0;
-			read_zip_file(buf,len,(void**)&tmp,&tmp_len);
+			result=1;
 		}
 	}
-	getch();
-	printf("done\n");
+	return result;
 }
+
