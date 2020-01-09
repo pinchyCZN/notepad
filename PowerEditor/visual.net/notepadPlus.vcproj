@@ -169,6 +169,7 @@
 				OutputFile="$(OutDir)/notepad++.exe"
 				Version="1.0"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)Release&quot;"
 				TypeLibraryFile=""
 				TypeLibraryResourceID="1"
 				GenerateDebugInformation="true"

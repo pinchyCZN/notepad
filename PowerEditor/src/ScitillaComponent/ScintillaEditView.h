@@ -632,7 +632,6 @@ public:
 protected:
 	static HINSTANCE _hLib;
 	static int _refCount;
-	
     static UserDefineDialog _userDefineDlg;
 
     static const int _markersArray[][NB_FOLDER_STATE];

@@ -34,18 +34,9 @@
 
 
 // initialize the static variable
-
-// get full ScinLexer.dll path to avoid hijack
-TCHAR * getSciLexerFullPathName(TCHAR * moduleFileName, size_t len){
-	::GetModuleFileName(NULL, moduleFileName, len);
-	::PathRemoveFileSpec(moduleFileName);
-	::PathAppend(moduleFileName, TEXT("SciLexer.dll"));
-	return moduleFileName;
-};
-
 TCHAR moduleFileName[1024];
-HINSTANCE ScintillaEditView::_hLib = ::LoadLibrary(getSciLexerFullPathName(moduleFileName, 1024));
 int ScintillaEditView::_refCount = 0;
+HINSTANCE ScintillaEditView::_hLib=0;
 UserDefineDialog ScintillaEditView::_userDefineDlg;
 
 const int ScintillaEditView::_SC_MARGE_LINENUMBER = 0;
@@ -163,15 +154,35 @@ int getNbDigits(int aNum, int base)
 
 void ScintillaEditView::init(HINSTANCE hInst, HWND hPere)
 {
-	if (!_hLib)
-	{
-		static int registered=FALSE;
-		if(!registered){
+	static int registered=FALSE;
+	if(0==moduleFileName[0]){
+		DWORD i,len=_countof(moduleFileName); 
+		memset(moduleFileName,0,sizeof(moduleFileName));
+		::GetModuleFileName(NULL, moduleFileName, len);
+		i=len-1;
+		for(;;){
+			TCHAR a=moduleFileName[i];
+			if(L'\\'==a){
+				moduleFileName[i]=0;
+				break;
+			}
+			if(0==i){
+				break;
+			}
+			i--;
+		}
+		_snwprintf(moduleFileName,len,L"%s\\%s",moduleFileName,L"SciLexer.dll");
+	}
+	if(!registered){
+		_hLib = ::LoadLibrary(moduleFileName);
+		if(0==_hLib){
 			if(Scintilla_RegisterClasses(hInst)){
 				registered=TRUE;
 			}else{
 				throw std::exception("ScintillaEditView::init : SCINTILLA ERROR - Can not load the dynamic library");
 			}
+		}else{
+			registered=TRUE;
 		}
 	}
 
