@@ -68,11 +68,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/fixed:no"
-				AdditionalDependencies="comctl32.lib shlwapi.lib shell32.lib Oleacc.lib"
+				AdditionalDependencies="comctl32.lib shlwapi.lib shell32.lib Oleacc.lib scintilla.lib Imm32.lib"
 				ShowProgress="2"
 				OutputFile="$(OutDir)/notepadPlus_Debug.exe"
 				Version="1.0"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)Debug&quot;"
 				GenerateManifest="false"
 				TypeLibraryFile="/TLBID"
 				TypeLibraryResourceID="5"
@@ -163,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib shlwapi.lib shell32.lib Oleacc.lib"
+				AdditionalDependencies="comctl32.lib shlwapi.lib shell32.lib Oleacc.lib scintilla.lib Imm32.lib"
 				ShowProgress="2"
 				OutputFile="$(OutDir)/notepad++.exe"
 				Version="1.0"
@@ -356,7 +357,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="nasm -I &quot;$(InputDir)\&quot; -t -f  win32 -o &quot;$(TargetDir)$(InputName).obj&quot; -Xvc &quot;$(InputDir)$(InputName).asm&quot;"
+						CommandLine="nasm -I &quot;$(InputDir)\&quot; -t -f  win32 -o &quot;$(TargetDir)$(InputName).obj&quot; -Xvc &quot;$(InputDir)$(InputName).asm&quot;&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -365,7 +366,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="nasm -I &quot;$(InputDir)\&quot; -t -f  win32 -o &quot;$(TargetDir)$(InputName).obj&quot; -Xvc &quot;$(InputDir)$(InputName).asm&quot;"
+						CommandLine="nasm -I &quot;$(InputDir)\&quot; -t -f  win32 -o &quot;$(TargetDir)$(InputName).obj&quot; -Xvc &quot;$(InputDir)$(InputName).asm&quot;&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -552,10 +553,6 @@
 			</File>
 			<File
 				RelativePath="..\src\WinControls\ProjectPanel\TreeView.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\UniConversion.cpp"
 				>
 			</File>
 			<File
@@ -1539,10 +1536,6 @@
 			</File>
 			<File
 				RelativePath="..\src\WinControls\ProjectPanel\TreeView.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\UniConversion.h"
 				>
 			</File>
 			<File

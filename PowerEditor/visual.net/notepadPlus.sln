@@ -2,17 +2,36 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "notepadPlus", "notepadPlus.vcproj", "{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8} = {2AEBCC67-B4A3-406D-B51A-08202B36C2C8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "scintilla.vcproj", "{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
 		Unicode Debug|Win32 = Unicode Debug|Win32
 		Unicode Release|Win32 = Unicode Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Debug|Win32.ActiveCfg = Unicode Debug|Win32
+		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Debug|Win32.Build.0 = Unicode Debug|Win32
+		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Release|Win32.ActiveCfg = Unicode Release|Win32
+		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Release|Win32.Build.0 = Unicode Release|Win32
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Unicode Debug|Win32.ActiveCfg = Unicode Debug|Win32
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Unicode Debug|Win32.Build.0 = Unicode Debug|Win32
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Unicode Release|Win32.ActiveCfg = Unicode Release|Win32
 		{FCF60E65-1B78-4D1D-AB59-4FC00AC8C248}.Unicode Release|Win32.Build.0 = Unicode Release|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Debug|Win32.Build.0 = Debug|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Release|Win32.ActiveCfg = Release|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Release|Win32.Build.0 = Release|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Unicode Debug|Win32.ActiveCfg = Debug|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Unicode Debug|Win32.Build.0 = Debug|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Unicode Release|Win32.ActiveCfg = Release|Win32
+		{2AEBCC67-B4A3-406D-B51A-08202B36C2C8}.Unicode Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

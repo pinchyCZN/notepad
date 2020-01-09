@@ -28,6 +28,7 @@
 
 #include "precompiledHeaders.h"
 #include "ScintillaEditView.h"
+#include "Scintilla.h"
 #include "Parameters.h"
 #include "TCHAR.h"
 
@@ -164,7 +165,14 @@ void ScintillaEditView::init(HINSTANCE hInst, HWND hPere)
 {
 	if (!_hLib)
 	{
-		throw std::exception("ScintillaEditView::init : SCINTILLA ERROR - Can not load the dynamic library");
+		static int registered=FALSE;
+		if(!registered){
+			if(Scintilla_RegisterClasses(hInst)){
+				registered=TRUE;
+			}else{
+				throw std::exception("ScintillaEditView::init : SCINTILLA ERROR - Can not load the dynamic library");
+			}
+		}
 	}
 
 	Window::init(hInst, hPere);

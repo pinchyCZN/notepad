@@ -259,7 +259,7 @@ public:
 		bool equal = a.size == b.size;
 		if (!equal)
 			return false;
-		size_t i = 0;
+		int i = 0;
 		while(equal && (i < a.size)) {
 			equal = 
 				(a._keyCombos[i]._isCtrl	== b._keyCombos[i]._isCtrl) && 
@@ -279,7 +279,7 @@ private:
 	unsigned long _scintillaKeyID;
 	int _menuCmdID;
 	vector<KeyCombo> _keyCombos;
-	size_t size;
+	int size;
 	void applyToCurrentIndex();
 	void validateDialog();
 	void showCurrentSettings();
@@ -289,7 +289,6 @@ protected :
 };
 
 
-class Window;
 class ScintillaEditView;
 
 struct recordedMacroStep {

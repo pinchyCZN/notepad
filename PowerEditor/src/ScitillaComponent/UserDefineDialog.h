@@ -55,7 +55,6 @@ static int max(int a, int b) {
 using namespace std;
 class ScintillaEditView;
 class UserLangContainer;
-struct Style;
 #define WL_LEN_MAX 1024
 #define BOLD_MASK     1
 #define ITALIC_MASK   2

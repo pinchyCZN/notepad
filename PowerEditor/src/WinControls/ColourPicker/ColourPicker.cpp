@@ -168,7 +168,7 @@ LRESULT ColourPicker::runProc(UINT Message, WPARAM wParam, LPARAM lParam)
             redraw();
 
 			_pColourPopup->display(false);
-			::SendMessage(_hParent, WM_COMMAND, MAKELONG(0, CPN_COLOURPICKED), (LPARAM)_hSelf);
+			::SendMessage(_hParent, WM_COMMAND, (WPARAM)MAKELONG(0, CPN_COLOURPICKED), (LPARAM)_hSelf);
             return TRUE;
         }
 

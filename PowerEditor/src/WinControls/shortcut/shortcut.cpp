@@ -259,7 +259,7 @@ int ScintillaKeyMap::addKeyCombo(KeyCombo combo) {	//returns index where key is 
 		_keyCombos[0] = combo;
 		return 0;
 	}
-	for(size_t i = 0; i < size; i++) {	//if already in the list do not add it
+	for(int i = 0; i < size; i++) {	//if already in the list do not add it
 		KeyCombo & kc = _keyCombos[i];
 		if (combo._key == kc._key && combo._isCtrl == kc._isCtrl && combo._isAlt == kc._isAlt && combo._isShift == kc._isShift)
 			return i;	//already in the list
@@ -749,7 +749,7 @@ void ScintillaKeyMap::validateDialog() {
 
 void ScintillaKeyMap::showCurrentSettings() {
 	int keyIndex = ::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_GETCURSEL, 0, 0);
-	if(keyIndex < 0 || keyIndex >= _keyCombos.size())
+	if(keyIndex < 0 || keyIndex >= (int)_keyCombos.size())
 		return;
 	_keyCombo = _keyCombos[keyIndex];
 	::SendDlgItemMessage(_hSelf, IDC_CTRL_CHECK,	BM_SETCHECK, _keyCombo._isCtrl?BST_CHECKED:BST_UNCHECKED, 0);
@@ -788,7 +788,7 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 				::SendDlgItemMessage(_hSelf, IDC_KEY_COMBO, CB_ADDSTRING, 0, (LPARAM)namedKeyArray[i].name);
 			}
 
-			for(size_t i = 0; i < size; i++) {
+			for(int i = 0; i < size; i++) {
 				::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_ADDSTRING, 0, (LPARAM)toString(i).c_str());
 			}
 			::SendDlgItemMessage(_hSelf, IDC_LIST_KEYS, LB_SETCURSEL, 0, 0);
@@ -884,8 +884,7 @@ BOOL CALLBACK ScintillaKeyMap::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 			}
 		}
 		default :
-			return FALSE;
+			break;
 	}
-
 	return FALSE;
 }
