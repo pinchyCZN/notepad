@@ -1213,10 +1213,27 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 	return FALSE;
 }
 
+
+static int search_callback(int percent)
+{
+	static DWORD tick=0;
+	DWORD delta;
+	UNREFERENCED_PARAMETER(percent);
+	delta=GetTickCount()-tick;
+	if(delta>200){
+		short val;
+		tick=GetTickCount();
+		val=GetAsyncKeyState(VK_ESCAPE);
+		if(val&0x8001){
+			return 1;
+		}
+	}
+	return 0;
+}
+
 // return value :
 // true  : the text2find is found
 // false : the text2find is not found
-
 bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *options, FindStatus *oFindStatus, FindNextType findNextType /* = FINDNEXTTYPE_FINDNEXT */)
 {
 	if (oFindStatus)
@@ -1306,6 +1323,8 @@ bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *op
 		flags = (flags & ~SCFIND_REGEXP_EMPTYMATCH_MASK) | SCFIND_REGEXP_EMPTYMATCH_NONE;
 	}
 
+
+	(*_ppEditView)->execute(SCI_SETSEARCHCALLBACK,(WPARAM)&search_callback,1);
 	(*_ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 
 

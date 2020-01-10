@@ -11,7 +11,8 @@
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
-
+typedef int(*SEARCHCALLBACK)(int flag);
+extern SEARCHCALLBACK g_search_callback;
 /**
  * A Position is a position within a document between two characters or at the beginning or end.
  * Sometimes used as a character index where it identifies the character after the position.

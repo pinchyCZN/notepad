@@ -35,6 +35,8 @@
 using namespace Scintilla;
 #endif
 
+SEARCHCALLBACK Scintilla::g_search_callback=0;
+
 static inline bool IsPunctuation(char ch) {
 	return isascii(ch) && ispunct(ch);
 }
@@ -1495,6 +1497,27 @@ void Document::SetCaseFolder(CaseFolder *pcf_) {
 	pcf = pcf_;
 }
 
+static int check_search_callback(bool forward,int min_pos,int max_pos,int pos)
+{
+	if(g_search_callback){
+		double val;
+		int param=0;
+		if(min_pos==max_pos)
+			return 0;
+		if(forward){
+			val=(max_pos-min_pos);
+			val=(double)pos/val;
+			val*=100;
+			param=(int)val;
+		}else{
+			val=(min_pos-max_pos);
+			val=(double)(pos-max_pos)/val;
+			param=(int)val;
+		}
+		return g_search_callback(param);
+	}
+	return 0;
+}
 /**
  * Find text in document, supporting both forward and backward
  * searches (just pass minPos > maxPos to do a backward search)
@@ -1556,6 +1579,8 @@ long Document::FindText(int minPos, int maxPos, const char *search,
 				int posIndexDocument = pos;
 				int indexSearch = 0;
 				bool characterMatches = true;
+				if(check_search_callback(forward,startPos,endPos,pos))
+					return -1;
 				for (;;) {
 					const unsigned char leadByte = static_cast<unsigned char>(cb.CharAt(posIndexDocument));
 					bytes[0] = leadByte;
@@ -1605,6 +1630,8 @@ long Document::FindText(int minPos, int maxPos, const char *search,
 				int indexDocument = 0;
 				int indexSearch = 0;
 				bool characterMatches = true;
+				if(check_search_callback(forward,startPos,endPos,pos))
+					return -1;
 				while (characterMatches &&
 					((pos + indexDocument) < limitPos) &&
 					(indexSearch < lenSearch)) {
@@ -1638,6 +1665,8 @@ long Document::FindText(int minPos, int maxPos, const char *search,
 			pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind);
 			while (forward ? (pos < endSearch) : (pos >= endSearch)) {
 				bool found = (pos + lengthFind) <= limitPos;
+				if(check_search_callback(forward,startPos,endPos,pos))
+					return -1;
 				for (int indexSearch = 0; (indexSearch < lengthFind) && found; indexSearch++) {
 					char ch = CharAt(pos + indexSearch);
 					char folded[2];

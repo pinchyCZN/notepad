@@ -7400,6 +7400,20 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		searchFlags = wParam;
 		break;
 
+	case SCI_SETSEARCHCALLBACK:
+		{
+			int flag=lParam;
+			void *ptr=(void*)wParam;
+			if(0==flag){
+				g_search_callback=0;
+			}else if(1==flag){
+				g_search_callback=(SEARCHCALLBACK)ptr;
+			}else{
+				return (sptr_t)g_search_callback;
+			}
+		}
+		break;
+
 	case SCI_GETSEARCHFLAGS:
 		return searchFlags;
 
