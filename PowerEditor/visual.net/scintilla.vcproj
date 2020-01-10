@@ -299,6 +299,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\scintilla\src\LexGen.py"
+				>
+			</File>
+			<File
 				RelativePath="..\..\scintilla\src\LineMarker.h"
 				>
 			</File>
@@ -457,6 +461,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexAVS.cxx"
+				>
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexBaan.cxx"
 				>
 			</File>
@@ -489,6 +497,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexCoffeeScript.cxx"
+				>
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexConf.cxx"
 				>
 			</File>
@@ -510,6 +522,10 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\lexers\LexD.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexers\LexECL.cxx"
 				>
 			</File>
 			<File
@@ -558,6 +574,10 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\lexers\LexKix.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexers\LexLaTeX.cxx"
 				>
 			</File>
 			<File
@@ -621,6 +641,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexOScript.cxx"
+				>
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexOthers.cxx"
 				>
 			</File>
@@ -638,6 +662,10 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\lexers\LexPLM.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexers\LexPO.cxx"
 				>
 			</File>
 			<File
@@ -721,6 +749,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\scintilla\lexers\LexTCMD.cxx"
+				>
+			</File>
+			<File
 				RelativePath="..\..\scintilla\lexers\LexTeX.cxx"
 				>
 			</File>
@@ -738,6 +770,10 @@
 			</File>
 			<File
 				RelativePath="..\..\scintilla\lexers\LexVHDL.cxx"
+				>
+			</File>
+			<File
+				RelativePath="..\..\scintilla\lexers\LexVisualProlog.cxx"
 				>
 			</File>
 			<File
