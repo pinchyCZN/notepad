@@ -1,0 +1,490 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="win32">
+      <UniqueIdentifier>{c8da174b-efc3-4c13-a3df-00cc31515088}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lexlib">
+      <UniqueIdentifier>{79a9902e-1faf-48ed-974e-4b234fd628d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lexers">
+      <UniqueIdentifier>{5450a802-d280-4b4d-be83-831be7408d61}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\scintilla\src\AutoComplete.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\CallTip.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Catalogue.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\CellBuffer.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\CharClassify.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\ContractionState.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Decoration.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Document.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Editor.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\ExternalLexer.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Indicator.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\KeyMap.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\LineMarker.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\PerLine.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\PositionCache.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\RESearch.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\RunStyles.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\ScintillaBase.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Selection.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\Style.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\UniConversion.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\ViewStyle.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\src\XPM.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\win32\PlatWin.cxx">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\win32\ScintillaWin.cxx">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\Accessor.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\CharacterSet.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\LexerBase.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\LexerModule.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\LexerNoExceptions.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\LexerSimple.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\PropSetSimple.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\StyleContext.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexlib\WordList.cxx">
+      <Filter>lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexA68k.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAbaqus.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAda.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAPDL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAsm.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAsn1.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexASY.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAU3.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAVE.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexAVS.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexBaan.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexBash.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexBasic.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexBullant.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCaml.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCLW.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCmake.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCOBOL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCoffeeScript.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexConf.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCPP.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCrontab.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCsound.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexCSS.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexD.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexECL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexEiffel.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexErlang.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexEScript.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexFlagship.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexForth.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexFortran.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexGAP.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexGui4Cli.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexHaskell.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexHTML.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexInno.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexKix.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexLaTeX.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexLisp.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexLout.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexLua.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMagik.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMarkdown.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMatlab.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMetapost.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMMIXAL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexModula.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMPT.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMSSQL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexMySQL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexNimrod.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexNsis.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexOpal.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexOScript.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexOthers.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPascal.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPB.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPerl.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPLM.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPO.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPOV.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPowerPro.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPowerShell.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexProgress.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPS.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexPython.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexR.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexRebol.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexRuby.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexScriptol.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSmalltalk.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSML.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSorcus.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSpecman.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSpice.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSQL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTACL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTADS3.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTAL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTCL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTCMD.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTeX.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexTxt2tags.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexVB.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexVerilog.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexVHDL.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexVisualProlog.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexYAML.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\scintilla\src\AutoComplete.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\CallTip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Catalogue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\CellBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\CharClassify.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\ContractionState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Decoration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Document.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\ExternalLexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\FontQuality.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Indicator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\KeyMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\LineMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Partitioning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\PerLine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\PositionCache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\RESearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\RunStyles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\ScintillaBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Selection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\SplitVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\Style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\SVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\UniConversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\ViewStyle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scintilla\src\XPM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\scintilla\src\LexGen.py">
+      <Filter>Header Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\scintilla\win32\ScintRes.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

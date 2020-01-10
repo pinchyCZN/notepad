@@ -1214,6 +1214,7 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 }
 
 
+static StatusBar *g_status_bar=0;
 static int search_callback(int percent)
 {
 	static DWORD tick=0;
@@ -1225,7 +1226,13 @@ static int search_callback(int percent)
 		tick=GetTickCount();
 		val=GetAsyncKeyState(VK_ESCAPE);
 		if(val&0x8001){
+			g_status_bar->setText(L"Canceled",0);
 			return 1;
+		}
+		if(g_status_bar){
+			WCHAR tmp[40]={0};
+			_snwprintf(tmp,_countof(tmp),L"%i%%",percent);
+			g_status_bar->setText(tmp,0);
 		}
 	}
 	return 0;
@@ -1323,7 +1330,7 @@ bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *op
 		flags = (flags & ~SCFIND_REGEXP_EMPTYMATCH_MASK) | SCFIND_REGEXP_EMPTYMATCH_NONE;
 	}
 
-
+	g_status_bar=&this->_statusBar;
 	(*_ppEditView)->execute(SCI_SETSEARCHCALLBACK,(WPARAM)&search_callback,1);
 	(*_ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 
