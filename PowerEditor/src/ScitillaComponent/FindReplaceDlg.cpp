@@ -1243,11 +1243,12 @@ static int search_callback(int percent)
 // false : the text2find is not found
 bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *options, FindStatus *oFindStatus, FindNextType findNextType /* = FINDNEXTTYPE_FINDNEXT */)
 {
+	bool result=false;
 	if (oFindStatus)
 		*oFindStatus = FSFound;
 
 	if (!txt2find || !txt2find[0])
-		return false;
+		return result;
 
 	const FindOption *pOptions = options?options:_env;
 
@@ -1382,14 +1383,13 @@ bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *op
 					::SetFocus(::GetDlgItem(_hSelf, IDFINDWHAT));
 				}
 			}
-			delete [] pText;
-			return false;
+			goto EXIT_FIND;
 		}
 	}
 	else if (posFind == -2) // Invalid Regular expression
 	{
 		setStatusbarMessage(TEXT("Find: Invalid regular expression"), FSNotFound);
-		return false;
+		goto EXIT_FIND;
 	}
 
 	start =	posFind;
@@ -1409,11 +1409,11 @@ bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *op
 	if (::SendMessage(_hParent, WM_GETCURRENTMACROSTATUS,0,0) == MACRO_RECORDING_IN_PROGRESS)
 		(*_ppEditView)->execute(SCI_STARTRECORD);
 
+	result=true;
+EXIT_FIND:
+	(*_ppEditView)->execute(SCI_SETSEARCHCALLBACK,0,0);
 	delete [] pText;
-
-	
-
-	return true;
+	return result;
 }
 
 // return value :
