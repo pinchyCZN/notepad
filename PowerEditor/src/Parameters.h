@@ -267,7 +267,6 @@ const int COLORSTYLE_FOREGROUND = 0x01;
 const int COLORSTYLE_BACKGROUND = 0x02;
 const int COLORSTYLE_ALL = COLORSTYLE_FOREGROUND|COLORSTYLE_BACKGROUND;
 
-namespace NP{
 struct Style
 {
 	int _styleID;
@@ -344,8 +343,6 @@ struct Style
 			*_keywords = str;
 	};
 };
-} //namespace NP
-using namespace NP;
 
 struct GlobalOverride
 {

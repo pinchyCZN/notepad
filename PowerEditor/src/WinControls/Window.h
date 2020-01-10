@@ -29,7 +29,6 @@
 #ifndef WINDOW_CONTROL_H
 #define WINDOW_CONTROL_H
 
-namespace NP{
 class Window
 {
 public:
@@ -114,8 +113,7 @@ protected:
 	HWND _hParent;
 	HWND _hSelf;
 };
-} //namespace
-using namespace NP;
+
 #endif //WINDOW_CONTROL_H
 
 
