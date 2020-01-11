@@ -128,7 +128,7 @@ void SmartHighlighter::highlightView(ScintillaEditView * pHighlightView)
 			_pFRDlg->processRange(ProcessMarkAll_2, searchText, NULL, startPos, endPos, NULL, &fo);
 		}
 	}
-
+	_pFRDlg->setStatusbarMessage(TEXT(""),FSNoMessage);
 	// restore the original targets to avoid conflicts with the search/replace functions
 	pHighlightView->execute(SCI_SETTARGETSTART, originalStartPos);
 	pHighlightView->execute(SCI_SETTARGETEND, originalEndPos);

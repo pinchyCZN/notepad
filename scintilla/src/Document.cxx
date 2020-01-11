@@ -1506,12 +1506,13 @@ static int check_search_callback(bool forward,int min_pos,int max_pos,int pos)
 			return 0;
 		if(forward){
 			val=(max_pos-min_pos);
-			val=(double)pos/val;
+			val=(double)(pos-min_pos)/val;
 			val*=100;
 			param=(int)val;
 		}else{
 			val=(min_pos-max_pos);
-			val=(double)(pos-max_pos)/val;
+			val=(double)(min_pos-pos)/val;
+			val*=100;
 			param=(int)val;
 		}
 		return g_search_callback(param);
@@ -2238,6 +2239,8 @@ long BuiltinRegex::FindText(Document *doc, int minPos, int maxPos, const char *s
 		int startOfLine = doc->LineStart(line);
 		int endOfLine = doc->LineEnd(line);
 		if (increment == 1) {
+			if(check_search_callback(1,lineRangeStart,lineRangeEnd,line))
+				return -1;
 			if (line == lineRangeStart) {
 				if ((startPos != startOfLine) && (s[0] == '^'))
 					continue;	// Can't match start of line if start position after start of line
@@ -2249,6 +2252,8 @@ long BuiltinRegex::FindText(Document *doc, int minPos, int maxPos, const char *s
 				endOfLine = endPos;
 			}
 		} else {
+			if(check_search_callback(0,lineRangeStart,lineRangeBreak,line))
+				return -1;
 			if (line == lineRangeEnd) {
 				if ((endPos != startOfLine) && (s[0] == '^'))
 					continue;	// Can't match start of line if end position after start of line

@@ -1213,20 +1213,23 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 	return FALSE;
 }
 
-
+#ifdef _DEBUG
+#include "debug_print.h"
+#endif
 static StatusBar *g_status_bar=0;
 static int search_callback(int percent)
 {
 	static DWORD tick=0;
 	DWORD delta;
-	UNREFERENCED_PARAMETER(percent);
 	delta=GetTickCount()-tick;
 	if(delta>200){
 		short val;
 		tick=GetTickCount();
 		val=GetAsyncKeyState(VK_ESCAPE);
 		if(val&0x8001){
-			g_status_bar->setText(L"Canceled",0);
+			if(g_status_bar){
+				g_status_bar->setText(L"Canceled",0);
+			}
 			return 1;
 		}
 		if(g_status_bar){
@@ -1234,8 +1237,25 @@ static int search_callback(int percent)
 			_snwprintf(tmp,_countof(tmp),L"%i%%",percent);
 			g_status_bar->setText(tmp,0);
 		}
+		{
+			MSG msg;
+			int res;
+			res=PeekMessage(&msg,NULL,WM_PAINT,WM_MOUSELEAVE,PM_REMOVE);
+			if(res){
+				//TranslateMessage(&msg);
+#ifdef _DEBUG
+				print_msg(msg.message,msg.lParam,msg.wParam);
+#endif
+				DispatchMessageW(&msg);
+			}
+		}
 	}
 	return 0;
+}
+
+static int search_thread(ScintillaEditView *_ppEditView)
+{
+	int result=FALSE;
 }
 
 // return value :
@@ -1332,6 +1352,7 @@ bool FindReplaceDlg::processFindNext(const TCHAR *txt2find, const FindOption *op
 	}
 
 	g_status_bar=&this->_statusBar;
+	GetAsyncKeyState(VK_ESCAPE);
 	(*_ppEditView)->execute(SCI_SETSEARCHCALLBACK,(WPARAM)&search_callback,1);
 	(*_ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 
@@ -1622,8 +1643,7 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 
 	if (!pTextFind[0]) 
 	{
-		delete [] pTextFind;
-		return nbProcessed;
+		goto EXIT_SEARCH;
 	}
 
 	TCHAR *pTextReplace = NULL;
@@ -1674,6 +1694,9 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 	int targetEnd = 0;
 
 	//Initial range for searching
+	g_status_bar=&this->_statusBar;
+	GetAsyncKeyState(VK_ESCAPE);
+	(*_ppEditView)->execute(SCI_SETSEARCHCALLBACK,(WPARAM)&search_callback,1);
 	(*_ppEditView)->execute(SCI_SETSEARCHFLAGS, flags);
 	
 	
@@ -1807,9 +1830,7 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 
 			default:
 			{
-				delete [] pTextFind;
-				delete [] pTextReplace;
-				return nbProcessed;
+				goto EXIT_SEARCH;
 			}
 			
 		}	
@@ -1827,7 +1848,8 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 
 	}  
 
-
+EXIT_SEARCH:
+	(*_ppEditView)->execute(SCI_SETSEARCHCALLBACK,0,0);
 	delete [] pTextFind;
 	delete [] pTextReplace;
 

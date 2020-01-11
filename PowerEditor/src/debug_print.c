@@ -1086,14 +1086,26 @@ int move_console(int x,int y,int w,int h)
 		SetWindowPos(ghconsole,0,x,y,w,h,SWP_NOZORDER);
 	return 0;
 }
+struct __IOBUF {
+	char *_ptr;
+	int   _cnt;
+	char *_base;
+	int   _flag;
+	int   _file;
+	int   _charbuf;
+	int   _bufsiz;
+	char *_tmpfname;
+};
+typedef struct __IOBUF _FILE;
 #define _O_TEXT         0x4000  /* file mode is text (translated) */
 void open_console()
 {
 	HWND hcon;
-	FILE *hf;
+	_FILE *hf;
 	static BYTE consolecreated=FALSE;
 	static int hcrt=0;
 	static HWND (*GetConsoleWindow)(void)=0;
+	_FILE *FSTDIN;
 
 	if(consolecreated==TRUE)
 	{
@@ -1108,8 +1120,9 @@ void open_console()
 
 	fflush(stdin);
 	hf=_fdopen(hcrt,"w");
-	*stdout=*hf;
-	setvbuf(stdout,NULL,_IONBF,0);
+	FSTDIN=stdout;
+	*FSTDIN=*hf;
+	setvbuf(FSTDIN,NULL,_IONBF,0);
 	consolecreated=TRUE;
 	if(GetConsoleWindow==0){
 		HMODULE hmod=LoadLibrary("kernel32.dll");
