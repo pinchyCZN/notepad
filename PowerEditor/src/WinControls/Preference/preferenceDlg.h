@@ -259,7 +259,7 @@ public :
 	};
 private :
 	BOOL CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
-	void makeCategoryList();
+	void makeCategoryList(const TCHAR *);
 	void showDialogByIndex(int index);
 	//ControlsTab _ctrlTab;
 	WindowVector _wVector;

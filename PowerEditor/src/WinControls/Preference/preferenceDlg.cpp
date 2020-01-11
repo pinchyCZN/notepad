@@ -101,7 +101,6 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 			
 			_barsDlg.init(_hInst, _hSelf);
 			_barsDlg.create(IDD_PREFERENCE_BAR_BOX, false, false);
-			_barsDlg.display();
 			
 			_marginsDlg.init(_hInst, _hSelf);
 			_marginsDlg.create(IDD_PREFERENCE_MARGEIN_BOX, false, false);
@@ -150,7 +149,7 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 			_wVector.push_back(DlgInfo(&_settingsDlg, TEXT("MISC."), TEXT("MISC")));
 			//_ctrlTab.createTabs(_wVector);
 			//_ctrlTab.display();
-			makeCategoryList();
+			makeCategoryList(TEXT(""));
 			RECT rc;
 			getClientRect(rc);
 			//_ctrlTab.reSizeTo(rc);
@@ -200,45 +199,107 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 */
 		case WM_COMMAND : 
 		{
-			if (LOWORD(wParam) == IDC_LIST_DLGTITLE)
-			{
-				if (HIWORD(wParam) == CBN_SELCHANGE)
-				{
+			int id=LOWORD(wParam);
+			int code=HIWORD(wParam);
+			switch(id){
+			case IDC_LIST_DLGTITLE:
+				if(CBN_SELCHANGE==code){
 					int i = ::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETCURSEL, 0, 0);
-					if (i != LB_ERR)
-					{
-						//printInt(i);
+					if (i != LB_ERR){
+						i=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETITEMDATA, i, 0);
 						showDialogByIndex(i);
 					}
 				}
-			}
-			else 
-			{
-				switch (wParam)
-				{
-					case IDC_BUTTON_CLOSE :
-					case IDCANCEL :
-						display(false);
-						return TRUE;
-						
-					default :
-						::SendMessage(_hParent, WM_COMMAND, wParam, lParam);
-						return TRUE;
+				break;
+			case IDC_EDIT_FILTER:
+				if(EN_CHANGE==code){
+#ifdef _DEBUG
+//					print_msg(Message,lParam,wParam);
+#endif
+					TCHAR tmp[80]={0};
+					HWND hwnd=(HWND)lParam;
+					GetWindowText(hwnd,tmp,_countof(tmp));
+					makeCategoryList(tmp);
 				}
+				break;
+			case IDC_BUTTON_CLOSE :
+			case IDCANCEL :
+				display(false);
+				return TRUE;
+			default :
+				::SendMessage(_hParent, WM_COMMAND, wParam, lParam);
+				return TRUE;
 			}
 		}
 	}
 	return FALSE;
 }
 
-void PreferenceDlg::makeCategoryList()
+static int g_match=FALSE;
+static BOOL CALLBACK enum_win(HWND hwnd,LPARAM lParam)
 {
+	const TCHAR *filter=(TCHAR *)lParam;
+	TCHAR tmp[80]={0};
+	GetWindowText(hwnd,tmp,_countof(tmp));
+	if(StrStrI(tmp,filter)){
+		g_match=TRUE;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+static int win_contains_text(Window *win,const TCHAR *str)
+{
+	int result=TRUE;
+	g_match=FALSE;
+	EnumChildWindows(win->getHSelf(),&enum_win,(LPARAM)str);
+	result=g_match;
+	return result;
+}
+
+void PreferenceDlg::makeCategoryList(const TCHAR *filter)
+{
+	int count=0;
+	int old_index=0;
+	int sel_index=0;
+	int have_old_index=FALSE;
+	int flen=lstrlen(filter);
+	old_index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETCURSEL, 0, 0);
+	if(old_index>=0){
+		old_index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETITEMDATA, old_index, 0);
+	}
+	::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_RESETCONTENT, 0, 0);
 	for (size_t i = 0, len = _wVector.size(); i < len; i++)
 	{
-		::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_ADDSTRING, 0, (LPARAM)_wVector[i]._name.c_str());
+		int add_str=TRUE;
+		if(flen>0){
+			int res;
+			res=win_contains_text(_wVector[i]._dlg,filter);
+			if(!res)
+				add_str=FALSE;
+		}
+		if(add_str){
+			int index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_ADDSTRING, 0, (LPARAM)_wVector[i]._name.c_str());
+			if(index>=0){
+				::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_SETITEMDATA, index, i);
+				if(old_index==i){
+					sel_index=index;
+					have_old_index=TRUE;
+				}
+				count++;
+			}
+		}
 	}
-
-	::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_SETSEL, (WPARAM)TRUE, 0);
+	::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_SETCURSEL, sel_index, 0);
+	if(count>0){
+		int index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETITEMDATA, sel_index, 0);
+		if(have_old_index){
+			index=old_index;
+		}
+		showDialogByIndex(index);
+	}else{
+		showDialogByIndex(-1);
+	}
 }
 
 bool PreferenceDlg::renameDialogTitle(const TCHAR *internalName, const TCHAR *newName)
@@ -281,7 +342,8 @@ void PreferenceDlg::showDialogByIndex(int index)
 	{
 		_wVector[i]._dlg->display(false);
 	}
-	_wVector[index]._dlg->display(true);
+	if(index>=0 && index<(int)len)
+		_wVector[index]._dlg->display(true);
 }
 
 BOOL CALLBACK BarsDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
@@ -461,7 +523,7 @@ BOOL CALLBACK BarsDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 				default :
 					switch (HIWORD(wParam))
 					{
-						case CBN_SELCHANGE : // == case LBN_SELCHANGE :
+						case CBN_SELCHANGE :
 						{
 							switch (LOWORD(wParam))
 							{
@@ -716,8 +778,6 @@ BOOL CALLBACK MarginsDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam
 				
 				case IDC_COLONENUMBER_STATIC:
 				{
-					ScintillaViewParams & svp = (ScintillaViewParams &)pNppParam->getSVP();
-
 					ValueDlg nbColumnEdgeDlg;
 					nbColumnEdgeDlg.init(NULL, _hSelf, svp._edgeNbColumn, TEXT("Nb of column:"));
 					nbColumnEdgeDlg.setNBNumber(3);
@@ -755,7 +815,7 @@ BOOL CALLBACK MarginsDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam
 				default :
 					switch (HIWORD(wParam))
 					{
-						case CBN_SELCHANGE : // == case LBN_SELCHANGE :
+						case CBN_SELCHANGE :
 						{
 							switch (LOWORD(wParam))
 							{
@@ -1094,10 +1154,10 @@ BOOL CALLBACK DefaultNewDocDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM)
 			}
 			
 			int selIndex = -1;
-			generic_string str;
 			EncodingMapper *em = EncodingMapper::getInstance();
 			for (int i = 0 ; i < sizeof(encodings)/sizeof(int) ; i++)
 			{
+				generic_string str;
 				int cmdID = em->getIndexFromEncoding(encodings[i]);
 				if (cmdID != -1)
 				{
@@ -2389,7 +2449,6 @@ BOOL CALLBACK AutoCompletionDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM
 					const int NB_MAX_CHAR = 9;
 
 					ValueDlg valDlg;
-					NppGUI & nppGUI = (NppGUI &)((NppParameters::getInstance())->getNppGUI());
 					valDlg.init(NULL, _hSelf, nppGUI._autocFromLen, TEXT("Nb char : "));
 					valDlg.setNBNumber(1);
 

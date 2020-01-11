@@ -1213,9 +1213,6 @@ BOOL CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 	return FALSE;
 }
 
-#ifdef _DEBUG
-#include "debug_print.h"
-#endif
 static StatusBar *g_status_bar=0;
 static int search_callback(int percent)
 {
@@ -1243,9 +1240,6 @@ static int search_callback(int percent)
 			res=PeekMessage(&msg,NULL,WM_PAINT,WM_MOUSELEAVE,PM_REMOVE);
 			if(res){
 				//TranslateMessage(&msg);
-#ifdef _DEBUG
-				print_msg(msg.message,msg.lParam,msg.wParam);
-#endif
 				DispatchMessageW(&msg);
 			}
 		}
