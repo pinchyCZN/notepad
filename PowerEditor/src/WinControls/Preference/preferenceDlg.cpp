@@ -96,9 +96,6 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 	{
 		case WM_INITDIALOG :
 		{
-			//_ctrlTab.init(_hInst, _hSelf, false, true, true);
-			//_ctrlTab.setFont(TEXT("Tahoma"), 13);
-			
 			_barsDlg.init(_hInst, _hSelf);
 			_barsDlg.create(IDD_PREFERENCE_BAR_BOX, false, false);
 			
@@ -147,12 +144,9 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 			_wVector.push_back(DlgInfo(&_backupDlg, TEXT("Backup"), TEXT("Backup")));
 			_wVector.push_back(DlgInfo(&_autoCompletionDlg, TEXT("Auto-Completion"), TEXT("AutoCompletion")));
 			_wVector.push_back(DlgInfo(&_settingsDlg, TEXT("MISC."), TEXT("MISC")));
-			//_ctrlTab.createTabs(_wVector);
-			//_ctrlTab.display();
 			makeCategoryList(TEXT(""));
 			RECT rc;
 			getClientRect(rc);
-			//_ctrlTab.reSizeTo(rc);
 			rc.top += 10;
 			rc.bottom -= 50;
 			rc.left += 150;
@@ -182,21 +176,6 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 			if(wParam)
 				goToCenter();
 			break;
-/*
-		case WM_NOTIFY :		  
-		{
-			NMHDR *nmhdr = (NMHDR *)lParam;
-			if (nmhdr->code == TCN_SELCHANGE)
-			{
-				if (nmhdr->hwndFrom == _ctrlTab.getHSelf())
-				{
-					_ctrlTab.clickedUpdate();
-					return TRUE;
-				}
-			}
-			break;
-		}
-*/
 		case WM_COMMAND : 
 		{
 			int id=LOWORD(wParam);
@@ -213,9 +192,6 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 				break;
 			case IDC_EDIT_FILTER:
 				if(EN_CHANGE==code){
-#ifdef _DEBUG
-//					print_msg(Message,lParam,wParam);
-#endif
 					TCHAR tmp[80]={0};
 					HWND hwnd=(HWND)lParam;
 					GetWindowText(hwnd,tmp,_countof(tmp));
@@ -235,24 +211,123 @@ BOOL CALLBACK PreferenceDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPa
 	return FALSE;
 }
 
+
+static LRESULT CALLBACK marker_proc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
+{
+	switch(msg){
+	case WM_PAINT:
+		{
+			static HBRUSH hbrush=0;
+			if(0==hbrush){
+				LOGBRUSH b={0};
+				b.lbColor=RGB(0xFF,0,0);
+				b.lbStyle=BS_SOLID;
+				hbrush=CreateBrushIndirect(&b);
+			}
+			if(hbrush){
+				PAINTSTRUCT p={0};
+				HDC hdc=BeginPaint(hwnd,&p);
+				if(hdc){
+					RECT rect=p.rcPaint;
+					rect.right=rect.left+2;
+					FillRect(hdc,&rect,hbrush);
+					EndPaint(hwnd,&p);
+					return 0;
+				}
+			}
+		}
+		break;
+	}
+	return DefWindowProc(hwnd,msg,wparam,lparam);
+}
+static int register_marker()
+{
+	static int registered=FALSE;
+	WNDCLASS c={0};
+	if(registered)
+		return registered;
+	c.lpfnWndProc=&marker_proc;
+	c.hInstance=GetModuleHandle(0);
+	c.lpszClassName=TEXT("RECT_MARKER");
+	RegisterClass(&c);
+	registered=TRUE;
+	return registered;
+}
+
+int PreferenceDlg::create_marker(HWND hwnd)
+{
+	int result=FALSE;
+	HINSTANCE hinst;
+	HWND hparent,hmark;
+	RECT rect={0};
+	int w,h;
+	register_marker();
+	hparent=GetParent(hwnd);
+	hinst=this->getHinst();
+	GetClientRect(hwnd,&rect);
+	MapWindowPoints(hwnd,hparent,(LPPOINT)&rect,2);
+	if(rect.left>=2){
+		rect.left-=2;
+		rect.right-=2;
+	}
+	w=rect.right-rect.left;
+	h=rect.bottom-rect.top;
+	hmark=::CreateWindow(L"RECT_MARKER",L"Marker",WS_CHILD,rect.left,rect.top,w,h,hparent,(HMENU)hwnd,hinst,0);
+	if(hmark){
+		ShowWindow(hmark,SW_SHOW);
+		markers.push_back(hmark);
+		result=TRUE;
+	}
+	return result;
+}
+
+void PreferenceDlg::clear_markers()
+{
+	int i,count;
+	count=markers.size();
+	for(i=0;i<count;i++){
+		HWND hwnd=markers.at(i);
+		if(hwnd){
+			DestroyWindow(hwnd);
+		}
+	}
+	markers.clear();
+}
+
+typedef struct{
+	const TCHAR *str;
+	PreferenceDlg *dlg;
+}ENUM_WIN_PARAM;
+
 static int g_match=FALSE;
 static BOOL CALLBACK enum_win(HWND hwnd,LPARAM lParam)
 {
-	const TCHAR *filter=(TCHAR *)lParam;
+	const TCHAR *filter;
+	PreferenceDlg *dlg;
+	ENUM_WIN_PARAM *eparam;
 	TCHAR tmp[80]={0};
+	if(0==lParam)
+		return FALSE;
+	eparam=(ENUM_WIN_PARAM *)lParam;
+	filter=eparam->str;
+	dlg=eparam->dlg;
 	GetWindowText(hwnd,tmp,_countof(tmp));
 	if(StrStrI(tmp,filter)){
+		if(dlg)
+			dlg->create_marker(hwnd);
 		g_match=TRUE;
-		return FALSE;
 	}
 	return TRUE;
 }
 
-static int win_contains_text(Window *win,const TCHAR *str)
+static int win_contains_text(Window *win,const TCHAR *str,PreferenceDlg *dlg)
 {
 	int result=TRUE;
 	g_match=FALSE;
-	EnumChildWindows(win->getHSelf(),&enum_win,(LPARAM)str);
+	ENUM_WIN_PARAM param={0};
+	param.dlg=dlg;
+	param.str=str;
+	EnumChildWindows(win->getHSelf(),&enum_win,(LPARAM)&param);
 	result=g_match;
 	return result;
 }
@@ -264,6 +339,7 @@ void PreferenceDlg::makeCategoryList(const TCHAR *filter)
 	int sel_index=0;
 	int have_old_index=FALSE;
 	int flen=lstrlen(filter);
+	clear_markers();
 	old_index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETCURSEL, 0, 0);
 	if(old_index>=0){
 		old_index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_GETITEMDATA, old_index, 0);
@@ -274,7 +350,7 @@ void PreferenceDlg::makeCategoryList(const TCHAR *filter)
 		int add_str=TRUE;
 		if(flen>0){
 			int res;
-			res=win_contains_text(_wVector[i]._dlg,filter);
+			res=win_contains_text(_wVector[i]._dlg,filter,this);
 			if(!res)
 				add_str=FALSE;
 		}

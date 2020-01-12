@@ -246,9 +246,10 @@ public :
 	    display();
     };
 	bool renameDialogTitle(const TCHAR *internalName, const TCHAR *newName);
+	int create_marker(HWND hwnd);
+	void clear_markers();
 
 	virtual void destroy() {
-		//_ctrlTab.destroy();
 		_barsDlg.destroy();
 		_marginsDlg.destroy();
 		_settingsDlg.destroy();
@@ -261,7 +262,7 @@ private :
 	BOOL CALLBACK run_dlgProc(UINT Message, WPARAM wParam, LPARAM lParam);
 	void makeCategoryList(const TCHAR *);
 	void showDialogByIndex(int index);
-	//ControlsTab _ctrlTab;
+	std::vector<HWND> markers;
 	WindowVector _wVector;
 	BarsDlg _barsDlg;
 	MarginsDlg _marginsDlg;

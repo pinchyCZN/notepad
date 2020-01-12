@@ -1280,7 +1280,7 @@ int sanatize_string(char *str,int len)
 }
 int print_last_error()
 {
-	char *msg=0;
+	WCHAR *msg=0;
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		NULL,
 		GetLastError(),
@@ -1289,7 +1289,7 @@ int print_last_error()
 		0,
 		NULL 
 		);
-	printf("%s\n",msg);
+	wprintf(L"%s\n",msg);
 	LocalFree(msg);
 	return TRUE;
 
