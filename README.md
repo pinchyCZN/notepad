@@ -19,7 +19,7 @@ Custom build of notepad++ (v6.4.1) with enhancements:
 * Shortcut
     * new shortcut "Toggle Results Window" default key Esc shows and hides the result window
 
-* Always use dekstop color scheme (no hard coded colors)
+* Always use desktop color scheme (no hard coded colors)
 * Caret visible in find results window
 * Disable multiple shortcuts
 * Added find in files filter mask pattern matching
