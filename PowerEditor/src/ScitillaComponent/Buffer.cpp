@@ -769,14 +769,7 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, Utf8_16_Rea
 	// As a 32bit application, we cannot allocate 2 buffer of more than INT_MAX size (it takes the whole address space)
 	if(bufferSizeRequested > INT_MAX)
 	{
-		::MessageBox(NULL, TEXT("File is too big to be opened by Notepad++"), TEXT("File open problem"), MB_OK|MB_APPLMODAL);
-		/*
-		_nativeLangSpeaker.messageBox("NbFileToOpenImportantWarning",
-										_pPublicInterface->getHSelf(),
-										TEXT("File is too big to be opened by Notepad++"),
-										TEXT("File open problem"),
-										MB_OK|MB_APPLMODAL);
-		*/
+		::MessageBox(NULL, TEXT("File is too big to be opened by Notepad++"), TEXT("File open problem"), MB_OK|MB_SYSTEMMODAL);
 		fclose(fp);
 		return false;
 	}
@@ -826,6 +819,7 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, Utf8_16_Rea
 		bool isFirstTime = true;
 		int incompleteMultibyteChar = 0;
 
+		GetAsyncKeyState(VK_ESCAPE);
 		do {
 			lenFile = fread(data+incompleteMultibyteChar, 1, blockSize-incompleteMultibyteChar, fp) + incompleteMultibyteChar;
 
@@ -871,10 +865,19 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, Utf8_16_Rea
 				// copy bytes to next buffer
 				memcpy(data, data+blockSize-incompleteMultibyteChar, incompleteMultibyteChar);
 			}
-			
+			{
+				SHORT key=GetAsyncKeyState(VK_ESCAPE);
+				if(key&0x8001){
+					WCHAR tmp[80];
+					unsigned __int64 pos=_ftelli64(fp);
+					_snwprintf(tmp,_countof(tmp),L"File loading canceled!\r\n%I64u of %I64u bytes loaded\r\n",pos,fileSize);
+					MessageBox(NULL,tmp,L"Load canceled",MB_OK|MB_SYSTEMMODAL);
+					break;
+				}
+			}
 		} while (lenFile > 0);
 	} __except(EXCEPTION_EXECUTE_HANDLER) {  //TODO: should filter correctly for other exceptions; the old filter(GetExceptionCode(), GetExceptionInformation()) was only catching access violations
-		::MessageBox(NULL, TEXT("File is too big to be opened by Notepad++"), TEXT("File open problem"), MB_OK|MB_APPLMODAL);
+		::MessageBox(NULL, TEXT("File is too big to be opened by Notepad++"), TEXT("File open problem"), MB_OK|MB_SYSTEMMODAL);
 		success = false;
 	}
 	
