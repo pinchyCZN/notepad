@@ -1247,11 +1247,6 @@ static int search_callback(int percent)
 	return 0;
 }
 
-static int search_thread(ScintillaEditView *_ppEditView)
-{
-	int result=FALSE;
-}
-
 // return value :
 // true  : the text2find is found
 // false : the text2find is not found
@@ -1599,6 +1594,8 @@ int FindReplaceDlg::processAll(ProcessOperation op, const FindOption *opt, bool 
 int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, const TCHAR *txt2replace, int startRange, int endRange, const TCHAR *fileName, const FindOption *opt, int colourStyleID)
 {
 	int nbProcessed = 0;
+	TCHAR *pTextFind = NULL;
+	TCHAR *pTextReplace = NULL;
 	
 	if (!isCreated() && !txt2find)
 		return nbProcessed;
@@ -1619,7 +1616,6 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 	int stringSizeFind = 0;
 	int stringSizeReplace = 0;
 
-	TCHAR *pTextFind = NULL;
 	if (!txt2find)
 	{
 		HWND hFindCombo = ::GetDlgItem(_hSelf, IDFINDWHAT);
@@ -1640,7 +1636,6 @@ int FindReplaceDlg::processRange(ProcessOperation op, const TCHAR *txt2find, con
 		goto EXIT_SEARCH;
 	}
 
-	TCHAR *pTextReplace = NULL;
 	if (op == ProcessReplaceAll)
 	{
 		if (!txt2replace)
