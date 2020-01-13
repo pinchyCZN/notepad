@@ -3,6 +3,8 @@ notepad++
 Custom build of notepad++ (v6.4.1) with enhancements:
 ----
 
+* statically linked scintilla and embedded config files : true standalone exe
+* allow cancelling of text search and file loading
 * Find/Search dalog remembers its position relative to the application window
 * Increased match line length in search results to 4096
 * Style configurator 
