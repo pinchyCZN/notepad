@@ -3,6 +3,7 @@
 ;vs2017:
 ;nasm -I "$(SolutionDir)..\src\zip\\" -t -f win32 -o "$(SolutionDir)$(Configuration)\incbin.obj" -Xvc "$(SolutionDir)..\src\zip\incbin.asm"
 ;need trailing slash on -I parameter to escape "\"
+;outputs: $(SolutionDir)$(Configuration)\incbin.obj
 %warning make sure to zip the following files:
 %warning config.xml    -> config.zip
 %warning langs.xml     -> langs.zip
