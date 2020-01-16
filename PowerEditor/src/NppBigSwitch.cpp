@@ -1476,16 +1476,16 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 				    saveSession(currentSession);
 
                 //Sends WM_DESTROY, Notepad++ will end
-				if(Message == WM_CLOSE)
-					::DestroyWindow(hwnd);
+				::DestroyWindow(hwnd);
 			}
 			return TRUE;
 		}
 
 		case WM_ENDSESSION:
 		{
-			::DestroyWindow(hwnd);
-			return TRUE;
+			if(wParam)
+				::DestroyWindow(hwnd);
+			return 0;
 		}
 
 		case WM_DESTROY:

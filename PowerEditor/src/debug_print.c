@@ -1198,6 +1198,54 @@ void print_msg(int msg,int wparam,int lparam)
 	printf("msg=%08X wparam=%08X lparam=%08X x=%3i y=%3i %08X\n",msg,wparam,lparam,LOWORD(lparam),HIWORD(lparam),time);
 }
 
+#define LOG_FNAME "c:\\temp\\log.txt"
+static int disable_log=TRUE;
+void log_print_msg(const char *fname,UINT msg,WPARAM wparam,LPARAM lparam)
+{
+	FILE *f;
+	if(disable_log)
+		return;
+	if(0==fname)
+		fname=LOG_FNAME;
+	f=fopen(fname,"a");
+	if(f){
+		static DWORD tick=0;
+		DWORD time;
+		int i;
+		int found=FALSE;
+		time=GetTickCount();
+		if((time-tick)>250)
+			fprintf(f,"---\n");
+		tick=time;
+		for(i=0;i<sizeof(wm_names)/sizeof(NAME);i++){
+			if(wm_names[i].val==msg){
+				fprintf(f,"%-20s lparam=%08X wparam=%08X x=%3i y=%3i\n",wm_names[i].name,lparam,wparam,LOWORD(lparam),HIWORD(lparam));
+				found=TRUE;
+				break;
+			}
+		}
+		if(!found){
+			fprintf(f,"msg=%08X wparam=%08X lparam=%08X x=%3i y=%3i %08X\n",msg,wparam,lparam,LOWORD(lparam),HIWORD(lparam),time);
+		}
+		fclose(f);
+	}
+}
+
+void log_msg(const char *fname,const char *fmt,...)
+{
+	FILE *f;
+	if(disable_log)
+		return;
+	if(0==fname)
+		fname=LOG_FNAME;
+	f=fopen(fname,"a");
+	if(f){
+		va_list arg;
+		va_start(arg,fmt);
+		vfprintf(f,fmt,arg);
+		fclose(f);
+	}
+}
 
 char *strstri(char *src,char *sub)
 {

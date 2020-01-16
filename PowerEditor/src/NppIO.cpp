@@ -587,7 +587,7 @@ bool Notepad_plus::fileCloseAll()
 				if (!fileSave(id))
 					return false;	//abort entire procedure
 			} 
-			else if (res == IDCANCEL) 
+			else if (IDCANCEL==res || 0==res) //or windows forced close on end session
 			{
 					return false;
 			}
