@@ -29,8 +29,12 @@ typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 typedef unsigned __int64 uint64_t;
 #define inline __inline
+#ifndef UINT16_MAX
 #define UINT16_MAX 0xFFFF
+#endif
+#ifndef UINT32_MAX
 #define UINT32_MAX 0xFFFFFFFF
+#endif
 
 
 // fast-way is faster to check than jpeg huffman, but slow way is slower

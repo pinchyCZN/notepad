@@ -1096,7 +1096,7 @@ void DockingCont::onSize()
 		
 
 		// get active item data
-		UINT	iItemCnt = ::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0);
+		iItemCnt = ::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0);
 
 		// resize visible plugin windows
 		for (UINT iItem = 0; iItem < iItemCnt; iItem++)
@@ -1325,7 +1325,6 @@ void DockingCont::SelectTab(int iTab)
 			::ShowWindow(((tTbData*)tcItem.lParam)->hClient, SW_HIDE);
 		
 			// Notify switch off
-			NMHDR nmhdr;
 			nmhdr.code		= DMN_SWITCHOFF;
 			nmhdr.hwndFrom	= _hSelf;
 			nmhdr.idFrom	= 0;

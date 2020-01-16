@@ -1897,7 +1897,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 
 		case NPPM_GETAPPDATAPLUGINSALLOWED:
 		{
-			NppParameters *pNppParam = NppParameters::getInstance();
 			const TCHAR *appDataNpp = pNppParam->getAppDataNppDir();
 			if (appDataNpp[0])
 			{
@@ -1913,7 +1912,6 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 		//
 		case NPPM_INTERNAL_SETTING_HISTORY_SIZE:
 		{
-			NppParameters *pNppParam = NppParameters::getInstance();
 			_lastRecentFileList.setUserMaxNbLRF(pNppParam->getNbMaxRecentFile());
 			break;
 		}

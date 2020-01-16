@@ -709,7 +709,7 @@ void WordStyleDlg::updateExampleFont()
 void WordStyleDlg::updateRGBValue(HWND h,COLORREF c)
 {
 	TCHAR str[12]={0};
-	_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",c,_TRUNCATE);
+	_stprintf_s(str,sizeof(str)/sizeof(TCHAR),L"0x%06X",c);
 	::SetWindowText(h,str);
 }
 
@@ -949,9 +949,9 @@ void WordStyleDlg::setVisualFromStyleList()
 		LangType lType = pNppParams->getLangIDFromStr(lexerStyler.getLexerName());
 		if (lType == L_TEXT)
 		{
-			generic_string str = lexerStyler.getLexerName();
-			str += TEXT(" is not defined in NppParameters::getLangIDFromStr()");
-				printStr(str.c_str());
+			generic_string tmp = lexerStyler.getLexerName();
+			tmp += TEXT(" is not defined in NppParameters::getLangIDFromStr()");
+				printStr(tmp.c_str());
 		}
 		const TCHAR *kws = pNppParams->getWordList(lType, style._keywordClass);
 		if (!kws)

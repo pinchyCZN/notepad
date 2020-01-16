@@ -1326,8 +1326,6 @@ BOOL CALLBACK UserDefineDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
                     }
                     case IDC_IMPORT_BUTTON :
                     {
-                        NppParameters *pNppParam = NppParameters::getInstance();
-
                         FileDialog fDlg(_hSelf, ::GetModuleHandle(NULL));
                         fDlg.setExtFilter(TEXT("UDL"), TEXT(".xml"), NULL);
                         TCHAR *fn = fDlg.doOpenSingleFileDlg();
@@ -1352,8 +1350,6 @@ BOOL CALLBACK UserDefineDialog::run_dlgProc(UINT message, WPARAM wParam, LPARAM 
 
                     case IDC_EXPORT_BUTTON :
                     {
-                        NppParameters *pNppParam = NppParameters::getInstance();
-
                         int i2Export = ::SendDlgItemMessage(_hSelf, IDC_LANGNAME_COMBO, CB_GETCURSEL, 0, 0);
 
                         if (i2Export == 0)

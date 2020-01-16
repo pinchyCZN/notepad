@@ -768,7 +768,7 @@ const TCHAR* TiXmlElement::Parse( const TCHAR* p, TiXmlParsingData* data )
 			}
 
 			attrib->SetDocument( document );
-			const TCHAR* pErr = p;
+			pErr = p;
 			p = attrib->Parse( p, data );
 
 			if ( !p || !*p )

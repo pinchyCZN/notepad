@@ -739,10 +739,10 @@ BOOL CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 								ListView_SetItemText(hlistview,selected_row,2,(LPWSTR)str);
 								update_col_width(str,2);
 								if(max>0){
-									TCHAR str[255];
+									TCHAR tmp[255];
 									KeyCombo skmkc=skm.getKeyComboByIndex(0);
-									if(0<check_in_use(_currentState,index,&skmkc,nppParam,str,sizeof(str)/sizeof(TCHAR)))
-										MessageBox(_hSelf,str,L"Duplicates found",MB_OK);
+									if(0<check_in_use(_currentState,index,&skmkc,nppParam,tmp,sizeof(tmp)/sizeof(TCHAR)))
+										MessageBox(_hSelf,tmp,L"Duplicates found",MB_OK);
 								}
 								//Notify current Accelerator class to update key
 								nppParam->getScintillaAccelerator()->updateKeys();

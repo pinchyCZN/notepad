@@ -11,7 +11,7 @@
 #include <conio.h>
 #include "scintilla.h"
 typedef struct{
-	int val;
+	unsigned int val;
 	char *name;
 }NAME;
 
@@ -1098,6 +1098,7 @@ struct __IOBUF {
 };
 typedef struct __IOBUF _FILE;
 #define _O_TEXT         0x4000  /* file mode is text (translated) */
+int _open_osfhandle(int*,int);
 void open_console()
 {
 	HWND hcon;
@@ -1116,18 +1117,18 @@ void open_console()
 		return;
 	}
 	AllocConsole();
-	hcrt=_open_osfhandle((long)GetStdHandle(STD_OUTPUT_HANDLE),_O_TEXT);
+	hcrt=_open_osfhandle((int*)GetStdHandle(STD_OUTPUT_HANDLE),_O_TEXT);
 
 	fflush(stdin);
-	hf=_fdopen(hcrt,"w");
-	FSTDIN=stdout;
+	hf=(_FILE*)_fdopen(hcrt,"w");
+	FSTDIN=(_FILE*)stdout;
 	*FSTDIN=*hf;
-	setvbuf(FSTDIN,NULL,_IONBF,0);
+	setvbuf((FILE*)FSTDIN,NULL,_IONBF,0);
 	consolecreated=TRUE;
 	if(GetConsoleWindow==0){
-		HMODULE hmod=LoadLibrary("kernel32.dll");
+		HMODULE hmod=LoadLibrary(L"kernel32.dll");
 		if(hmod!=0){
-			GetConsoleWindow=(HWND)GetProcAddress(hmod,"GetConsoleWindow");
+			GetConsoleWindow=(void*)GetProcAddress(hmod,"GetConsoleWindow");
 			if(GetConsoleWindow!=0){
 				ghconsole=GetConsoleWindow();
 			}
@@ -1174,7 +1175,7 @@ int print_capture(BYTE *keys,char *str,int len)
 	}
 	return TRUE;
 }
-void print_msg(int msg,int wparam,int lparam)
+void print_msg(UINT msg,WPARAM wparam,LPARAM lparam)
 {
 	int i;
 	static int create_console=FALSE;
@@ -1254,11 +1255,11 @@ char *strstri(char *src,char *sub)
 	char *start=0;
 	while((a=src[index])!=0){
 		char b;
-		a=tolower(a);
+		a=(char)tolower(a);
 		b=sub[sub_index];
 		if(0==sub_index)
 			start=src+index;
-		b=tolower(b);
+		b=(char)tolower(b);
 		if(0==b)
 			return start;
 		if(a==b){
@@ -1283,7 +1284,7 @@ void show_tick()
 		printf("---\n");
 	tick=time;
 }
-void print_sci_msg(int msg,int wparam,int lparam)
+void print_sci_msg(UINT msg,WPARAM wparam,LPARAM lparam)
 {
 	int i;
 	static int create_console=FALSE;
@@ -1295,7 +1296,7 @@ void print_sci_msg(int msg,int wparam,int lparam)
 	for(i=0;i<sizeof(sci_names)/sizeof(NAME);i++){
 		if(sci_names[i].val==msg){
 			char *n=sci_names[i].name;
-			if(1||strstri(n,"mode")){//||strstri(n,"lex")){
+			if(1){ //||strstri(n,"mode")){//||strstri(n,"lex")){
 				show_tick();
 				if(strstri(n,"SETSTYLING"))
 					printf("XXXX\n");

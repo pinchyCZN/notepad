@@ -492,7 +492,7 @@ void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos, vector< pair
 
 		// Get class name
 		int foundPos = 0;
-		generic_string classStructName = parseSubLevel(targetStart, targetEnd, _classNameExprArray, foundPos, ppEditView);
+		generic_string tmpStructName = parseSubLevel(targetStart, targetEnd, _classNameExprArray, foundPos, ppEditView);
 		
 
 		if (_openSymbole != TEXT("") && _closeSymbole != TEXT(""))
@@ -515,7 +515,7 @@ void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos, vector< pair
 		//vector< generic_string > emptyArray;
 		if (!isInZones(targetStart, commentZones))
 		{
-			funcParse(foundInfos, targetStart, targetEnd, ppEditView, classStructName, &commentZones);
+			funcParse(foundInfos, targetStart, targetEnd, ppEditView, tmpStructName, &commentZones);
 		}
 		begin = targetStart + (targetEnd - targetStart);
 		targetStart = (*ppEditView)->searchInTarget(_rangeExpr.c_str(), _rangeExpr.length(), begin, end);

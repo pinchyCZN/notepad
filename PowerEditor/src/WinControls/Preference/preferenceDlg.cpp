@@ -358,7 +358,7 @@ void PreferenceDlg::makeCategoryList(const TCHAR *filter)
 			int index=::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_ADDSTRING, 0, (LPARAM)_wVector[i]._name.c_str());
 			if(index>=0){
 				::SendDlgItemMessage(_hSelf, IDC_LIST_DLGTITLE, LB_SETITEMDATA, index, i);
-				if(old_index==i){
+				if((size_t)old_index==i){
 					sel_index=index;
 					have_old_index=TRUE;
 				}

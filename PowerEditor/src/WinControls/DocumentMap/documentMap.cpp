@@ -399,8 +399,6 @@ void ViewZoneDlg::drawPreviewZone(DRAWITEMSTRUCT *pdis)
 {
 	RECT rc = pdis->rcItem;
 	
-	const COLORREF orange = RGB(0xFF, 0x80, 0x00);
-	const COLORREF white = RGB(0xFF, 0xFF, 0xFF);
 	HBRUSH hbrushFg = CreateSolidBrush(orange);
 	HBRUSH hbrushBg = CreateSolidBrush(white);					
 	FillRect(pdis->hDC, &rc, hbrushBg);
