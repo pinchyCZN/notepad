@@ -2422,14 +2422,14 @@ void NppParameters::writeSession(const Session & session, const TCHAR *fileName)
 			(fileNameNode->ToElement())->SetAttribute(TEXT("encoding"), session._mainViewFiles[i]._encoding);
 			(fileNameNode->ToElement())->SetAttribute(TEXT("filename"), session._mainViewFiles[i]._fileName.c_str());
 
-			for (size_t j = 0, len = session._mainViewFiles[i].marks.size() ; j < len ; j++)
+			for (size_t j = 0, tmp = session._mainViewFiles[i].marks.size() ; j < tmp ; j++)
 			{
 				size_t markLine = session._mainViewFiles[i].marks[j];
 				TiXmlNode *markNode = fileNameNode->InsertEndChild(TiXmlElement(TEXT("Mark")));
 				markNode->ToElement()->SetAttribute(TEXT("line"), markLine);
 			}
 
-			for (size_t j = 0, len = session._mainViewFiles[i]._foldStates.size() ; j < len ; j++)
+			for (size_t j = 0, tmp = session._mainViewFiles[i]._foldStates.size() ; j < tmp ; j++)
 			{
 				size_t foldLine = session._mainViewFiles[i]._foldStates[j];
 				TiXmlNode *foldNode = fileNameNode->InsertEndChild(TiXmlElement(TEXT("Fold")));
@@ -2453,14 +2453,14 @@ void NppParameters::writeSession(const Session & session, const TCHAR *fileName)
 			(fileNameNode->ToElement())->SetAttribute(TEXT("encoding"), session._subViewFiles[i]._encoding);
 			(fileNameNode->ToElement())->SetAttribute(TEXT("filename"), session._subViewFiles[i]._fileName.c_str());
 
-			for (size_t j = 0, len = session._subViewFiles[i].marks.size(); j < len; j++)
+			for (size_t j = 0, tmp = session._subViewFiles[i].marks.size(); j < tmp; j++)
 			{
 				size_t markLine = session._subViewFiles[i].marks[j];
 				TiXmlNode *markNode = fileNameNode->InsertEndChild(TiXmlElement(TEXT("Mark")));
 				markNode->ToElement()->SetAttribute(TEXT("line"), markLine);
 			}
 
-			for (size_t j = 0, len = session._subViewFiles[i]._foldStates.size() ; j < len ; j++)
+			for (size_t j = 0, tmp = session._subViewFiles[i]._foldStates.size() ; j < tmp ; j++)
 			{
 				size_t foldLine = session._subViewFiles[i]._foldStates[j];
 				TiXmlNode *foldNode = fileNameNode->InsertEndChild(TiXmlElement(TEXT("Fold")));
@@ -3030,10 +3030,10 @@ void NppParameters::feedKeyWordsParameters(TiXmlNode *node)
 					if ((indexName) && (kwVal))
 						keyWords = kwVal->Value();
 
-					int i = getKwClassFromName(indexName);
+					int index = getKwClassFromName(indexName);
 
-					if (i >= 0 && i <= KEYWORDSET_MAX)
-						_langList[_nbLang]->setWords(keyWords, i);
+					if (index >= 0 && index <= KEYWORDSET_MAX)
+						_langList[_nbLang]->setWords(keyWords, index);
 				}
 				_nbLang++;
 			}
@@ -3544,7 +3544,7 @@ void NppParameters::feedGUIParameters(TiXmlNode *node)
 			int g5 = 0; // up to 48
 			int g6 = 0; // up to 56
 			int g7 = 0; // up to 64
-			const int nbMax = 64;
+			const int max_lang = 64;
 
 			int i;
 			if (element->Attribute(TEXT("gr0"), &i))
@@ -3572,70 +3572,70 @@ void NppParameters::feedGUIParameters(TiXmlNode *node)
 				if (i <= 255)
 					g7 = i;
 
-			bool langArray[nbMax];
-			for (int i = 0 ; i < nbMax ; i++) langArray[i] = false;
+			bool langArray[max_lang];
+			for (int index = 0 ; index < max_lang ; index++) langArray[index] = false;
 			
 			UCHAR mask = 1;
-			for (int i = 0 ; i < 8 ; i++) 
+			for (int index = 0 ; index < 8 ; index++) 
 			{
 				if (mask & g0)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 8 ; i < 16 ; i++) 
+			for (int index = 8 ; index < 16 ; index++) 
 			{
 				if (mask & g1)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 16 ; i < 24 ; i++) 
+			for (int index = 16 ; index < 24 ; index++) 
 			{
 				if (mask & g2)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 24 ; i < 32 ; i++) 
+			for (int index = 24 ; index < 32 ; index++) 
 			{
 				if (mask & g3)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 32 ; i < 40 ; i++) 
+			for (int index = 32 ; index < 40 ; index++) 
 			{
 				if (mask & g4)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 40 ; i < 48 ; i++) 
+			for (int index = 40 ; index < 48 ; index++) 
 			{
 				if (mask & g5)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 48 ; i < 56 ; i++) 
+			for (int index = 48 ; index < 56 ; index++) 
 			{
 				if (mask & g6)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 
 			mask = 1;
-			for (int i = 56 ; i < 64 ; i++) 
+			for (int index = 56 ; index < 64 ; index++) 
 			{
 				if (mask & g7)
-					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)i));
+					_nppGUI._excludedLangList.push_back(LangMenuItem((LangType)index));
 				mask <<= 1;
 			}
 			
@@ -5211,8 +5211,8 @@ void NppParameters::writeStyles(LexerStylerArray & lexersStylers, StyleArray & g
 	
 	for(size_t x = 0; x < _pXmlExternalLexerDoc.size(); x++)
 	{
-		TiXmlNode *lexersRoot = ( _pXmlExternalLexerDoc[x]->FirstChild(TEXT("NotepadPlus")))->FirstChildElement(TEXT("LexerStyles"));
-		for (TiXmlNode *childNode = lexersRoot->FirstChildElement(TEXT("LexerType"));
+		TiXmlNode *lexroot = ( _pXmlExternalLexerDoc[x]->FirstChild(TEXT("NotepadPlus")))->FirstChildElement(TEXT("LexerStyles"));
+		for (TiXmlNode *childNode = lexroot->FirstChildElement(TEXT("LexerType"));
 			childNode ;
 			childNode = childNode->NextSibling(TEXT("LexerType")))
 		{

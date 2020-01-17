@@ -85,8 +85,8 @@ bool AutoCompletion::showWordComplete(bool autoInsert)
 		return false;
 
 	const size_t bufSize = 256;
-	size_t len = (curPos > startPos)?(curPos - startPos):(startPos - curPos);
-	if (len >= bufSize)
+	size_t tmp = (curPos > startPos)?(curPos - startPos):(startPos - curPos);
+	if (tmp >= bufSize)
 		return false;
 
 	TCHAR beginChars[bufSize];

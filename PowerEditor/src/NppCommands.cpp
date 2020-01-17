@@ -1405,7 +1405,7 @@ void Notepad_plus::command(int id)
 			TCHAR *nbRangeLabel = TEXT(" ranges");
 
 			UniMode um = _pEditView->getCurrentBuffer()->getUnicodeMode();
-			int nbChar = getCurrentDocCharCount(um);
+			int char_count = getCurrentDocCharCount(um);
 			int nbWord = wordCount();
 			size_t nbLine = _pEditView->execute(SCI_GETLINECOUNT);
 			int nbByte = _pEditView->execute(SCI_GETLENGTH);
@@ -1421,7 +1421,7 @@ void Notepad_plus::command(int id)
 			TCHAR nbSelByteStr[32];
 			TCHAR nbRangeStr[8];
 
-			generic_sprintf(nbCharStr, TEXT("%d"), nbChar);
+			generic_sprintf(nbCharStr, TEXT("%d"), char_count);
 			characterNumber += nbCharLabel;
 			characterNumber += nbCharStr;
 			characterNumber += TEXT("\r");
@@ -1666,7 +1666,6 @@ void Notepad_plus::command(int id)
 
             if (!buf->isDirty())
             {
-				Buffer *buf = _pEditView->getCurrentBuffer();
 				buf->setEncoding(encoding);
 				buf->setUnicodeMode(uniCookie);
 				fileReload();

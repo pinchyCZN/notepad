@@ -639,7 +639,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_dockingManager.setDockedContSize(CONT_TOP	 , nppGUI._dockingData._topHeight);
 	_dockingManager.setDockedContSize(CONT_BOTTOM, nppGUI._dockingData._bottomHight);
 
-	for (size_t i = 0, len = dmd._pluginDockInfo.size(); i < len ; i++)
+	for (size_t i = 0, tmp_size = dmd._pluginDockInfo.size(); i < tmp_size ; i++)
 	{
 		PluginDlgDockingInfo & pdi = dmd._pluginDockInfo[i];
 		if (pdi._isVisible)
@@ -655,7 +655,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 		}
 	}
 
-	for (size_t i = 0, len = dmd._containerTabInfo.size(); i < len; i++)
+	for (size_t i = 0, tmp_size = dmd._containerTabInfo.size(); i < tmp_size; i++)
 	{
 		ContainerTabInfo & cti = dmd._containerTabInfo[i];
 		_dockingManager.setActiveTab(cti._cont, cti._activeTab);
@@ -1813,12 +1813,12 @@ void Notepad_plus::checkLangsMenu(int id) const
 			if (curBuf->isUserDefineLangExt())
 			{
 				const TCHAR *userLangName = curBuf->getUserDefineLangName();
-				const int nbChar = 16;
-				TCHAR menuLangName[nbChar];
+				const int MAX_LEN = 16;
+				TCHAR menuLangName[MAX_LEN];
 
 				for (int i = IDM_LANG_USER + 1 ; i <= IDM_LANG_USER_LIMIT ; i++)
 				{
-					if (::GetMenuString(_mainMenuHandle, i, menuLangName, nbChar-1, MF_BYCOMMAND))
+					if (::GetMenuString(_mainMenuHandle, i, menuLangName, MAX_LEN-1, MF_BYCOMMAND))
 						if (!lstrcmp(userLangName, menuLangName))
 						{
 							::CheckMenuRadioItem(_mainMenuHandle, IDM_LANG_C, IDM_LANG_USER_LIMIT, i, MF_BYCOMMAND);
@@ -4782,13 +4782,13 @@ generic_string Notepad_plus::getLangFromMenu(const Buffer * buf)
 
 	int	id;
 	generic_string userLangName;
-	const int nbChar = 32;
-	TCHAR menuLangName[nbChar];
+	const int MAX_LEN = 32;
+	TCHAR menuLangName[MAX_LEN];
 
 	id = (NppParameters::getInstance())->langTypeToCommandID( buf->getLangType() );
 	if ( ( id != IDM_LANG_USER ) || !( buf->isUserDefineLangExt() ) )
 	{
-		::GetMenuString(_mainMenuHandle, id, menuLangName, nbChar-1, MF_BYCOMMAND);
+		::GetMenuString(_mainMenuHandle, id, menuLangName, MAX_LEN-1, MF_BYCOMMAND);
 		userLangName = menuLangName;
 	}
 	else

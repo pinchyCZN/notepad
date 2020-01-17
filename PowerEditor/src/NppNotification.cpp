@@ -745,16 +745,16 @@ BOOL Notepad_plus::notify(SCNotification *notification)
 		if(endPos - startPos > 2*MAX_PATH)
 			endPos = startPos + 2*MAX_PATH;
 
-		TCHAR currentWord[2*MAX_PATH];
+		TCHAR cword[2*MAX_PATH];
 
-		notifyView->getGenericText(currentWord, MAX_PATH*2, startPos, endPos);
+		notifyView->getGenericText(cword, MAX_PATH*2, startPos, endPos);
 
 		// This treatment would fail on some valid URLs where there's actually supposed to be a comma or parenthesis at the end.
-		int lastCharIndex = _tcsnlen(currentWord, MAX_PATH*2) - 1;
-		if(lastCharIndex >= 0 && (currentWord[lastCharIndex] == ',' || currentWord[lastCharIndex] == ')' || currentWord[lastCharIndex] == '('))
-			currentWord[lastCharIndex] = '\0';
+		int lastCharIndex = _tcsnlen(cword, MAX_PATH*2) - 1;
+		if(lastCharIndex >= 0 && (cword[lastCharIndex] == ',' || cword[lastCharIndex] == ')' || cword[lastCharIndex] == '('))
+			cword[lastCharIndex] = '\0';
 
-		::ShellExecute(_pPublicInterface->getHSelf(), TEXT("open"), currentWord, NULL, NULL, SW_SHOW);
+		::ShellExecute(_pPublicInterface->getHSelf(), TEXT("open"), cword, NULL, NULL, SW_SHOW);
 		_isHotspotDblClicked = true;
 		notifyView->execute(SCI_SETCHARSDEFAULT);
 		break;

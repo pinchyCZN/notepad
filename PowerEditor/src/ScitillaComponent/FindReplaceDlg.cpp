@@ -501,8 +501,8 @@ void Finder::DeleteResult()
 		_pMainFoundInfos->erase(_pMainFoundInfos->begin() + lno, _pMainFoundInfos->begin() + endline); // remove found info
 		_pMainMarkings->erase(_pMainMarkings->begin() + lno, _pMainMarkings->begin() + endline);
 
-		int end = _scintView.execute(SCI_POSITIONFROMLINE, endline);
-		_scintView.execute(SCI_SETSEL, start, end);
+		int pos = _scintView.execute(SCI_POSITIONFROMLINE, endline);
+		_scintView.execute(SCI_SETSEL, start, pos);
 		setFinderReadOnly(false);
 		_scintView.execute(SCI_CLEAR);
 		setFinderReadOnly(true);

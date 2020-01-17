@@ -255,16 +255,16 @@ void NativeLangSpeaker::changeMenuLang(HMENU menuHandle, generic_string & plugin
 		const char *menuIdStr = element->Attribute("menuId");
 		if (menuIdStr)
 		{
-			MenuPosition & menuPos = getMenuPosition(menuIdStr);
-			if (menuPos._x != -1)
+			MenuPosition & menu_pos = getMenuPosition(menuIdStr);
+			if (menu_pos._x != -1)
 			{
 				const char *name = element->Attribute("name");
 
 #ifdef UNICODE
 				const wchar_t *nameW = wmc->char2wchar(name, _nativeLangEncoding);
-				::ModifyMenu(menuHandle, menuPos._x, MF_BYPOSITION, 0, nameW);
+				::ModifyMenu(menuHandle, menu_pos._x, MF_BYPOSITION, 0, nameW);
 #else
-				::ModifyMenu(menuHandle, menuPos._x, MF_BYPOSITION, 0, name);
+				::ModifyMenu(menuHandle, menu_pos._x, MF_BYPOSITION, 0, name);
 #endif
 			}
 		}
@@ -330,10 +330,10 @@ void NativeLangSpeaker::changeMenuLang(HMENU menuHandle, generic_string & plugin
 		if (!subMenuIdStr || !name)
 			continue;
 
-		MenuPosition & menuPos = getMenuPosition(subMenuIdStr);
-		x = menuPos._x;
-		y = menuPos._y;
-		z = menuPos._z;
+		MenuPosition & menu_pos = getMenuPosition(subMenuIdStr);
+		x = menu_pos._x;
+		y = menu_pos._y;
+		z = menu_pos._z;
 
 		HMENU hSubMenu = ::GetSubMenu(menuHandle, x);
 		if (!hSubMenu)

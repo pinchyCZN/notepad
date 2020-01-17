@@ -208,7 +208,7 @@ DLGPROC edit_entry(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam)
 				}
 			}
 			if(mode==IDC_EDIT && selection>=0){
-				int i,ctrl[]={IDC_FILEPATTERN,IDC_FILTERMASK};
+				int ctrl[]={IDC_FILEPATTERN,IDC_FILTERMASK};
 				for(i=0;i<_countof(ctrl);i++){
 					TCHAR tmp[80];
 					tmp[0]=0;

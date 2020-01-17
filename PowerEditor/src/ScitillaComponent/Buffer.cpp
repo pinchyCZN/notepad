@@ -36,8 +36,6 @@
 
 FileManager * FileManager::_pSelf = new FileManager();
 
-const int blockSize = 128 * 1024 + 4;
-
 // Ordre important!! Ne le changes pas!
 //SC_EOL_CRLF (0), SC_EOL_CR (1), or SC_EOL_LF (2).
 
@@ -489,8 +487,8 @@ BufferID FileManager::loadFile(const TCHAR * filename, Document doc, int encodin
 			// 3 formats : WIN_FORMAT, UNIX_FORMAT and MAC_FORMAT
 			if (UnicodeConvertor.getNewBuf()) 
 			{
-				int format = getEOLFormatForm(UnicodeConvertor.getNewBuf());
-				buf->setFormat(format == -1?WIN_FORMAT:(formatType)format);
+				int fmt = getEOLFormatForm(UnicodeConvertor.getNewBuf());
+				buf->setFormat(fmt == -1?WIN_FORMAT:(formatType)fmt);
 				
 			}
 			else
@@ -547,8 +545,8 @@ bool FileManager::reloadBuffer(BufferID id)
 		{
 			if (UnicodeConvertor.getNewBuf()) 
 			{
-				int format = getEOLFormatForm(UnicodeConvertor.getNewBuf());
-				buf->setFormat(format == -1?WIN_FORMAT:(formatType)format);
+				int fmt = getEOLFormatForm(UnicodeConvertor.getNewBuf());
+				buf->setFormat(fmt == -1?WIN_FORMAT:(formatType)fmt);
 			}
 			else
 			{
@@ -617,6 +615,7 @@ bool FileManager::saveBuffer(BufferID id, const TCHAR * filename, bool isCopy, g
 	bool isHidden = false;
 	bool isSys = false;
 	DWORD attrib = 0;
+	const int blockSize = 128 * 1024 + 4;
 
 	TCHAR fullpath[MAX_PATH];
 	::GetFullPathName(filename, MAX_PATH, fullpath, NULL);
@@ -844,9 +843,9 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, Utf8_16_Rea
 				}
 				else
 				{
-					WcharMbcsConvertor *wmc = WcharMbcsConvertor::getInstance();
+					WcharMbcsConvertor *cvt = WcharMbcsConvertor::getInstance();
 					int newDataLen = 0;
-					const char *newData = wmc->encode(encoding, SC_CP_UTF8, data, lenFile, &newDataLen, &incompleteMultibyteChar);
+					const char *newData = cvt->encode(encoding, SC_CP_UTF8, data, lenFile, &newDataLen, &incompleteMultibyteChar);
 					_pscratchTilla->execute(SCI_APPENDTEXT, newDataLen, (LPARAM)newData);
 				}
 
