@@ -13,7 +13,7 @@
 
 #ifdef _MSC_VER
 // Visual C++ doesn't like unreachable code in its own headers.
-#pragma warning(disable: 4018 4100 4245 4511 4512 4663 4702)
+#pragma warning(disable: 4018 4100 4245 4511 4512 4663 4702 4996)
 #endif
 
 #include <string>

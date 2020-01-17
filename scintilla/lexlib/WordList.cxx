@@ -18,6 +18,9 @@
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+#ifdef _MSC_VER
+#pragma warning(disable: 4996) //unsafe string functions
+#endif
 
 /**
  * Creates an array that points into each word in the string and puts \0 terminators
