@@ -2008,12 +2008,18 @@ void Notepad_plus::command(int id)
 		case IDM_SETTING_SAVE:
 			{
 				NppParameters *pNppParam = NppParameters::getInstance();
-			    saveFindHistory(); //writeFindHistory
-			    _lastRecentFileList.saveLRFL(); //writeRecentFileHistorySettings, writeHistory
-			    saveScintillaParams(); //writeScintillaParams
-			    saveGUIParams(); //writeGUIParams
+				saveFindHistory(); //writeFindHistory
+				_lastRecentFileList.saveLRFL(); //writeRecentFileHistorySettings, writeHistory
+				saveScintillaParams(); //writeScintillaParams
+				saveGUIParams(); //writeGUIParams
 				saveProjectPanelsParams(); //writeProjectPanelsSettings
 				pNppParam->saveConfig_xml();
+				const NppGUI & nppgui = pNppParam->getNppGUI();
+				if(nppgui._rememberLastSession && _rememberThisSession){
+					Session currentSession;
+					getCurrentOpenedFiles(currentSession);
+					saveSession(currentSession);
+				}
 			}
 			break;
 
