@@ -67,11 +67,13 @@ BOOL CALLBACK GoToLineDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
                     }
 
 					// find hotspots
-					NMHDR nmhdr;
-					nmhdr.code = SCN_PAINTED;
-					nmhdr.hwndFrom = _hSelf;
-					nmhdr.idFrom = ::GetDlgCtrlID(nmhdr.hwndFrom);
-					::SendMessage(_hParent, WM_NOTIFY, (WPARAM)LINKTRIGGERED, (LPARAM)&nmhdr);
+					if(0){
+						NMHDR nmhdr;
+						nmhdr.code = SCN_PAINTED;
+						nmhdr.hwndFrom = _hSelf;
+						nmhdr.idFrom = ::GetDlgCtrlID(nmhdr.hwndFrom);
+						::SendMessage(_hParent, WM_NOTIFY, (WPARAM)LINKTRIGGERED, (LPARAM)&nmhdr);
+					}
 
                     (*_ppEditView)->getFocus();
                     return TRUE;
