@@ -326,7 +326,6 @@ private :
 
 	DIALOG_TYPE _currentStatus;
 	RECT _findClosePos, _replaceClosePos, _findInFilesClosePos;
-	POINT _relative_pos;
 
 	ScintillaEditView **_ppEditView;
 	Finder  *_pFinder;

@@ -34,10 +34,11 @@
 #include "ToolTip.h"
 #include "FileFilterMask.h"
 #include "FileMask.h"
+#include "AnchorSystem.h"
 
 FindOption * FindReplaceDlg::_env;
 FindOption FindReplaceDlg::_options;
-
+static struct WIN_REL_POS WinRelPos={0};
 #define SHIFTED 0x8000
 
 int Searching::convertExtendedToString(const TCHAR * query, TCHAR * result, int length) {	//query may equal to result, since it always gets smaller
@@ -250,33 +251,24 @@ void FindReplaceDlg::create(int dialogID, bool isRTL)
 		enableDlgTheme(_hSelf, ETDT_ENABLETAB);
 
 	goToCenter();
-	RECT prect;
-	::GetWindowRect(_hParent, &prect);
-	::GetWindowRect(_hSelf, &rect);
-	_relative_pos.x = rect.left - prect.left;
-	_relative_pos.y = rect.top - prect.top;
+	WIN_REL_POS wpos={0};
+	SaveWinRelPosition(_hParent, _hSelf, &wpos);
+	RestoreWinRelPosition(_hParent, _hSelf, &wpos);
+
 }
 
 void FindReplaceDlg::display(bool toShow) 
 {
-	RECT rect;
 	static bool lastShow = false;
 	if(lastShow != toShow)
 	{
 		if(toShow)
 		{
-			::GetWindowRect(_hParent, &rect);
-			rect.left += _relative_pos.x;
-			rect.top += _relative_pos.y;
-			::SetWindowPos(_hSelf, NULL, rect.left, rect.top, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+			RestoreWinRelPosition(_hParent, _hSelf, &WinRelPos);
 		}
 		else
 		{
-			RECT prect;
-			::GetWindowRect(_hParent, &prect);
-			::GetWindowRect(_hSelf, &rect);
-			_relative_pos.x = rect.left - prect.left;
-			_relative_pos.y = rect.top - prect.top;
+			SaveWinRelPosition(_hParent, _hSelf, &WinRelPos);
 		}
 	}
 	lastShow = toShow;
