@@ -7428,7 +7428,7 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 
 	case SCI_LINESCROLL:
 		ScrollTo(topLine + lParam);
-		HorizontalScrollTo(xOffset + wParam * vs.spaceWidth);
+		HorizontalScrollTo(xOffset + (long)wParam * vs.spaceWidth);
 		return 1;
 
 	case SCI_SETXOFFSET:

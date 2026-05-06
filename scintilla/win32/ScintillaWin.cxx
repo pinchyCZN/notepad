@@ -776,9 +776,6 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 			// (A good idea for datazoom would be to "fold" or "unfold" details.
 			// i.e. if datazoomed out only class structures are visible, when datazooming in the control
 			// structures appear, then eventually the individual statements...)
-			if (wParam & MK_SHIFT) {
-				return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
-			}
 
 			// Either SCROLL or ZOOM. We handle the wheel steppings calculation
 			wheelDelta -= static_cast<short>(HiWord(wParam));
@@ -794,13 +791,19 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 					wheelDelta = wheelDelta % WHEEL_DELTA;
 				else
 					wheelDelta = - (-wheelDelta % WHEEL_DELTA);
-
-				if (wParam & MK_CONTROL) {
+				if(wParam & MK_SHIFT) {
+					int x=4;
+					if(linesToScroll < 0)
+						x=-4;
+					::SendMessage(MainHWND(), SCI_LINESCROLL, x, 0);
+				}
+				else if(wParam & MK_CONTROL) {
 					// Zoom! We play with the font sizes in the styles.
 					// Number of steps/line is ignored, we just care if sizing up or down
-					if (linesToScroll < 0) {
+					if(linesToScroll < 0) {
 						KeyCommand(SCI_ZOOMIN);
-					} else {
+					}
+					else {
 						KeyCommand(SCI_ZOOMOUT);
 					}
 				} else {
