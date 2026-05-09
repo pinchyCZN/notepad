@@ -206,6 +206,31 @@ notepad++ [--help] [-multiInst] [-noPlugin] [-lLanguage] [-nLineNumber] [-cColum
 
 void doException(Notepad_plus_Window & notepad_plus_plus);
 
+static int is_win_arranged(HWND hwnd)
+{
+	int result=0;
+	static int done=0;
+	typedef BOOL (WINAPI *PFN_IsWindowArranged)(HWND);
+	static PFN_IsWindowArranged pIsWindowArranged=0;
+	static HMODULE hmod = 0;
+	if(done){
+		return result;
+	}
+	if(0 == hmod)
+		hmod=GetModuleHandle(TEXT("user32.dll"));
+
+	if((0 == pIsWindowArranged) && hmod) {
+		pIsWindowArranged = (PFN_IsWindowArranged)GetProcAddress(hmod, "IsWindowArranged");
+	}
+	if(pIsWindowArranged) {
+		result=pIsWindowArranged(hwnd);
+	}
+	else{
+		done=1;
+	}
+	return result;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
 	LPTSTR cmdLine = ::GetCommandLine();
@@ -305,15 +330,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
 		int sw = 0;
 
-		if (::IsZoomed(hNotepad_plus))
+		if(::IsZoomed(hNotepad_plus))
 			sw = SW_MAXIMIZE;
-		else if (::IsIconic(hNotepad_plus))
+		else if(::IsIconic(hNotepad_plus))
 			sw = SW_RESTORE;
+		else if(is_win_arranged(hNotepad_plus))
+			sw = -1;
 		else
 			sw = SW_SHOW;
 
-		// IMPORTANT !!!
-		::ShowWindow(hNotepad_plus, sw);
+		if((-1) != sw)
+			::ShowWindow(hNotepad_plus, sw);
 
 		::SetForegroundWindow(hNotepad_plus);
 
