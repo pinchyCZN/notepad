@@ -31,6 +31,8 @@
 #include "Parameters.h"
 #include "resource.h"
 
+static int g_splitpath=0;
+
 LRESULT CALLBACK hookProc(UINT nCode, WPARAM wParam, LPARAM lParam)
 {
 	if ((nCode >= 0) && (wParam == WM_RBUTTONUP))
@@ -75,11 +77,13 @@ BOOL CALLBACK TaskListDlg::run_dlgProc(UINT Message, WPARAM wParam, LPARAM lPara
 			_taskList.setFont(TEXT("Verdana"), 14);
 			_rc = _taskList.adjustSize();
 
+			_rc.right += 4*GetSystemMetrics(SM_CXFRAME);
 			reSizeTo(_rc);
 			goToCenter();
 
 			_taskList.display(true);
 			hWndServer = _hSelf;
+			g_splitpath=(NppParameters::getInstance())->getNppGUI()._splitpath_doc_switch;
 
 #ifndef WH_MOUSE_LL
 #define WH_MOUSE_LL 14
@@ -224,6 +228,16 @@ void TaskListDlg::drawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 
 	::SetTextColor(hDC, textColor);
 	rect.top -= ::GetSystemMetrics(SM_CYEDGE);
-		
-	::DrawText(hDC, label, lstrlen(label), &rect, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+
+	if (g_splitpath)
+	{
+		const TCHAR *fileName = ::PathFindFileName(label);
+		int pathLen = static_cast<int>(fileName - label);
+		::DrawText(hDC, label, pathLen, &rect, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+		::DrawText(hDC, fileName, -1, &rect, DT_SINGLELINE | DT_VCENTER | DT_RIGHT);
+	}
+	else
+	{
+		::DrawText(hDC, label, lstrlen(label), &rect, DT_SINGLELINE | DT_VCENTER | DT_LEFT);
+	}
 }

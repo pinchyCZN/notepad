@@ -771,6 +771,7 @@ struct NppGUI
 	bool _enableTagAttrsHilite;
 	bool _enableHiliteNonHTMLZone;
 	bool _styleMRU;
+	bool _splitpath_doc_switch;
 	char _leftmostDelimiter, _rightmostDelimiter;
 	bool _delimiterSelectionOnEntireDocument;
 

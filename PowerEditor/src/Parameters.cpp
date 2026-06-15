@@ -3354,6 +3354,19 @@ void NppParameters::feedGUIParameters(TiXmlNode *node)
 			}
 		}
 
+		else if(!lstrcmp(nm, TEXT("SplitPathDocSwitch")))
+		{
+			TiXmlNode *n = childNode->FirstChild();
+			if(n)
+			{
+				val = n->Value();
+				if(val)
+				{
+					_nppGUI._splitpath_doc_switch = (!lstrcmp(val, TEXT("yes")))?true:false;
+				}
+			}
+		}
+
 		else if (!lstrcmp(nm, TEXT("MRU")))
 		{	
 			TiXmlNode *n = childNode->FirstChild();
@@ -4206,6 +4219,7 @@ bool NppParameters::writeGUIParams()
 	bool printSettingExist = false;
 	bool doTaskListExist = false;
 	bool maitainIndentExist = false;
+	bool SplitPathDocSwitch = false;
 	bool MRUExist = false;
 	bool backExist = false;
 	bool URLExist = false;
@@ -4482,6 +4496,17 @@ bool NppParameters::writeGUIParams()
 			element->SetAttribute(TEXT("dir"), _nppGUI._backupDir.c_str());
 			backExist = true;
 		}
+		else if(!lstrcmp(nm, TEXT("SplitPathDocSwitch")))
+		{
+			SplitPathDocSwitch = true;
+			const TCHAR *pStr = _nppGUI._splitpath_doc_switch?TEXT("yes"):TEXT("no");
+
+			TiXmlNode *n = childNode->FirstChild();
+			if(n)
+				n->SetValue(pStr);
+			else
+				childNode->InsertEndChild(TiXmlText(pStr));
+		}
 		else if (!lstrcmp(nm, TEXT("MRU")))
 		{
 			MRUExist = true;
@@ -4698,6 +4723,9 @@ bool NppParameters::writeGUIParams()
 		insertGUIConfigBoolNode(GUIRoot, TEXT("TaskList"), _nppGUI._doTaskList);
 	}
 
+	if(!SplitPathDocSwitch){
+		insertGUIConfigBoolNode(GUIRoot, TEXT("SplitPathDocSwitch"), _nppGUI._splitpath_doc_switch);
+	}
 	if (!MRUExist)
 	{
 		insertGUIConfigBoolNode(GUIRoot, TEXT("MRU"), _nppGUI._styleMRU);
