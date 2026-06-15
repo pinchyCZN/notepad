@@ -393,6 +393,9 @@
     <ClCompile Include="..\..\scintilla\lexers\LexYAML.cxx">
       <Filter>lexers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\scintilla\lexers\LexSearchResult.cxx">
+      <Filter>lexers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\scintilla\src\AutoComplete.h">
