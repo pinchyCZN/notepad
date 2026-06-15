@@ -1078,8 +1078,6 @@ struct SCNotification {
 	int updated;	/* SCN_UPDATEUI */
 };
 
-#define SC_SEARCHRESULT_LINEBUFFERMAXLENGTH 1024
-
 struct SearchResultMarking {
 	long _start;
 	long _end;
