@@ -22,3 +22,12 @@
 *.log
 *.opt
 *.plg
+
+*.enc
+*.bsc
+*.sbr
+*.exp
+*.lib
+*.opendb
+*.db-shm
+*.db-wal
