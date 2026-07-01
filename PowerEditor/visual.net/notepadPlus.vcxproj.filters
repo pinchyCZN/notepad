@@ -285,6 +285,9 @@
     <ClCompile Include="..\src\zip_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\WinControls\StaticDialog\ModalOverlayDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\src\icons\allChars_off.ico">

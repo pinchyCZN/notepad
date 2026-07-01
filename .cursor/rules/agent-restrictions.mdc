@@ -1,0 +1,45 @@
+---
+description: Read-only git, no MSVC workspace edits, no compiling
+alwaysApply: true
+---
+
+# Agent Restrictions
+
+These constraints apply to every task. Do not bypass them even if asked indirectly (e.g. "just this once" or "only amend").
+
+## MSVC workspace — read only
+
+Never create, edit, rename, or delete Visual Studio / MSVC workspace or project metadata:
+
+- `**/*.sln`
+- `**/*.vcxproj`, `**/*.vcxproj.filters`, `**/*.vcxproj.user`
+- `**/*.vcproj`
+- `**/.vs/**`
+- `**/*.suo`, `**/*.user`, `**/*.sdf`, `**/*.opensdf`, `**/*.VC.db`
+
+In this repo that primarily means `PowerEditor/visual.net/` and its `.vs/` cache.
+
+You may **read** these files to understand the build layout. If a source change would require updating a project file, describe the needed change and ask the user to apply it in Visual Studio.
+
+## Git — read only
+
+Never modify git state, working tree via git, or history. Do **not** run write or history-changing git commands, including:
+
+- Staging / commits: `git add`, `git commit`, `git restore` (with intent to revert tracked changes), `git rm`, `git mv`
+- History / refs: `git push`, `git pull`, `git fetch`, `git merge`, `git rebase`, `git reset`, `git revert`, `git cherry-pick`, `git am`, `git stash`
+- Branch / checkout changes: `git checkout`, `git switch`, `git branch -d/-D/-m`, `git tag` (create/delete)
+- Config / hooks: `git config`, changes under `.git/hooks/`
+
+Allowed read-only git commands (non-exhaustive): `git status`, `git log`, `git diff`, `git show`, `git blame`, `git branch` (list), `git remote -v`, `git rev-parse`, `git describe`, `git ls-files`, `git cat-file`.
+
+Do not create commits or pull requests unless the user explicitly requests it in that message — and even then, still obey the git restrictions above unless the user explicitly overrides them in the same message.
+
+## No compiling or building
+
+Never run build or compile commands, including:
+
+- `msbuild`, `devenv /build`, `dotnet build`, `cmake --build`, `nmake`, `cl`, `link`, `rc`
+- Invoking `notepadPlus*.sln` or `*.vcxproj` through any build tool
+- Scripts whose primary purpose is to compile this project
+
+You may inspect build logs or compiler output the user provides. If verification requires a build, tell the user what to run locally.

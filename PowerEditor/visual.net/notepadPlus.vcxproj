@@ -221,6 +221,7 @@ echo done
     <ClCompile Include="..\src\WinControls\shortcut\shortcut.cpp" />
     <ClCompile Include="..\src\WinControls\SplitterContainer\Splitter.cpp" />
     <ClCompile Include="..\src\WinControls\SplitterContainer\SplitterContainer.cpp" />
+    <ClCompile Include="..\src\WinControls\StaticDialog\ModalOverlayDlg.cpp" />
     <ClCompile Include="..\src\WinControls\StaticDialog\RunDlg\RunDlg.cpp" />
     <ClCompile Include="..\src\WinControls\StaticDialog\StaticDialog.cpp" />
     <ClCompile Include="..\src\WinControls\StatusBar\StatusBar.cpp" />
