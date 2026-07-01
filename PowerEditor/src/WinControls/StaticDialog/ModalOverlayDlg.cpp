@@ -187,7 +187,7 @@ LRESULT CALLBACK panelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 		{
 			RECT rc = {};
 			::GetClientRect(hwnd, &rc);
-			::FillRect((HDC)wParam, &rc, ::GetSysColorBrush(COLOR_WINDOW));
+			::FillRect((HDC)wParam, &rc, ::GetSysColorBrush(COLOR_BTNFACE));
 			return 1;
 		}
 
