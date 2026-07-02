@@ -4237,6 +4237,7 @@ bool NppParameters::writeGUIParams()
 	bool titleBarExist = false;
 	bool stylerThemeExist = false;
 	bool delimiterSelectionExist = false;
+	bool appPositionExist = false;
 
 	TiXmlNode *dockingParamNode = NULL;
 
@@ -4463,6 +4464,7 @@ bool NppParameters::writeGUIParams()
 		}
 		else if (!lstrcmp(nm, TEXT("AppPosition")))
 		{
+			appPositionExist = true;
 			element->SetAttribute(TEXT("x"), _nppGUI._appPos.left);
 			element->SetAttribute(TEXT("y"), _nppGUI._appPos.top);
 			element->SetAttribute(TEXT("width"), _nppGUI._appPos.right);
@@ -4831,6 +4833,17 @@ bool NppParameters::writeGUIParams()
 		GUIConfigElement->SetAttribute(TEXT("leftmostDelimiter"), _nppGUI._leftmostDelimiter);
 		GUIConfigElement->SetAttribute(TEXT("rightmostDelimiter"), _nppGUI._rightmostDelimiter);
 		GUIConfigElement->SetAttribute(TEXT("delimiterSelectionOnEntireDocument"), _nppGUI._delimiterSelectionOnEntireDocument);
+	}
+
+	if (!appPositionExist)
+	{
+		TiXmlElement *GUIConfigElement = (GUIRoot->InsertEndChild(TiXmlElement(TEXT("GUIConfig"))))->ToElement();
+		GUIConfigElement->SetAttribute(TEXT("name"), TEXT("AppPosition"));
+		GUIConfigElement->SetAttribute(TEXT("x"), _nppGUI._appPos.left);
+		GUIConfigElement->SetAttribute(TEXT("y"), _nppGUI._appPos.top);
+		GUIConfigElement->SetAttribute(TEXT("width"), _nppGUI._appPos.right);
+		GUIConfigElement->SetAttribute(TEXT("height"), _nppGUI._appPos.bottom);
+		GUIConfigElement->SetAttribute(TEXT("isMaximized"), _nppGUI._isMaximized?TEXT("yes"):TEXT("no"));
 	}
 
 	insertDockingParamNode(GUIRoot);
