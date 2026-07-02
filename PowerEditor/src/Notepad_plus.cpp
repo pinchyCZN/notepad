@@ -47,6 +47,7 @@
 #include "ProjectPanel.h"
 #include "documentMap.h"
 #include "functionListPanel.h"
+#include "ModalOverlayDlg.h"
 
 enum tb_stat {tb_saved, tb_unsaved, tb_ro};
 #define DIR_LEFT true
@@ -4470,12 +4471,13 @@ void Notepad_plus::notifyBufferChanged(Buffer * buffer, int mask)
 
 				activateBuffer(buffer->getID(), iView);	//activate the buffer in the first view possible
 				didDialog = true;
-				if (doCloseOrNot(buffer->getFullPathName()) == IDNO)
+				if (modalDlg(_pPublicInterface->getHSelf(), MODAL_OVERLAY_DLG_FILE_DELETED, buffer->getFullPathName()) == 0)
 				{
 					//close in both views, doing current view last since that has to remain opened
 					doClose(buffer->getID(), otherView());
 					doClose(buffer->getID(), currentView());
 				}
+				modalOverlayDlg_dispatchPendingDrops(_pPublicInterface->getHSelf());
 				break;
 			}
 		}

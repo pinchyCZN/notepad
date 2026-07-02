@@ -15,4 +15,7 @@ void modalOverlayDlg_clearPendingDrops();
 size_t modalOverlayDlg_getPendingDropCount();
 const TCHAR* modalOverlayDlg_getPendingDropPath(size_t index);
 
+// Send NPPM_DOOPEN to hParent for each queued path, then clear the queue.
+void modalOverlayDlg_dispatchPendingDrops(HWND hParent);
+
 #endif // MODAL_OVERLAY_DLG_H

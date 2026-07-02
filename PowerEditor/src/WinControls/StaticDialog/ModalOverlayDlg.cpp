@@ -1,5 +1,6 @@
 #include "precompiledHeaders.h"
 #include "ModalOverlayDlg.h"
+#include "Notepad_plus_msgs.h"
 
 static std::vector<generic_string> g_pendingDropPaths;
 static generic_string g_originalMessage;
@@ -252,6 +253,17 @@ const TCHAR* modalOverlayDlg_getPendingDropPath(size_t index)
 	if (index >= g_pendingDropPaths.size())
 		return NULL;
 	return g_pendingDropPaths[index].c_str();
+}
+
+void modalOverlayDlg_dispatchPendingDrops(HWND hParent)
+{
+	if (!hParent || !::IsWindow(hParent))
+		return;
+
+	for (size_t i = 0; i < g_pendingDropPaths.size(); ++i)
+		::SendMessage(hParent, NPPM_DOOPEN, 0, (LPARAM)g_pendingDropPaths[i].c_str());
+
+	modalOverlayDlg_clearPendingDrops();
 }
 
 int modalDlg(HWND hParent, int type, const TCHAR* pszContext)
