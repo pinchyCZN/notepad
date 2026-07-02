@@ -866,7 +866,7 @@ bool FileManager::loadFileData(Document doc, const TCHAR * filename, Utf8_16_Rea
 			}
 			{
 				SHORT key=GetAsyncKeyState(VK_ESCAPE);
-				if(key&0x8001){
+				if(key&0x0001){
 					WCHAR tmp[80];
 					unsigned __int64 pos=_ftelli64(fp);
 					_snwprintf(tmp,_countof(tmp),L"File loading canceled!\r\n%I64u of %I64u bytes loaded\r\n",pos,fileSize);
