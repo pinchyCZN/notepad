@@ -99,6 +99,58 @@ void endModal(int result)
 		::DestroyWindow(g_state.hOverlay);
 }
 
+// Client area in screen coordinates. GetClientRect is undefined while iconic;
+// use WINDOWPLACEMENT.rcNormalPosition minus non-client insets instead.
+bool getParentClientRectScreen(HWND hParent, RECT* rcClientScreen)
+{
+	if (!hParent || !rcClientScreen)
+		return false;
+
+	RECT rcClient = {};
+	::GetClientRect(hParent, &rcClient);
+	const int clientW = rcClient.right - rcClient.left;
+	const int clientH = rcClient.bottom - rcClient.top;
+
+	if (!::IsIconic(hParent) && clientW > 0 && clientH > 0)
+	{
+		POINT pt = { rcClient.left, rcClient.top };
+		::ClientToScreen(hParent, &pt);
+		rcClientScreen->left = pt.x;
+		rcClientScreen->top = pt.y;
+		rcClientScreen->right = pt.x + clientW;
+		rcClientScreen->bottom = pt.y + clientH;
+		return true;
+	}
+
+	WINDOWPLACEMENT wp = {};
+	wp.length = sizeof(WINDOWPLACEMENT);
+	if (!::GetWindowPlacement(hParent, &wp))
+		return false;
+
+	const RECT& rcWnd = wp.rcNormalPosition;
+	const int outerW = rcWnd.right - rcWnd.left;
+	const int outerH = rcWnd.bottom - rcWnd.top;
+	if (outerW <= 0 || outerH <= 0)
+		return false;
+
+	const DWORD style = (DWORD)::GetWindowLongPtr(hParent, GWL_STYLE);
+	const DWORD exStyle = (DWORD)::GetWindowLongPtr(hParent, GWL_EXSTYLE);
+	const BOOL hasMenu = (::GetMenu(hParent) != NULL);
+
+	// Map a zero client rect through AdjustWindowRectEx to get non-client insets.
+	RECT rcInsets = { 0, 0, 0, 0 };
+	::AdjustWindowRectEx(&rcInsets, style, hasMenu, exStyle);
+
+	rcClientScreen->left = rcWnd.left - rcInsets.left;
+	rcClientScreen->top = rcWnd.top - rcInsets.top;
+	rcClientScreen->right = rcWnd.right - rcInsets.right;
+	rcClientScreen->bottom = rcWnd.bottom - rcInsets.bottom;
+
+	const int restoredClientW = rcClientScreen->right - rcClientScreen->left;
+	const int restoredClientH = rcClientScreen->bottom - rcClientScreen->top;
+	return (restoredClientW > 0 && restoredClientH > 0);
+}
+
 void registerWindowClasses(HINSTANCE hInst)
 {
 	if (g_classesRegistered)
@@ -285,13 +337,17 @@ int modalDlg(HWND hParent, int type, const TCHAR* pszContext)
 	g_state.done = false;
 	g_state.result = 0;
 
-	RECT rcClient = {};
-	::GetClientRect(hParent, &rcClient);
-	const int clientW = rcClient.right - rcClient.left;
-	const int clientH = rcClient.bottom - rcClient.top;
+	const bool parentIconic = (::IsIconic(hParent) != FALSE);
 
-	POINT ptOrigin = { rcClient.left, rcClient.top };
-	::ClientToScreen(hParent, &ptOrigin);
+	RECT rcClientScreen = {};
+	if (!getParentClientRectScreen(hParent, &rcClientScreen))
+		return 0;
+
+	const int clientW = rcClientScreen.right - rcClientScreen.left;
+	const int clientH = rcClientScreen.bottom - rcClientScreen.top;
+
+	// Owned popups are hidden while the owner is minimized; use no owner in that case.
+	const HWND hWndOwner = parentIconic ? NULL : hParent;
 
 	// Layered owned popup: semi-transparent tint only (no child windows).
 	// WS_EX_NOACTIVATE and no WS_EX_TOPMOST so clicks cannot raise it above the panel.
@@ -300,11 +356,11 @@ int modalDlg(HWND hParent, int type, const TCHAR* pszContext)
 		overlayClassName,
 		TEXT(""),
 		WS_POPUP | WS_VISIBLE,
-		ptOrigin.x,
-		ptOrigin.y,
+		rcClientScreen.left,
+		rcClientScreen.top,
 		clientW,
 		clientH,
-		hParent,
+		hWndOwner,
 		NULL,
 		hInst,
 		NULL);
@@ -325,11 +381,11 @@ int modalDlg(HWND hParent, int type, const TCHAR* pszContext)
 		panelClassName,
 		TEXT(""),
 		WS_POPUP | WS_VISIBLE | WS_TABSTOP,
-		ptOrigin.x + panelX,
-		ptOrigin.y + panelY,
+		rcClientScreen.left + panelX,
+		rcClientScreen.top + panelY,
 		PANEL_WIDTH,
 		PANEL_HEIGHT,
-		hParent,
+		hWndOwner,
 		NULL,
 		hInst,
 		NULL);
@@ -345,6 +401,22 @@ int modalDlg(HWND hParent, int type, const TCHAR* pszContext)
 	::SetWindowLongPtr(hPanel, GWLP_WNDPROC, (LONG_PTR)panelProc);
 	raisePanelAboveOverlay();
 	::SetForegroundWindow(hPanel);
+
+	if (parentIconic)
+	{
+		::ShowWindow(hParent, SW_RESTORE);
+		::UpdateWindow(hParent);
+		if (getParentClientRectScreen(hParent, &rcClientScreen))
+		{
+			const int restoredW = rcClientScreen.right - rcClientScreen.left;
+			const int restoredH = rcClientScreen.bottom - rcClientScreen.top;
+			::SetWindowPos(hOverlay, NULL, rcClientScreen.left, rcClientScreen.top, restoredW, restoredH, SWP_NOZORDER | SWP_NOACTIVATE);
+			const int panelXRestored = (restoredW - PANEL_WIDTH) / 2;
+			const int panelYRestored = (restoredH - PANEL_HEIGHT) / 2;
+			::SetWindowPos(hPanel, HWND_TOPMOST, rcClientScreen.left + panelXRestored, rcClientScreen.top + panelYRestored,
+				PANEL_WIDTH, PANEL_HEIGHT, SWP_NOACTIVATE);
+		}
+	}
 
 	const int btnY = PANEL_HEIGHT - BTN_HEIGHT - BTN_BOTTOM_MARGIN;
 	const int yesX = (PANEL_WIDTH / 2) - BTN_WIDTH - (BTN_GAP / 2);
